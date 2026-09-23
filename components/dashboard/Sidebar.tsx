@@ -41,7 +41,7 @@ const GROUPS: { label: string; items: { href: string; label: string; icon: typeo
     items: [
       { href: "/app/payments", label: "Payments", icon: CreditCard, soon: true },
       { href: "/app/shipping", label: "Delivery", icon: Truck },
-      { href: "/app/domains", label: "Domains", icon: Globe, soon: true },
+      { href: "/app/domains", label: "Domains", icon: Globe },
       { href: "/app/taxes", label: "Tax", icon: Receipt },
       { href: "/app/settings", label: "Settings", icon: Settings },
     ],

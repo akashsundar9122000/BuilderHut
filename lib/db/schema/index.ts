@@ -7,6 +7,7 @@ export * from "./customers";
 export * from "./commerce";
 export * from "./operations_commerce";
 export * from "./analytics";
+export * from "./domains";
 export * from "./operations";
 
 /*
@@ -56,6 +57,8 @@ export const TENANT_SCOPED = new Set<string>([
   // analytics
   "analytics_events",
   "analytics_daily_rollups",
+  // hosting
+  "domains",
 ]);
 
 /**

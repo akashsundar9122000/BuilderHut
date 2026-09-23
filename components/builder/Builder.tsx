@@ -1,16 +1,17 @@
 "use client";
 
-import { useCallback, useState, useTransition } from "react";
+import { useCallback, useState } from "react";
 import { CheckCircle2, X } from "lucide-react";
 
 import { Canvas } from "./Canvas";
 import { Inspector } from "./Inspector";
 import { LeftPanel } from "./LeftPanel";
 import { TopBar } from "./TopBar";
+import { PublishPanel } from "./PublishPanel";
 import { VersionHistory } from "./VersionHistory";
 import { Button } from "@/components/ui";
 import { BuilderProvider, type SaveResult } from "@/lib/builder/store";
-import { publishAction, saveDraftAction } from "@/app/(builder)/app/builder/actions";
+import { saveDraftAction } from "@/app/(builder)/app/builder/actions";
 import type { ProductCard } from "@/lib/render/context";
 import type { SiteDocument } from "@/lib/schema/page";
 
@@ -33,10 +34,9 @@ export function Builder({
   storeSlug: string;
   products: ProductCard[];
 }) {
-  const [publishing, startPublish] = useTransition();
   const [historyOpen, setHistoryOpen] = useState(false);
+  const [publishOpen, setPublishOpen] = useState(false);
   const [published, setPublished] = useState<number | null>(null);
-  const [publishError, setPublishError] = useState<string | null>(null);
 
   const save = useCallback(
     async (doc: SiteDocument, expectedRevision: number): Promise<SaveResult> => {
@@ -55,16 +55,14 @@ export function Builder({
       <div className="flex h-dvh flex-col overflow-hidden">
         <TopBar
           storeSlug={storeSlug}
-          publishing={publishing}
+          publishing={false}
           onOpenHistory={() => setHistoryOpen(true)}
-          onPublish={() =>
-            startPublish(async () => {
-              setPublishError(null);
-              const result = await publishAction();
-              if (result.ok) setPublished(result.versionNumber ?? null);
-              else setPublishError(result.message ?? "Publishing didn't work.");
-            })
-          }
+          /*
+           * Publishing opens a panel rather than firing immediately. A merchant
+           * about to make something public deserves to see what is unfinished
+           * first — blueprint section 59.
+           */
+          onPublish={() => setPublishOpen(true)}
         />
 
         {/*
@@ -96,6 +94,13 @@ export function Builder({
 
       <VersionHistory open={historyOpen} onClose={() => setHistoryOpen(false)} />
 
+      <PublishPanel
+        open={publishOpen}
+        onClose={() => setPublishOpen(false)}
+        storeSlug={storeSlug}
+        onPublished={(version) => setPublished(version)}
+      />
+
       {published !== null ? (
         <PublishToast
           versionNumber={published}
@@ -104,14 +109,6 @@ export function Builder({
         />
       ) : null}
 
-      {publishError ? (
-        <div
-          role="alert"
-          className="border-danger/30 bg-danger-soft text-danger fixed bottom-5 left-1/2 z-50 -translate-x-1/2 rounded-lg border px-4 py-3 text-sm shadow-lg"
-        >
-          {publishError}
-        </div>
-      ) : null}
     </BuilderProvider>
   );
 }

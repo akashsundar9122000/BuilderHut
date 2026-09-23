@@ -9,6 +9,7 @@ import {
   type SaveDraftResult,
   type VersionSummary,
 } from "@/lib/builder/service";
+import { checkReadiness, type Readiness } from "@/lib/builder/readiness";
 import type { SiteDocument } from "@/lib/schema/page";
 
 /*
@@ -26,8 +27,28 @@ export async function saveDraftAction(
   return saveDraft(doc, expectedRevision);
 }
 
+export async function readinessAction(): Promise<Readiness> {
+  await requireActor();
+  return checkReadiness();
+}
+
 export async function publishAction(note?: string) {
   await requireActor();
+
+  /*
+   * Checked again here, not only in the panel. The panel is a courtesy; this
+   * is the rule. A shop with no delivery option has a checkout that cannot
+   * complete, and publishing it would hand a merchant a shopfront that takes
+   * orders nobody can pay for.
+   */
+  const readiness = await checkReadiness();
+  if (!readiness.canPublish) {
+    return {
+      ok: false,
+      message: readiness.blockers[0]?.label ?? "This shop isn't ready to publish yet.",
+    };
+  }
+
   return publishDraft(note);
 }
 
