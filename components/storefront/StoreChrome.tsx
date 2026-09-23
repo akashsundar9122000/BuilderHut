@@ -43,6 +43,8 @@ export function StorePageShell({
       style={{
         paddingTop: "calc(var(--sf-section-y) * 0.7)",
         paddingBottom: "var(--sf-section-y)",
+        // Takes the slack in the layout's column, so the footer is pushed down.
+        flex: 1,
       }}
     >
       <div

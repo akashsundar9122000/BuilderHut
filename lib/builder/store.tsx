@@ -52,6 +52,7 @@ interface State {
 
 type Action =
   | { type: "run"; command: Command }
+  | { type: "runBatch"; commands: Command[]; label: string }
   | { type: "undo" }
   | { type: "redo" }
   | { type: "select"; id: string | null }
@@ -84,6 +85,27 @@ function reducer(state: State, action: Action): State {
         : [...state.past, entry].slice(-HISTORY_LIMIT);
 
       return { ...state, doc: next, past, future: [], dirty: true };
+    }
+
+    /*
+     * Several commands, one undo step.
+     *
+     * The assistant proposes a set of changes that the merchant accepts as a
+     * set, so undoing has to take them back as a set. Doing this by dispatching
+     * `run` in a loop would leave them pressing Cmd+Z six times to get back to
+     * where they were, which reads as the editor losing track.
+     */
+    case "runBatch": {
+      const next = action.commands.reduce(applyCommand, state.doc);
+      if (next === state.doc) return state;
+      const entry: HistoryEntry = { doc: state.doc, label: action.label, key: null, at: Date.now() };
+      return {
+        ...state,
+        doc: next,
+        past: [...state.past, entry].slice(-HISTORY_LIMIT),
+        future: [],
+        dirty: true,
+      };
     }
 
     case "undo": {
@@ -138,6 +160,7 @@ function reducer(state: State, action: Action): State {
 interface BuilderContextValue extends State {
   page: Page;
   run: (command: Command) => void;
+  runBatch: (commands: Command[], label: string) => void;
   undo: () => void;
   redo: () => void;
   canUndo: boolean;
@@ -240,6 +263,10 @@ export function BuilderProvider({
   }, [state.dirty]);
 
   const run = useCallback((command: Command) => dispatch({ type: "run", command }), []);
+  const runBatch = useCallback(
+    (commands: Command[], label: string) => dispatch({ type: "runBatch", commands, label }),
+    [],
+  );
   const undo = useCallback(() => dispatch({ type: "undo" }), []);
   const redo = useCallback(() => dispatch({ type: "redo" }), []);
   const select = useCallback((id: string | null) => dispatch({ type: "select", id }), []);
@@ -278,6 +305,7 @@ export function BuilderProvider({
       ...state,
       page,
       run,
+      runBatch,
       undo,
       redo,
       canUndo: state.past.length > 0,
@@ -289,7 +317,7 @@ export function BuilderProvider({
       device,
       setDevice,
     }),
-    [state, page, run, undo, redo, select, setPage, saveState, persist, device],
+    [state, page, run, runBatch, undo, redo, select, setPage, saveState, persist, device],
   );
 
   return <BuilderContext value={value}>{children}</BuilderContext>;

@@ -106,3 +106,50 @@ describe("the set of templates", () => {
     }
   });
 });
+
+/*
+ * Distinct primaries are not enough on their own: Parcel and Circuit once held
+ * two blues eight units apart, which passed "unique" and looked like the same
+ * template twice on the gallery page. The button colour is the loudest thing on
+ * a card, so it has to be distinguishable, not merely different.
+ */
+function channels(hex: string): [number, number, number] {
+  const n = Number.parseInt(hex.slice(1), 16);
+  return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+}
+
+/** Low-cost perceptual distance — the "redmean" approximation. */
+function colourDistance(a: string, b: string): number {
+  const [r1, g1, b1] = channels(a);
+  const [r2, g2, b2] = channels(b);
+  const mean = (r1 + r2) / 2;
+  return Math.sqrt(
+    (2 + mean / 256) * (r1 - r2) ** 2 +
+      4 * (g1 - g2) ** 2 +
+      (2 + (255 - mean) / 256) * (b1 - b2) ** 2,
+  );
+}
+
+describe("templates are told apart at a glance", () => {
+  it("keeps every pair of button colours perceptibly apart", () => {
+    for (let i = 0; i < TEMPLATES.length; i += 1) {
+      for (let j = i + 1; j < TEMPLATES.length; j += 1) {
+        const a = TEMPLATES[i]!;
+        const b = TEMPLATES[j]!;
+        const distance = colourDistance(a.theme.colors.primary, b.theme.colors.primary);
+        expect(distance, `${a.id} and ${b.id} share a button colour`).toBeGreaterThan(45);
+      }
+    }
+  });
+
+  it("gives every template a distinct product-card treatment or grid shape", () => {
+    // Two templates may share a card style, but not a card style AND a column
+    // count AND an image ratio — at that point the shop pages are the same page.
+    const signatures = TEMPLATES.map((template) => {
+      const shop = buildDocument(template.id, seed).pages.find((p) => p.system === "shop")!;
+      const grid = shop.sections.find((s) => s.type === "productGrid")!.props;
+      return [grid.columns ?? "-", grid.imageRatio ?? "-", grid.cardStyle ?? "-"].join("/");
+    });
+    expect(new Set(signatures).size, signatures.join(" ")).toBe(signatures.length);
+  });
+});

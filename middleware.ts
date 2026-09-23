@@ -30,6 +30,17 @@ const VISITOR_DAYS = 180;
 const SESSION_MINUTES = 30;
 const HOST_CACHE_MS = 60_000;
 
+/*
+ * The resolved shop, forwarded to the render as a request header.
+ *
+ * A not-found page cannot read route params — Next does not give them to it —
+ * so without this a customer who mistypes a product URL gets a generic
+ * BuilderHut page instead of the shop's own 404 with its own navigation. The
+ * header is set by middleware, so it is not something a browser can forge into
+ * a render: an inbound copy is overwritten on every request below.
+ */
+const SLUG_HEADER = "x-bh-slug";
+
 /** hostname -> slug (or null for "no such domain"), with an expiry. */
 const hostCache = new Map<string, { slug: string | null; at: number }>();
 
@@ -85,6 +96,19 @@ async function slugForHost(hostname: string): Promise<string | null> {
   return slug;
 }
 
+/** Request headers for the render, with the shop's slug attached. */
+function forward(request: NextRequest, slug: string): Headers {
+  const headers = new Headers(request.headers);
+  headers.set(SLUG_HEADER, slug);
+  return headers;
+}
+
+/** The slug in a BuilderHut-hosted storefront path, if this is one. */
+function slugFromPath(path: string): string | null {
+  const match = /^\/s\/([^/]+)/.exec(path);
+  return match ? decodeURIComponent(match[1]!) : null;
+}
+
 function withAnalyticsCookies(request: NextRequest, response: NextResponse): NextResponse {
   const secure = request.nextUrl.protocol === "https:";
 
@@ -127,13 +151,20 @@ export async function middleware(request: NextRequest) {
 
     const url = request.nextUrl.clone();
     url.pathname = `/s/${slug}${path === "/" ? "" : path}`;
-    return withAnalyticsCookies(request, NextResponse.rewrite(url));
+    return withAnalyticsCookies(
+      request,
+      NextResponse.rewrite(url, { request: { headers: forward(request, slug) } }),
+    );
   }
 
   // BuilderHut's own host. Only storefront paths are measured — the merchant's
   // dashboard is not traffic.
-  if (!path.startsWith("/s/")) return NextResponse.next();
-  return withAnalyticsCookies(request, NextResponse.next());
+  const slug = slugFromPath(path);
+  if (!slug) return NextResponse.next();
+  return withAnalyticsCookies(
+    request,
+    NextResponse.next({ request: { headers: forward(request, slug) } }),
+  );
 }
 
 export const config = {

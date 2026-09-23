@@ -6,8 +6,8 @@ import { cn } from "@/lib/cn";
 import type { TemplateSummary } from "@/lib/templates";
 
 /*
- * The argument the landing page has to make: these are not one layout in six
- * palettes. Switching tabs swaps the type pairing, the corner radius, the
+ * The argument the landing page has to make: these are not one layout in a
+ * dozen palettes. Switching tabs swaps the type pairing, the corner radius, the
  * spacing and the whole colour system at once, live — which is more convincing
  * than any sentence claiming it.
  */

@@ -48,6 +48,13 @@ export default async function StorefrontLayout({
         color: "var(--sf-text)",
         fontFamily: "var(--sf-font-body)",
         minHeight: "100dvh",
+        /*
+         * A sticky footer. Without it a short page — an empty basket, a page
+         * that wasn't found — leaves the footer floating halfway up with a
+         * band of background beneath it, which reads as a broken layout.
+         */
+        display: "flex",
+        flexDirection: "column",
         // The storefront sets its own colour scheme; BuilderHut's data-theme
         // must not reach in and repaint a merchant's brand.
         colorScheme: "light dark",

@@ -148,7 +148,8 @@ export default function LandingPage() {
           </h2>
           <p className="text-muted mt-4 max-w-lg text-balance">
             Every design here has its own typefaces, spacing and shapes — not one
-            layout in six colours. Switch between them and watch the whole thing change.
+            layout in a dozen colours. Switch between them and watch the whole thing
+            change.
           </p>
         </Reveal>
 

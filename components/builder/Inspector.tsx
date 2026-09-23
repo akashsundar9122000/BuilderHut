@@ -6,6 +6,7 @@ import { Button, Field, Input, Textarea } from "@/components/ui";
 import { cn } from "@/lib/cn";
 import { useBuilder, useSelectedSection } from "@/lib/builder/store";
 import { INSPECTOR, type Control } from "@/lib/render/inspector";
+import { themeLabel } from "@/lib/render/labels";
 import { REGISTRY } from "@/lib/render/registry";
 
 /*
@@ -279,15 +280,7 @@ function ItemsControl({
  * colour and watch the whole canvas change, which is the entire appeal.
  */
 const SWATCH_KEYS = [
-  ["background", "Page"],
-  ["surface", "Cards"],
-  ["raised", "Tinted bands"],
-  ["text", "Text"],
-  ["muted", "Quiet text"],
-  ["border", "Lines"],
-  ["primary", "Buttons"],
-  ["onPrimary", "Button text"],
-  ["accent", "Highlights"],
+  "background", "surface", "raised", "text", "muted", "border", "primary", "onPrimary", "accent",
 ] as const;
 
 const FONTS = [
@@ -321,7 +314,7 @@ function ThemePanel() {
             Colours
           </p>
           <div className="flex flex-col gap-2">
-            {SWATCH_KEYS.map(([key, label]) => (
+            {SWATCH_KEYS.map((key) => (
               <label key={key} className="flex items-center gap-3">
                 <input
                   type="color"
@@ -329,10 +322,12 @@ function ThemePanel() {
                   onChange={(e) =>
                     run({ type: "setTheme", group: "colors", key, value: e.target.value })
                   }
-                  aria-label={label}
+                  aria-label={themeLabel("colors", key)}
                   className="border-border size-7 cursor-pointer rounded border bg-transparent p-0.5"
                 />
-                <span className="text-text-secondary flex-1 text-sm">{label}</span>
+                <span className="text-text-secondary flex-1 text-sm">
+                  {themeLabel("colors", key)}
+                </span>
                 <span className="text-faint font-mono text-xs">{colors[key]}</span>
               </label>
             ))}
@@ -399,14 +394,14 @@ function ThemePanel() {
           </p>
           <div className="flex flex-col gap-3.5">
             <Slider
-              label="Corner rounding"
+              label={themeLabel("shape", "radius")}
               value={shape.radius}
               min={0}
               max={32}
               onChange={(value) => run({ type: "setTheme", group: "shape", key: "radius", value })}
             />
             <Slider
-              label="Button rounding"
+              label={themeLabel("shape", "buttonRadius")}
               value={shape.buttonRadius}
               min={0}
               max={999}
@@ -416,7 +411,7 @@ function ThemePanel() {
               }
             />
             <Slider
-              label="Space between sections"
+              label={themeLabel("shape", "sectionSpacing")}
               value={shape.sectionSpacing}
               min={32}
               max={200}

@@ -4,7 +4,7 @@ import { nav, POLICY_PAGES } from "./helpers";
 import type { Template, TemplateSeed } from "./types";
 
 /*
- * Six starting points, one per trade.
+ * The first six starting points. The rest are in definitions-two.ts.
  *
  * Blueprint section 0.1 is blunt about the bar: a crochet store, an invitation
  * studio, a streetwear label, a jeweller, a bakery and a digital seller must
@@ -12,6 +12,11 @@ import type { Template, TemplateSeed } from "./types";
  * composition (which sections, in what order), in type personality (serif
  * against grotesque, tracking, case), in rhythm (section spacing, image ratio)
  * and in shape (radius 0 against radius 16) — not only in palette.
+ *
+ * Four of those axes are checked mechanically in tests/unit/templates.test.ts:
+ * the ordered section types of each home page, the type pairing, the button
+ * colour (perceptibly apart, not merely different) and the product-card
+ * treatment. Taste is still a review question, but a recolour now fails CI.
  *
  * Each `build` returns a complete, publishable document. A merchant who changes
  * nothing still has a coherent store, which is the point of a template.
@@ -165,7 +170,7 @@ const leaflet: Template = {
             ctaLabel: "See the work", ctaHref: "/shop", secondaryLabel: "Start an enquiry", secondaryHref: "/contact",
           }, visible: true, locked: false },
           { id: "home-gallery", type: "gallery", props: { columns: 3, images: [] }, visible: true, locked: false },
-          { id: "home-grid", type: "productGrid", props: { heading: "Collections", limit: 6, columns: 3, imageRatio: "portrait", showPrice: false, align: "center", tone: "raised" }, visible: true, locked: false },
+          { id: "home-grid", type: "productGrid", props: { heading: "Collections", limit: 6, columns: 3, imageRatio: "landscape", showPrice: false, align: "center", tone: "raised" }, visible: true, locked: false },
           { id: "home-process", type: "featureList", props: { heading: "How a commission works", align: "center", columns: 3, items: [
             { title: "01 — Tell us about the day", body: "Dates, names, the feeling you're after." },
             { title: "02 — We draft", body: "Two directions, then refinements until it's right." },
@@ -179,7 +184,7 @@ const leaflet: Template = {
           { id: "home-footer", type: "footer", props: {}, visible: true, locked: true },
         ],
       },
-      shopPage({ columns: 3, imageRatio: "portrait", showPrice: false, align: "center" }),
+      shopPage({ columns: 3, imageRatio: "landscape", showPrice: false, align: "center" }),
       aboutPage("Process", "Describe how you work — what a client can expect, how long it takes, what you need from them.\n\nThis trade sells on trust and taste. Show both."),
       contactPage(),
       ...policyPages(),
@@ -285,7 +290,7 @@ const facet: Template = {
             eyebrow: "New collection", body: "Silver and stone, set by hand in small numbers.",
             ctaLabel: "View the collection", ctaHref: "/shop",
           }, visible: true, locked: false },
-          { id: "home-grid", type: "productGrid", props: { heading: "The collection", limit: 3, columns: 3, imageRatio: "portrait", align: "center", tone: "surface" }, visible: true, locked: false },
+          { id: "home-grid", type: "productGrid", props: { heading: "The collection", limit: 3, columns: 3, imageRatio: "square", cardStyle: "bordered", align: "center", tone: "surface" }, visible: true, locked: false },
           { id: "home-text", type: "richText", props: { align: "center", tone: "page", heading: "Made to be kept",
             body: "Each piece is finished by one person, start to end. Small irregularities are a record of that, not a fault." }, visible: true, locked: false },
           { id: "home-banner", type: "imageBanner", props: { heading: "Caring for silver", imageSide: "left", tone: "raised",
@@ -296,7 +301,7 @@ const facet: Template = {
           { id: "home-footer", type: "footer", props: { tone: "surface" }, visible: true, locked: true },
         ],
       },
-      shopPage({ columns: 3, imageRatio: "portrait", align: "center" }),
+      shopPage({ columns: 3, imageRatio: "square", cardStyle: "bordered", align: "center" }),
       aboutPage("The house", "Who makes this, where, and how long they have been doing it.\n\nProvenance is most of the value in this trade. Say it plainly."),
       contactPage(),
       ...policyPages(),
@@ -411,7 +416,7 @@ const parcel: Template = {
             { title: "Free updates", body: "Buy version one, get every version after it." },
             { title: "Refund within 14 days", body: "If it isn't what you expected, say so and we'll refund it." },
           ] }, visible: true, locked: false },
-          { id: "home-grid", type: "productGrid", props: { heading: "Products", limit: 6, columns: 3, imageRatio: "landscape", cardStyle: "bordered", tone: "page" }, visible: true, locked: false },
+          { id: "home-grid", type: "productGrid", props: { heading: "Products", limit: 4, columns: 2, imageRatio: "landscape", cardStyle: "bordered", tone: "page" }, visible: true, locked: false },
           { id: "home-faq", type: "faq", props: { heading: "Questions", items: [
             { question: "What format is it in?", answer: "Say exactly which files are included and what software opens them. Vagueness here is the single biggest cause of refund requests." },
             { question: "Can I use it commercially?", answer: "Spell out the licence in plain words. 'Personal and commercial use, no resale of the file itself' is clearer than a legal paragraph." },
@@ -420,7 +425,7 @@ const parcel: Template = {
           { id: "home-footer", type: "footer", props: {}, visible: true, locked: true },
         ],
       },
-      shopPage({ columns: 3, imageRatio: "landscape", cardStyle: "bordered" }),
+      shopPage({ columns: 2, imageRatio: "landscape", cardStyle: "bordered" }),
       aboutPage("FAQ", "Licensing, formats, updates and support.\n\nThe more precisely you answer these, the fewer refunds you process."),
       contactPage(),
       ...policyPages(),
@@ -459,4 +464,14 @@ function contactPage(): Page {
   };
 }
 
-export const TEMPLATES: Template[] = [thread, leaflet, cutline, facet, proof, parcel];
+import { MORE_TEMPLATES } from "./definitions-two";
+
+export const TEMPLATES: Template[] = [
+  thread,
+  leaflet,
+  cutline,
+  facet,
+  proof,
+  parcel,
+  ...MORE_TEMPLATES,
+];

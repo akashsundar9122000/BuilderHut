@@ -8,10 +8,21 @@ import { Button } from "@/components/ui";
 import { INDUSTRIES, industryById } from "@/lib/industries";
 import { buildDocument, templateSummary, TEMPLATES } from "@/lib/templates";
 
+/*
+ * Spelled out, and derived. The count used to be typed into the headline, and
+ * it was wrong the day the seventh template shipped.
+ */
+const NUMBER_WORDS = [
+  "No", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten",
+  "Eleven", "Twelve", "Thirteen", "Fourteen", "Fifteen", "Sixteen", "Seventeen", "Eighteen",
+  "Nineteen", "Twenty",
+];
+
+const COUNT = NUMBER_WORDS[TEMPLATES.length] ?? String(TEMPLATES.length);
+
 export const metadata: Metadata = {
   title: "Templates",
-  description:
-    "Six starting points, each designed for a different trade. Every one is fully editable.",
+  description: `${COUNT} starting points, each designed for a different trade. Every one is fully editable.`,
 };
 
 /*
@@ -38,7 +49,7 @@ export default function TemplatesPage() {
       <Reveal>
         <p className="text-accent text-xs font-medium tracking-[0.18em] uppercase">Templates</p>
         <h1 className="font-display mt-4 max-w-2xl text-[clamp(2.2rem,1.6rem+2.4vw,3.6rem)] leading-[1.05]">
-          Six starting points, built for six different trades.
+          {COUNT} starting points, each built for a different trade.
         </h1>
         <p className="text-muted mt-5 max-w-xl text-balance">
           Every one is a real design — its own typefaces, spacing and shapes, not a

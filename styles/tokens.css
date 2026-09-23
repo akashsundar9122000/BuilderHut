@@ -386,3 +386,24 @@
     transform: translate(-50%, 0);
   }
 }
+
+/* The builder's phone sheets. Transform and opacity only, so they composite. */
+@keyframes bh-sheet-up {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes bh-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}

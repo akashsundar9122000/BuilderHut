@@ -10,6 +10,7 @@ import {
   type VersionSummary,
 } from "@/lib/builder/service";
 import { checkReadiness, type Readiness } from "@/lib/builder/readiness";
+import { AssistantError, proposeChanges, type AssistantResult } from "@/lib/ai/assistant";
 import type { SiteDocument } from "@/lib/schema/page";
 
 /*
@@ -60,4 +61,33 @@ export async function listVersionsAction(): Promise<VersionSummary[]> {
 export async function restoreVersionAction(versionId: string) {
   await requireActor();
   return restoreVersion(versionId);
+}
+
+export type AssistantActionResult =
+  | ({ ok: true } & AssistantResult)
+  | { ok: false; message: string };
+
+/**
+ * Ask the assistant for a plan.
+ *
+ * The document comes from the client because the client holds the unsaved
+ * draft — but it is re-validated by the compiler before anything comes back,
+ * and the result is only a proposal. Nothing is written until the merchant
+ * accepts it and the ordinary autosave path runs.
+ */
+export async function assistantAction(
+  doc: SiteDocument,
+  pageId: string,
+  instruction: string,
+): Promise<AssistantActionResult> {
+  const actor = await requireActor();
+  if (!actor.tenantId) return { ok: false, message: "Open a shop before using the assistant." };
+  try {
+    const result = await proposeChanges(actor.tenantId, doc, pageId, instruction);
+    return { ok: true, ...result };
+  } catch (error) {
+    if (error instanceof AssistantError) return { ok: false, message: error.message };
+    console.error("[assistantAction]", error);
+    return { ok: false, message: "The assistant couldn't answer just now." };
+  }
 }

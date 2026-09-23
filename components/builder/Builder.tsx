@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useState } from "react";
-import { CheckCircle2, X } from "lucide-react";
+import { CheckCircle2, Layers, SlidersHorizontal, X } from "lucide-react";
 
 import { Canvas } from "./Canvas";
 import { Inspector } from "./Inspector";
@@ -9,8 +9,10 @@ import { LeftPanel } from "./LeftPanel";
 import { TopBar } from "./TopBar";
 import { PublishPanel } from "./PublishPanel";
 import { VersionHistory } from "./VersionHistory";
+import { PanelSheet } from "./PanelSheet";
 import { Button } from "@/components/ui";
-import { BuilderProvider, type SaveResult } from "@/lib/builder/store";
+import { BuilderProvider, useBuilder, type SaveResult } from "@/lib/builder/store";
+import { useIsPhone } from "@/lib/use-media-query";
 import { saveDraftAction } from "@/app/(builder)/app/builder/actions";
 import type { ProductCard } from "@/lib/render/context";
 import type { SiteDocument } from "@/lib/schema/page";
@@ -66,30 +68,18 @@ export function Builder({
         />
 
         {/*
-         * One grid, two arrangements — and crucially each panel is rendered
-         * ONCE. Rendering a desktop copy and a mobile copy duplicated every
+         * Two layouts, and crucially each panel is rendered ONCE in each of
+         * them. Rendering a desktop copy and a mobile copy duplicated every
          * control's DOM id, which silently broke every label's association with
          * its input: clicking a label focused the wrong field, and a screen
          * reader announced the label twice.
          *
-         * Below lg the three columns would each be too narrow to use, so the
-         * canvas takes the full width and the panels sit beneath it. A properly
-         * compact phone inspector is Phase 7; this is usable on a tablet and
-         * honest rather than broken.
+         * On a phone the panels become sheets over a full-screen canvas — at
+         * 375px two side-by-side columns are 180px each, which is the desktop
+         * layout losing rather than a mobile layout. From `sm` up they sit
+         * beneath the canvas, and from `lg` beside it.
          */}
-        <div className="grid min-h-0 flex-1 grid-cols-2 grid-rows-[minmax(0,1fr)_auto] lg:grid-cols-[16rem_minmax(0,1fr)_20rem] lg:grid-rows-1">
-          <div className="col-span-2 row-start-1 flex min-h-0 lg:col-span-1 lg:col-start-2">
-            <Canvas products={products} />
-          </div>
-
-          <aside className="border-border bg-surface row-start-2 max-h-[42dvh] overflow-y-auto border-t border-r lg:row-start-1 lg:col-start-1 lg:max-h-none lg:border-t-0 lg:border-r">
-            <LeftPanel />
-          </aside>
-
-          <aside className="border-border bg-surface row-start-2 max-h-[42dvh] overflow-y-auto border-t lg:row-start-1 lg:col-start-3 lg:max-h-none lg:border-t-0 lg:border-l">
-            <Inspector />
-          </aside>
-        </div>
+        <BuilderBody products={products} />
       </div>
 
       <VersionHistory open={historyOpen} onClose={() => setHistoryOpen(false)} />
@@ -110,6 +100,111 @@ export function Builder({
       ) : null}
 
     </BuilderProvider>
+  );
+}
+
+/*
+ * The canvas and its two panels, arranged for the screen they are on.
+ *
+ * Split out of Builder so it can use `useBuilder` — the selection is what
+ * decides whether the phone's settings sheet opens, and that lives inside the
+ * provider Builder itself renders.
+ */
+function BuilderBody({ products }: { products: ProductCard[] }) {
+  const phone = useIsPhone();
+  const { selectedId } = useBuilder();
+  const [sheet, setSheet] = useState<"sections" | "settings" | null>(null);
+  const [lastSelected, setLastSelected] = useState(selectedId);
+
+  /*
+   * Tapping a section on a phone opens its settings. Without this the canvas
+   * shows a selected outline and nothing else happens, which reads as the tap
+   * not having worked.
+   *
+   * Adjusted during render rather than in an effect: an effect would paint the
+   * canvas, then paint it again with the sheet over it, and React re-renders
+   * this component before the browser sees either frame.
+   */
+  let open = sheet;
+  if (selectedId !== lastSelected) {
+    setLastSelected(selectedId);
+    if (phone && selectedId) {
+      setSheet("settings");
+      open = "settings";
+    }
+  }
+
+  // A sheet only exists on a phone, so widening the window closes it by
+  // construction rather than by cleaning up after itself.
+  if (!phone) open = null;
+
+  if (phone) {
+    return (
+      <>
+        <div className="flex min-h-0 flex-1">
+          <Canvas products={products} />
+        </div>
+
+        <div className="border-border bg-surface flex shrink-0 gap-2 border-t p-2">
+          <Button
+            variant="secondary"
+            size="sm"
+            className="flex-1"
+            onClick={() => setSheet("sections")}
+          >
+            <Layers className="size-4" />
+            Sections
+          </Button>
+          <Button
+            variant="secondary"
+            size="sm"
+            className="flex-1"
+            onClick={() => setSheet("settings")}
+          >
+            <SlidersHorizontal className="size-4" />
+            Settings
+          </Button>
+        </div>
+
+        <PanelSheet
+          open={open === "sections"}
+          title="Sections"
+          /*
+           * The panel inside carries its own tabs — Add, Layers, Pages,
+           * Assist — so a fixed "Sections" heading above them would be wrong
+           * the moment the merchant moves off the first tab.
+           */
+          showTitle={false}
+          onClose={() => setSheet(null)}
+        >
+          <LeftPanel />
+        </PanelSheet>
+
+        <PanelSheet
+          open={open === "settings"}
+          title="Settings"
+          onClose={() => setSheet(null)}
+        >
+          <Inspector />
+        </PanelSheet>
+      </>
+    );
+  }
+
+  return (
+    <div className="grid min-h-0 flex-1 grid-cols-2 grid-rows-[minmax(0,1fr)_auto] lg:grid-cols-[16rem_minmax(0,1fr)_20rem] lg:grid-rows-1">
+      <div className="col-span-2 row-start-1 flex min-h-0 lg:col-span-1 lg:col-start-2">
+        <Canvas products={products} />
+      </div>
+
+      <aside className="border-border bg-surface row-start-2 max-h-[42dvh] overflow-y-auto border-t border-r lg:row-start-1 lg:col-start-1 lg:max-h-none lg:border-t-0 lg:border-r">
+        <LeftPanel />
+      </aside>
+
+      <aside className="border-border bg-surface row-start-2 max-h-[42dvh] overflow-y-auto border-t lg:row-start-1 lg:col-start-3 lg:max-h-none lg:border-t-0 lg:border-l">
+        <Inspector />
+      </aside>
+    </div>
   );
 }
 

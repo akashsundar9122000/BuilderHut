@@ -1,11 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { Eye, EyeOff, FileText, GripVertical, Layers, Lock, Plus } from "lucide-react";
+import { Eye, EyeOff, FileText, GripVertical, Layers, Lock, Plus, Sparkles } from "lucide-react";
 
 import { cn } from "@/lib/cn";
 import { insertableRange } from "@/lib/builder/commands";
 import { useBuilder } from "@/lib/builder/store";
+import { AssistPanel } from "./AssistPanel";
 import { REGISTRY } from "@/lib/render/registry";
 import type { SectionType } from "@/lib/schema/page";
 
@@ -16,7 +17,7 @@ import type { SectionType } from "@/lib/schema/page";
  * anything that narrows it needs to earn the space.
  */
 
-type Tab = "add" | "layers" | "pages";
+type Tab = "add" | "layers" | "pages" | "assist";
 
 const GROUP_LABELS: Record<string, string> = {
   content: "Content",
@@ -36,6 +37,7 @@ export function LeftPanel() {
             ["add", "Add", Plus],
             ["layers", "Layers", Layers],
             ["pages", "Pages", FileText],
+            ["assist", "Assist", Sparkles],
           ] as const
         ).map(([id, label, Icon]) => (
           <button
@@ -44,7 +46,7 @@ export function LeftPanel() {
             aria-selected={tab === id}
             onClick={() => setTab(id)}
             className={cn(
-              "flex flex-1 items-center justify-center gap-1.5 py-2.5 text-xs font-medium transition-colors",
+              "flex flex-1 items-center justify-center gap-1 py-2.5 text-[0.6875rem] font-medium transition-colors",
               tab === id
                 ? "text-accent border-accent border-b-2"
                 : "text-muted hover:text-text border-b-2 border-transparent",
@@ -60,6 +62,7 @@ export function LeftPanel() {
         {tab === "add" && <AddPanel />}
         {tab === "layers" && <LayerTree />}
         {tab === "pages" && <PageList />}
+        {tab === "assist" && <AssistPanel />}
       </div>
     </div>
   );
