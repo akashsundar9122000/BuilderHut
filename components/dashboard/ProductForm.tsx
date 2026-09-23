@@ -1,20 +1,47 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import Link from "next/link";
 import { Loader2 } from "lucide-react";
 
 import { Button, Card, CardBody, Field, Input, Textarea } from "@/components/ui";
-import { createProductAction, type ProductFormState } from "@/app/(dashboard)/app/products/actions";
+import { ProductImages } from "./ProductImages";
+import {
+  createProductAction,
+  updateProductAction,
+  type ProductFormState,
+} from "@/app/(dashboard)/app/products/actions";
 
-export function ProductForm({ currencyLabel }: { currencyLabel: string }) {
+export interface ProductDraft {
+  id: string;
+  name: string;
+  description: string;
+  price: string;
+  compareAt: string;
+  sku: string;
+  status: "draft" | "active" | "archived";
+  images: string[];
+}
+
+export function ProductForm({
+  currencyLabel,
+  product,
+}: {
+  currencyLabel: string;
+  /** Absent when creating. Present when editing an existing product. */
+  product?: ProductDraft;
+}) {
   const [state, submit, pending] = useActionState<ProductFormState, FormData>(
-    createProductAction,
+    product ? updateProductAction : createProductAction,
     {},
   );
+  const [images, setImages] = useState<string[]>(product?.images ?? []);
 
   return (
     <form action={submit} className="flex flex-col gap-5">
+      {product ? <input type="hidden" name="id" value={product.id} /> : null}
+      {/* The whole ordered list, one per line. See readForm in actions.ts. */}
+      <input type="hidden" name="images" value={images.join("\n")} />
       <Card>
         <CardBody className="flex flex-col gap-5">
           <Field
@@ -22,7 +49,14 @@ export function ProductForm({ currencyLabel }: { currencyLabel: string }) {
             htmlFor="name"
             error={state.field === "name" ? state.error : undefined}
           >
-            <Input id="name" name="name" placeholder="Crochet daisy posy" autoFocus required />
+            <Input
+              id="name"
+              name="name"
+              placeholder="Crochet daisy posy"
+              defaultValue={product?.name}
+              autoFocus
+              required
+            />
           </Field>
 
           <Field label="Description" htmlFor="description" hint="What it is, how big, what it's made of.">
@@ -31,8 +65,15 @@ export function ProductForm({ currencyLabel }: { currencyLabel: string }) {
               name="description"
               rows={4}
               placeholder="A hand-crocheted posy of five daisies on wire stems, about 20cm tall."
+              defaultValue={product?.description}
             />
           </Field>
+        </CardBody>
+      </Card>
+
+      <Card>
+        <CardBody>
+          <ProductImages value={images} onChange={setImages} />
         </CardBody>
       </Card>
 
@@ -44,7 +85,14 @@ export function ProductForm({ currencyLabel }: { currencyLabel: string }) {
             error={state.field === "price" ? state.error : undefined}
             hint="Just the number — 499 or 499.50."
           >
-            <Input id="price" name="price" inputMode="decimal" placeholder="499" required />
+            <Input
+              id="price"
+              name="price"
+              inputMode="decimal"
+              placeholder="499"
+              defaultValue={product?.price}
+              required
+            />
           </Field>
 
           <Field
@@ -53,18 +101,24 @@ export function ProductForm({ currencyLabel }: { currencyLabel: string }) {
             error={state.field === "compareAt" ? state.error : undefined}
             hint="Optional. Shows a discount badge."
           >
-            <Input id="compareAt" name="compareAt" inputMode="decimal" placeholder="699" />
+            <Input
+              id="compareAt"
+              name="compareAt"
+              inputMode="decimal"
+              placeholder="699"
+              defaultValue={product?.compareAt}
+            />
           </Field>
 
           <Field label="SKU" htmlFor="sku" hint="Optional. Your own reference code.">
-            <Input id="sku" name="sku" placeholder="CRO-DAISY-05" />
+            <Input id="sku" name="sku" placeholder="CRO-DAISY-05" defaultValue={product?.sku} />
           </Field>
 
           <Field label="Status" htmlFor="status" hint="Only live products appear on your storefront.">
             <select
               id="status"
               name="status"
-              defaultValue="active"
+              defaultValue={product?.status ?? "active"}
               className="bg-surface border-border-input text-text h-10 w-full rounded-md border px-3 text-sm coarse:h-11"
             >
               <option value="active">Live</option>
@@ -88,7 +142,7 @@ export function ProductForm({ currencyLabel }: { currencyLabel: string }) {
       <div className="flex items-center gap-3">
         <Button type="submit" size="lg" disabled={pending}>
           {pending ? <Loader2 className="size-4 animate-spin" /> : null}
-          {pending ? "Saving" : "Save product"}
+          {pending ? "Saving" : product ? "Save changes" : "Save product"}
         </Button>
         <Button asChild variant="ghost">
           <Link href="/app/products">Cancel</Link>

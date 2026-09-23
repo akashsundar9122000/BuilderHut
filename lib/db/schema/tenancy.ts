@@ -4,6 +4,12 @@ import { nullableTimestamp, primaryId, timestamps } from "./_shared";
 export const tenantStatus = pgEnum("tenant_status", ["active", "suspended", "closed"]);
 
 /*
+ * Which plan a shop is on. The ladder and everything each rung allows lives in
+ * lib/plans/catalog.ts; this column only records the choice.
+ */
+export const tenantPlan = pgEnum("tenant_plan", ["free", "standard", "pro"]);
+
+/*
  * A tenant is one merchant business. It is NOT one user: a user may own several
  * businesses, and a business may have several staff. Modelling those as the same
  * thing is cheap on day one and expensive to unpick later, so they are separate
@@ -26,6 +32,13 @@ export const tenants = pgTable(
     currency: varchar("currency", { length: 3 }).notNull().default("INR"),
     country: varchar("country", { length: 2 }).notNull().default("IN"),
     timezone: text("timezone").notNull().default("Asia/Kolkata"),
+    plan: tenantPlan("plan").notNull().default("free"),
+    /*
+     * When the current plan started. Kept so a downgrade can be honoured at
+     * the end of a paid period rather than the moment it is asked for, once
+     * there is a paid period to honour.
+     */
+    planStartedAt: nullableTimestamp("plan_started_at"),
     suspendedAt: nullableTimestamp("suspended_at"),
     suspendedReason: text("suspended_reason"),
     ...timestamps(),

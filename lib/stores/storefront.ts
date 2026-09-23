@@ -4,10 +4,11 @@ import { and, desc, eq, isNull } from "drizzle-orm";
 import { unstable_cache } from "next/cache";
 
 import { getRootDb } from "@/lib/db/client";
-import { products, siteVersions, tenants, websites } from "@/lib/db/schema";
+import { productImages, products, siteVersions, tenants, websites } from "@/lib/db/schema";
 import { SiteDocumentSchema, type SiteDocument } from "@/lib/schema/page";
 import type { ProductCard } from "@/lib/render/context";
 import { withTenant } from "@/lib/db/tenant";
+import { imageUrlFor } from "@/lib/products/service";
 
 /*
  * Reading a store for the public.
@@ -131,12 +132,29 @@ export async function loadStorefrontProducts(
   currency: string,
   limit = 24,
 ): Promise<ProductCard[]> {
-  const rows = await withTenant({ tenantId, actorId: tenantId, role: "staff" }, (db) =>
-    db
-      .select(products)
-      .where(and(eq(products.status, "active"), isNull(products.deletedAt)))
-      .orderBy(desc(products.createdAt))
-      .limit(limit),
+  const { rows, firstImage } = await withTenant(
+    { tenantId, actorId: tenantId, role: "staff" },
+    async (db) => {
+      const rows = await db
+        .select(products)
+        .where(and(eq(products.status, "active"), isNull(products.deletedAt)))
+        .orderBy(desc(products.createdAt))
+        .limit(limit);
+
+      /*
+       * One query for every product's first picture rather than one per card.
+       * Ordered by position, so the first row seen for a product is the one
+       * the merchant made the main image.
+       */
+      const images = await db.select(productImages).orderBy(productImages.position);
+      const firstImage = new Map<string, string>();
+      for (const image of images) {
+        if (!firstImage.has(image.productId)) {
+          firstImage.set(image.productId, imageUrlFor(image.mediaKey));
+        }
+      }
+      return { rows, firstImage };
+    },
   );
 
   return rows.map((p) => ({
@@ -146,7 +164,7 @@ export async function loadStorefrontProducts(
     priceMinor: p.priceMinor,
     compareAtMinor: p.compareAtMinor,
     currency: p.currency || currency,
-    imageUrl: null, // product images arrive with the media library
+    imageUrl: firstImage.get(p.id) ?? null,
   }));
 }
 

@@ -30,6 +30,7 @@ export const TENANT_SCOPED = new Set<string>([
   // catalog
   "products",
   "product_images",
+  "media_assets",
   "categories",
   "product_categories",
   "inventory_movements",

@@ -4,9 +4,10 @@ import { and, eq, isNull } from "drizzle-orm";
 
 import { AddToCart } from "@/components/storefront/AddToCart";
 import { StoreFooter, StoreHeader } from "@/components/storefront/StoreChrome";
-import { ImageSlot } from "@/lib/render/sections/shared";
+import { ProductGallery } from "@/components/storefront/ProductGallery";
 import { withTenant } from "@/lib/db/tenant";
-import { products } from "@/lib/db/schema";
+import { productImages, products } from "@/lib/db/schema";
+import { imageUrlFor } from "@/lib/products/service";
 import { discountPercent, formatMoney } from "@/lib/money";
 import { homePage } from "@/lib/schema/page";
 import { loadStorefront } from "@/lib/stores/storefront";
@@ -14,13 +15,20 @@ import { after } from "next/server";
 import { track, trackContext } from "@/lib/analytics/track";
 
 async function loadProduct(tenantId: string, slug: string) {
-  const rows = await withTenant({ tenantId, actorId: tenantId, role: "staff" }, (db) =>
-    db
+  return withTenant({ tenantId, actorId: tenantId, role: "staff" }, async (db) => {
+    const [row] = await db
       .select(products)
       .where(and(eq(products.slug, slug), eq(products.status, "active"), isNull(products.deletedAt)))
-      .limit(1),
-  );
-  return rows[0] ?? null;
+      .limit(1);
+    if (!row) return null;
+
+    const images = await db
+      .select(productImages)
+      .where(eq(productImages.productId, row.id))
+      .orderBy(productImages.position);
+
+    return { ...row, images: images.map((image) => imageUrlFor(image.mediaKey)) };
+  });
 }
 
 export async function generateMetadata({
@@ -107,7 +115,7 @@ export default async function ProductPage({
         }}
       >
         <div className="mx-auto grid w-full max-w-6xl gap-10 px-5 sm:px-8 md:grid-cols-2 md:gap-14">
-          <ImageSlot url={null} alt={product.name} ratio="1 / 1" />
+          <ProductGallery images={product.images} name={product.name} />
 
           <div>
             <h1

@@ -6,7 +6,15 @@ import { cookies, headers } from "next/headers";
 import { uuidv7 } from "uuidv7";
 
 import { withTenant, type TenantDb } from "@/lib/db/tenant";
-import { cartItems, carts, products, shippingMethods, taxRules } from "@/lib/db/schema";
+import {
+  cartItems,
+  carts,
+  productImages,
+  products,
+  shippingMethods,
+  taxRules,
+} from "@/lib/db/schema";
+import { imageUrlFor } from "@/lib/products/service";
 import { computeTotals, type CartTotals, type PriceableLine } from "./pricing";
 import { lookupDiscount } from "./discount-lookup";
 
@@ -92,6 +100,16 @@ async function loadLines(db: TenantDb, cartId: string): Promise<CartLine[]> {
   const catalogue = await db.select(products).where(isNull(products.deletedAt));
   const byId = new Map(catalogue.map((p) => [p.id, p]));
 
+  // The main picture for each line, so a basket shows what is in it rather
+  // than a row of grey squares.
+  const images = await db.select(productImages).orderBy(productImages.position);
+  const firstImage = new Map<string, string>();
+  for (const image of images) {
+    if (!firstImage.has(image.productId)) {
+      firstImage.set(image.productId, imageUrlFor(image.mediaKey));
+    }
+  }
+
   return rows
     .map((item) => {
       const product = byId.get(item.productId);
@@ -104,7 +122,7 @@ async function loadLines(db: TenantDb, cartId: string): Promise<CartLine[]> {
         slug: product.slug,
         unitPriceMinor: Number(product.priceMinor),
         quantity: item.quantity,
-        imageUrl: null as string | null,
+        imageUrl: firstImage.get(product.id) ?? null,
         requiresShipping: product.requiresShipping,
         available: product.trackStock ? product.stock : null,
       } satisfies CartLine;

@@ -67,3 +67,21 @@ export function discountPercent(
   if (was <= price || was <= 0) return null;
   return Math.round(((was - price) / was) * 100);
 }
+
+/**
+ * Minor units back into what a form field expects: "1499" or "1499.50".
+ *
+ * The inverse of parseMoney, and deliberately not formatMoney — an edit form
+ * has to round-trip. Putting "₹1,499.00" into a number field means the next
+ * save either fails validation or silently loses the value.
+ */
+export function formatMoneyInput(minor: bigint | number, currency: string): string {
+  const exp = exponentOf(currency);
+  const negative = Number(minor) < 0;
+  const digits = Math.abs(Number(minor)).toString().padStart(exp + 1, "0");
+  const whole = digits.slice(0, digits.length - exp) || "0";
+  const fraction = exp === 0 ? "" : digits.slice(digits.length - exp);
+  // A whole amount reads better without ".00" in a field somebody is editing.
+  const body = fraction && Number(fraction) !== 0 ? `${whole}.${fraction}` : whole;
+  return negative ? `-${body}` : body;
+}

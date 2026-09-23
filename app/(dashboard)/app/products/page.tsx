@@ -14,9 +14,9 @@ const STATUS_TONE = { active: "success", draft: "neutral", archived: "warning" }
 export default async function ProductsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ added?: string }>;
+  searchParams: Promise<{ added?: string; saved?: string }>;
 }) {
-  const [items, { added }] = await Promise.all([listProducts(), searchParams]);
+  const [items, { added, saved }] = await Promise.all([listProducts(), searchParams]);
 
   return (
     <div className="mx-auto max-w-5xl">
@@ -37,9 +37,9 @@ export default async function ProductsPage({
         </Button>
       </header>
 
-      {added ? (
+      {added || saved ? (
         <p className="border-success/30 bg-success-soft text-text mb-5 rounded-md border px-3 py-2 text-sm">
-          Product saved.
+          {added ? "Product added." : "Changes saved, and live on your shop."}
         </p>
       ) : null}
 
@@ -59,9 +59,32 @@ export default async function ProductsPage({
                 key={product.id}
                 className="hover:bg-raised flex flex-wrap items-center gap-x-4 gap-y-2 px-4 py-3.5 transition-colors sm:px-5"
               >
-                <div className="bg-sunken border-border size-11 shrink-0 rounded-md border" aria-hidden="true" />
+                {product.imageUrl ? (
+                  // The merchant's own upload, served from our /media route.
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={product.imageUrl}
+                    alt=""
+                    className="bg-sunken border-border size-11 shrink-0 rounded-md border object-cover"
+                  />
+                ) : (
+                  <div
+                    className="bg-sunken border-border size-11 shrink-0 rounded-md border"
+                    aria-hidden="true"
+                  />
+                )}
                 <div className="min-w-0 flex-1">
-                  <p className="text-text truncate text-sm font-medium">{product.name}</p>
+                  {/*
+                    * The name is the link to editing it. A product that could
+                    * be created and archived but never changed made a typo in
+                    * a price permanent.
+                    */}
+                  <Link
+                    href={`/app/products/${product.id}`}
+                    className="text-text hover:text-accent block truncate text-sm font-medium transition-colors"
+                  >
+                    {product.name}
+                  </Link>
                   <p className="text-muted truncate text-xs">
                     {product.sku ? `${product.sku} · ` : ""}/{product.slug}
                   </p>

@@ -2,10 +2,14 @@ import "server-only";
 
 import { desc, eq, isNull } from "drizzle-orm";
 
-import { products } from "@/lib/db/schema";
+import { uuidv7 } from "uuidv7";
+
+import { productImages, products } from "@/lib/db/schema";
+import type { TenantDb } from "@/lib/db/tenant";
 import { runForTenant } from "@/lib/auth/session";
 import { parseMoney } from "@/lib/money";
 import { slugify } from "@/lib/slug";
+import { requireCapacity, EntitlementError } from "@/lib/plans/entitlements";
 
 /*
  * Product operations, all through runForTenant.
@@ -22,6 +26,54 @@ export interface ProductInput {
   compareAt: string;
   sku: string;
   status: "draft" | "active" | "archived";
+  /**
+   * Pictures, in the order they should appear, as media keys or absolute URLs.
+   *
+   * The whole set every time rather than a diff: a product has a handful of
+   * images and the form always knows all of them, so replacing the set is both
+   * simpler and impossible to get half-applied.
+   */
+  images: string[];
+}
+
+/**
+ * Where a stored picture is served from.
+ *
+ * A merchant can paste a URL to photography they already host, so the column
+ * holds either a library key or an absolute address, and this tells them
+ * apart. Storing a full URL for library assets instead would bake the current
+ * storage backend into every row.
+ */
+export function imageUrlFor(mediaKey: string): string {
+  return /^https?:\/\//.test(mediaKey) ? mediaKey : `/media/${mediaKey}`;
+}
+
+/** The reverse, for the form: a library URL becomes the key it came from. */
+export function mediaKeyFrom(url: string): string {
+  return url.startsWith("/media/") ? url.slice("/media/".length) : url;
+}
+
+const MAX_IMAGES = 8;
+
+/**
+ * Replace a product's pictures.
+ *
+ * Delete-then-insert rather than reconciling: the set is at most eight rows,
+ * it happens inside the caller's transaction, and position is part of the
+ * data — reordering by diff would be more code and more ways to end up with
+ * two images claiming position 0.
+ */
+async function replaceImages(db: TenantDb, productId: string, images: string[]): Promise<void> {
+  await db.delete(productImages, eq(productImages.productId, productId));
+
+  const keys = images
+    .map((value) => mediaKeyFrom(value.trim()))
+    .filter((key) => key.length > 0 && key.length <= 400)
+    .slice(0, MAX_IMAGES);
+
+  for (const [position, mediaKey] of keys.entries()) {
+    await db.insert(productImages, { id: uuidv7(), productId, mediaKey, position });
+  }
 }
 
 export type SaveResult =
@@ -29,18 +81,36 @@ export type SaveResult =
   | { ok: false; field: string; message: string };
 
 export async function listProducts() {
-  return runForTenant((db) =>
-    db
+  return runForTenant(async (db) => {
+    const rows = await db
       .select(products)
       .where(isNull(products.deletedAt))
       .orderBy(desc(products.createdAt))
-      .limit(100),
-  );
+      .limit(100);
+
+    // One query for every product's first picture, rather than one per row.
+    const images = await db.select(productImages).orderBy(productImages.position);
+    const firstFor = new Map<string, string>();
+    for (const image of images) {
+      if (!firstFor.has(image.productId)) firstFor.set(image.productId, imageUrlFor(image.mediaKey));
+    }
+
+    return rows.map((row) => ({ ...row, imageUrl: firstFor.get(row.id) ?? null }));
+  });
 }
 
 export async function getProduct(id: string) {
-  const rows = await runForTenant((db) => db.select(products).where(eq(products.id, id)));
-  return rows[0] ?? null;
+  return runForTenant(async (db) => {
+    const [row] = await db.select(products).where(eq(products.id, id)).limit(1);
+    if (!row) return null;
+
+    const images = await db
+      .select(productImages)
+      .where(eq(productImages.productId, id))
+      .orderBy(productImages.position);
+
+    return { ...row, images: images.map((image) => imageUrlFor(image.mediaKey)) };
+  });
 }
 
 function validate(input: ProductInput, currency: string): SaveResult | { values: Record<string, unknown> } {
@@ -88,9 +158,23 @@ export async function createProduct(input: ProductInput, currency: string): Prom
   if ("ok" in checked) return checked;
 
   try {
-    const rows = await runForTenant((db) => db.insert(products, checked.values));
-    return { ok: true, id: rows[0]!.id };
+    const id = await runForTenant(async (db) => {
+      /*
+       * The plan's ceiling, checked where the row is written. The Add button
+       * is also disabled at the limit, but a disabled button is a courtesy and
+       * this is the rule.
+       */
+      await requireCapacity(db.ctx.tenantId, "products");
+      const rows = await db.insert(products, checked.values);
+      const created = rows[0]!.id;
+      await replaceImages(db, created, input.images);
+      return created;
+    });
+    return { ok: true, id };
   } catch (error) {
+    if (error instanceof EntitlementError) {
+      return { ok: false, field: "form", message: error.message };
+    }
     const message = error instanceof Error ? error.message : String(error);
     // Slugs are unique per tenant, and two products can genuinely share a name.
     if (/products_tenant_slug_key|duplicate key/i.test(message)) {
@@ -109,9 +193,11 @@ export async function updateProduct(
   const checked = validate(input, currency);
   if ("ok" in checked) return checked;
 
-  const rows = await runForTenant((db) =>
-    db.update(products, checked.values, eq(products.id, id)),
-  );
+  const rows = await runForTenant(async (db) => {
+    const updated = await db.update(products, checked.values, eq(products.id, id));
+    if (updated.length > 0) await replaceImages(db, id, input.images);
+    return updated;
+  });
   if (rows.length === 0) {
     // Zero rows means the id belongs to another tenant, or to nothing. Both are
     // "not found" as far as this merchant is concerned.

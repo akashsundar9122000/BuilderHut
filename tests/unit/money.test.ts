@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { discountPercent, exponentOf, formatMoney, parseMoney } from "@/lib/money";
+import {
+  discountPercent,
+  exponentOf,
+  formatMoney,
+  formatMoneyInput,
+  parseMoney,
+} from "@/lib/money";
 
 describe("minor units", () => {
   it("knows currencies that are not two decimal places", () => {
@@ -59,5 +65,34 @@ describe("discountPercent", () => {
     expect(discountPercent(100000, null)).toBeNull();
     expect(discountPercent(100000, 100000)).toBeNull();
     expect(discountPercent(100000, 90000)).toBeNull(); // "was" cheaper than now
+  });
+});
+
+describe("formatMoneyInput", () => {
+  /*
+   * An edit form has to round-trip. If what goes into the field cannot be read
+   * back by parseMoney, the second save either fails validation or silently
+   * changes the price — which is the worst bug an edit form can have.
+   */
+  it("round-trips through parseMoney for every currency we handle", () => {
+    for (const currency of ["INR", "USD", "JPY"]) {
+      for (const minor of [0, 1, 99, 100, 499, 49950, 1_234_567]) {
+        const field = formatMoneyInput(minor, currency);
+        expect(parseMoney(field, currency), `${currency} ${minor} -> "${field}"`).toBe(minor);
+      }
+    }
+  });
+
+  it("leaves off a zero fraction, because a person is going to edit it", () => {
+    expect(formatMoneyInput(49900, "INR")).toBe("499");
+    expect(formatMoneyInput(49950, "INR")).toBe("499.50");
+  });
+
+  it("handles a zero-decimal currency", () => {
+    expect(formatMoneyInput(500, "JPY")).toBe("500");
+  });
+
+  it("never emits a currency symbol or a grouping separator", () => {
+    expect(formatMoneyInput(12_345_600, "INR")).toBe("123456");
   });
 });

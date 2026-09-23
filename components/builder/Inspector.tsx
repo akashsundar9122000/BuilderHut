@@ -2,7 +2,7 @@
 
 import { Plus, Trash2 } from "lucide-react";
 
-import { Button, Field, Input, Textarea } from "@/components/ui";
+import { Button, Field, ImagePicker, Input, Textarea } from "@/components/ui";
 import { cn } from "@/lib/cn";
 import { useBuilder, useSelectedSection } from "@/lib/builder/store";
 import { INSPECTOR, type Control } from "@/lib/render/inspector";
@@ -180,18 +180,11 @@ function ControlField({
 
     case "image":
       return (
-        <Field
+        <ImagePicker
           label={control.label}
-          htmlFor={id}
-          hint="Paste an image address. Uploads arrive with the media library."
-        >
-          <Input
-            id={id}
-            value={String(value ?? "")}
-            placeholder="https://…"
-            onChange={(e) => onChange(e.target.value || null)}
-          />
-        </Field>
+          value={typeof value === "string" && value ? value : null}
+          onChange={(url) => onChange(url)}
+        />
       );
 
     case "items":

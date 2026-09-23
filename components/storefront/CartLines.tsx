@@ -88,16 +88,34 @@ export function CartLines({ slug, cart: initial }: { slug: string; cart: CartVie
               fontFamily: "var(--sf-font-body)",
             }}
           >
-            <div
-              style={{
-                width: 64,
-                height: 64,
-                flexShrink: 0,
-                background: "var(--sf-raised)",
-                border: "var(--sf-border-width) solid var(--sf-border)",
-                borderRadius: "var(--sf-radius)",
-              }}
-            />
+            {/* Merchant media, already served from our own /media route. */}
+            {line.imageUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={line.imageUrl}
+                alt=""
+                style={{
+                  width: 64,
+                  height: 64,
+                  flexShrink: 0,
+                  objectFit: "cover",
+                  background: "var(--sf-raised)",
+                  border: "var(--sf-border-width) solid var(--sf-border)",
+                  borderRadius: "var(--sf-radius)",
+                }}
+              />
+            ) : (
+              <div
+                style={{
+                  width: 64,
+                  height: 64,
+                  flexShrink: 0,
+                  background: "var(--sf-raised)",
+                  border: "var(--sf-border-width) solid var(--sf-border)",
+                  borderRadius: "var(--sf-radius)",
+                }}
+              />
+            )}
             <div className="min-w-0 flex-1 basis-40">
               <p style={{ margin: 0, fontSize: "0.95rem" }}>{line.name}</p>
               <p style={{ margin: "4px 0 0", color: "var(--sf-muted)", fontSize: "0.85rem" }}>

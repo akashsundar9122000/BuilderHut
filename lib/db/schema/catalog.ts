@@ -73,6 +73,42 @@ export const products = pgTable(
  * storefront, not a nicety. `mediaKey` is the storage key; the URL is derived,
  * so moving from KV to R2 does not rewrite every row.
  */
+/*
+ * The media library.
+ *
+ * One row per stored object, so a shop's files can be listed, metered against
+ * its plan and cleaned up as a unit — none of which is possible when the only
+ * record of an upload is a URL typed into a page document somewhere.
+ *
+ * Keys are content-addressed, so uploading the same picture twice is one row
+ * and one object. `refCount` is deliberately absent: an asset can be referenced
+ * from a product, from a section in any version of the page document, or from
+ * a draft nobody has published, and a counter maintained across all of those
+ * would be wrong within a week. Unreferenced assets are a sweep, not a tally.
+ */
+export const mediaAssets = pgTable(
+  "media_assets",
+  {
+    id: primaryId(),
+    tenantId: uuid("tenant_id")
+      .notNull()
+      .references(() => tenants.id, { onDelete: "cascade" }),
+    /** Storage key: `t/<tenantId>/<hash>.<ext>`. Unique within the shop. */
+    key: text("key").notNull(),
+    contentType: text("content_type").notNull(),
+    sizeBytes: integer("size_bytes").notNull(),
+    width: integer("width"),
+    height: integer("height"),
+    /** What the merchant called it, for finding it again in the library. */
+    filename: text("filename"),
+    ...timestamps(),
+  },
+  (t) => [
+    uniqueIndex("media_assets_tenant_key_key").on(t.tenantId, t.key),
+    index("media_assets_tenant_created_idx").on(t.tenantId, t.createdAt),
+  ],
+);
+
 export const productImages = pgTable(
   "product_images",
   {
