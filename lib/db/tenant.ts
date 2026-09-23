@@ -85,6 +85,48 @@ export async function withTenant<T>(
 }
 
 /**
+ * Read across every tenant, as the platform operator.
+ *
+ * This is the one path that steps outside tenant isolation, and it is
+ * deliberately narrow:
+ *
+ *   The RLS policies it relies on are FOR SELECT only, so it can look at
+ *   merchant data and cannot quietly edit it.
+ *
+ *   It refuses without an actor id, so there is no way to reach it from code
+ *   that has not established who is asking.
+ *
+ *   SET LOCAL, so the flag dies with the transaction rather than leaking onto
+ *   the pooled connection and into the next request that borrows the socket.
+ *
+ * Callers must have verified actor.isPlatformAdmin first. Nothing here checks
+ * that — this is the mechanism, not the authorization.
+ */
+export async function withPlatformAdmin<T>(
+  actorId: string,
+  fn: (tx: Tx) => PromiseLike<T>,
+): Promise<T> {
+  if (inTransaction.getStore()) {
+    throw new TenantScopeError(
+      "withPlatformAdmin() called inside another transaction. Nested transactions deadlock against the single-connection pool in production.",
+    );
+  }
+  if (!actorId) {
+    throw new TenantScopeError("withPlatformAdmin() requires the id of the admin making the request.");
+  }
+
+  const root = getRootDb();
+  return inTransaction.run(true, () =>
+    root.transaction(async (tx) => {
+      await tx.execute(sql`SELECT set_config('app.platform_admin', 'on', true)`);
+      await tx.execute(sql`SELECT set_config('app.actor_id', ${actorId}, true)`);
+      await tx.execute(sql`SELECT set_config('app.actor_role', 'platform_admin', true)`);
+      return await fn(tx as Tx);
+    }),
+  );
+}
+
+/**
  * Fully-qualified column reference, for use inside raw SQL.
  *
  * Drizzle renders a bare column name when the statement has no join, so a

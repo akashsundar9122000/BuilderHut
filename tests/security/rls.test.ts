@@ -11,7 +11,7 @@ import { eq, sql } from "drizzle-orm";
 import { uuidv7 } from "uuidv7";
 
 import { getRootDb } from "@/lib/db/client";
-import { withTenant, TenantScopeError } from "@/lib/db/tenant";
+import { withPlatformAdmin, withTenant, TenantScopeError } from "@/lib/db/tenant";
 import { products, tenants } from "@/lib/db/schema";
 
 const suffix = Date.now().toString(36);
@@ -197,5 +197,64 @@ describe("scoped query chaining", () => {
     );
     // That slug belongs to tenant B. Filtering for it as A must find nothing.
     expect(none).toEqual([]);
+  });
+});
+
+describe("the platform admin read path", () => {
+  /*
+   * The one route that steps outside tenant isolation. These tests exist to
+   * pin its edges: what it may see, what it may not do, and that it cannot be
+   * reached without saying who is asking.
+   */
+  it("reads across every tenant", async () => {
+    const rows = await withPlatformAdmin(ctxA.actorId, async (tx) => {
+      const result = await tx.execute(sql`SELECT tenant_id FROM products`);
+      return Array.isArray(result) ? result : (result as { rows: unknown[] }).rows;
+    });
+    const tenantsSeen = new Set(rows.map((r) => (r as { tenant_id: string }).tenant_id));
+    // Both fixtures' products, which no tenant-scoped read could return.
+    expect(tenantsSeen.has(tenantA)).toBe(true);
+    expect(tenantsSeen.has(tenantB)).toBe(true);
+  });
+
+  it("cannot write, only read", async () => {
+    /*
+     * The policies it relies on are FOR SELECT, so an UPDATE matches nothing.
+     *
+     * Note the shape of the refusal: RLS does not raise, it simply finds no
+     * rows to change. The write "succeeds" having done nothing — which is why
+     * the assertion is on the data rather than on an exception. Expecting a
+     * throw here passed for the wrong reason and would have hidden a real
+     * regression.
+     */
+    await withPlatformAdmin(ctxA.actorId, (tx) =>
+      tx.execute(sql`UPDATE products SET name = 'tampered' WHERE tenant_id = ${tenantB}`),
+    );
+
+    const theirs = await withTenant(ctxB, (db) => db.select(products));
+    expect(theirs.every((p) => p.name !== "tampered")).toBe(true);
+  });
+
+  it("refuses without an actor", async () => {
+    await expect(withPlatformAdmin("", async () => "never")).rejects.toThrow(/requires the id/);
+  });
+
+  it("does not leak the flag onto the pooled connection", async () => {
+    await withPlatformAdmin(ctxA.actorId, async (tx) => tx.execute(sql`SELECT 1`));
+
+    // SET LOCAL dies with its transaction. If it did not, the next ordinary
+    // request to borrow this socket would silently see every tenant's rows.
+    const db = getRootDb();
+    const result = await db.execute(sql`SELECT count(*)::int AS n FROM products`);
+    const rows = Array.isArray(result) ? result : (result as { rows: unknown[] }).rows;
+    expect((rows[0] as { n: number }).n).toBe(0);
+  });
+
+  it("still refuses to nest inside a tenant transaction", async () => {
+    await expect(
+      withTenant(ctxA, async () => {
+        await withPlatformAdmin(ctxA.actorId, async () => "never reached");
+      }),
+    ).rejects.toThrow(TenantScopeError);
   });
 });

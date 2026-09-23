@@ -92,6 +92,13 @@
       "when": 1790180977823,
       "tag": "0012_domains_public_routing",
       "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1790180977824,
+      "tag": "0013_platform_admin_read",
+      "breakpoints": true
     }
   ]
 }
