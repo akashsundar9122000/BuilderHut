@@ -4,6 +4,9 @@ import { ArrowRight, Check } from "lucide-react";
 
 import { Faq } from "@/components/marketing/Faq";
 import { Reveal } from "@/components/marketing/Reveal";
+import { cn } from "@/lib/cn";
+import { formatMoney } from "@/lib/money";
+import { ORDERED_PLANS, type Plan } from "@/lib/plans/catalog";
 import { StoreFrame } from "@/components/marketing/StoreFrame";
 import { TemplateCarousel } from "@/components/marketing/TemplateCarousel";
 import { Button } from "@/components/ui";
@@ -182,39 +185,80 @@ export default function LandingPage() {
       <section id="pricing" className="mx-auto max-w-6xl px-5 py-24 sm:px-8">
         <Reveal>
           <h2 className="font-display text-center text-[clamp(1.9rem,1.4rem+2vw,3rem)] leading-[1.08]">
-            Free while we build it.
+            Start free. Pay when it&rsquo;s earning.
           </h2>
           <p className="text-muted mx-auto mt-4 max-w-lg text-center text-balance">
-            BuilderHut is early. Building and running a store costs nothing, and it will
-            keep costing nothing at its BuilderHut address.
+            A real shop at a BuilderHut address costs nothing. You only pay when you want
+            your own domain, your own staff, or the BuilderHut line out of your footer.
           </p>
         </Reveal>
 
-        <Reveal delay={120}>
-          <div className="border-border bg-surface mx-auto mt-12 max-w-md rounded-xl border p-8 shadow-sm">
-            <p className="text-muted text-xs tracking-[0.14em] uppercase">Everything, today</p>
-            <p className="font-display mt-3 text-5xl">Free</p>
-            <ul className="mt-7 flex flex-col gap-3">
-              {[
-                "One store, unlimited products",
-                "Every template",
-                "A free BuilderHut address",
-                "Your own catalogue and orders",
-                "Exports — your data stays yours",
-              ].map((item) => (
-                <li key={item} className="flex items-start gap-2.5 text-sm">
-                  <Check className="text-success mt-0.5 size-4 shrink-0" />
-                  <span className="text-text-secondary">{item}</span>
-                </li>
-              ))}
-            </ul>
-            <Button asChild size="lg" className="mt-8 w-full">
-              <Link href="/signup">Create my store</Link>
-            </Button>
-            <p className="text-faint mt-4 text-center text-xs">
-              Paid plans will exist. You will be asked, not billed.
-            </p>
-          </div>
+        <div className="mt-12 grid gap-5 md:grid-cols-3">
+          {ORDERED_PLANS.map((plan, index) => (
+            <Reveal key={plan.id} delay={index * 90}>
+              <div
+                className={cn(
+                  "bg-surface flex h-full flex-col rounded-xl border p-7",
+                  // The middle plan is the one most shops want, so it is the
+                  // one the eye lands on — marked once, not shouted about.
+                  plan.id === "standard"
+                    ? "border-accent shadow-md"
+                    : "border-border shadow-sm",
+                )}
+              >
+                <div className="flex items-baseline justify-between gap-2">
+                  <p className="font-display text-xl">{plan.name}</p>
+                  {plan.id === "standard" ? (
+                    <span className="bg-accent-soft text-accent rounded-full px-2.5 py-0.5 text-[0.6875rem] font-medium">
+                      Most shops
+                    </span>
+                  ) : null}
+                </div>
+
+                <p className="font-display mt-4 text-4xl">
+                  {plan.priceMinor === 0 ? "Free" : formatMoney(plan.priceMinor, plan.currency)}
+                  {plan.priceMinor > 0 ? (
+                    <span className="text-muted font-sans text-sm"> /month</span>
+                  ) : null}
+                </p>
+
+                <p className="text-muted mt-3 text-sm leading-relaxed">{plan.blurb}</p>
+
+                <ul className="mt-6 flex flex-1 flex-col gap-2.5">
+                  {planLines(plan).map((line) => (
+                    <li key={line} className="flex items-start gap-2.5 text-sm">
+                      <Check className="text-success mt-0.5 size-4 shrink-0" />
+                      <span className="text-text-secondary">{line}</span>
+                    </li>
+                  ))}
+                </ul>
+
+                <Button
+                  asChild
+                  size="lg"
+                  variant={plan.id === "standard" ? "primary" : "secondary"}
+                  className="mt-7 w-full"
+                >
+                  <Link href="/signup">
+                    {plan.priceMinor === 0 ? "Create my store" : `Start on ${plan.name}`}
+                  </Link>
+                </Button>
+              </div>
+            </Reveal>
+          ))}
+        </div>
+
+        <Reveal>
+          {/*
+           * Said plainly rather than in a footnote. The plans are real and the
+           * limits are enforced, but nothing is being charged yet — and a
+           * merchant who discovers that from a bank statement instead of from
+           * us has been misled, whichever direction the surprise runs in.
+           */}
+          <p className="text-muted mx-auto mt-10 max-w-lg text-center text-sm text-balance">
+            BuilderHut is early, so nothing is being charged yet — you can move between
+            these today at no cost. We will ask before we ever bill you.
+          </p>
         </Reveal>
       </section>
 
@@ -250,4 +294,39 @@ export default function LandingPage() {
       </section>
     </main>
   );
+}
+
+/**
+ * A plan's selling points, derived rather than written twice.
+ *
+ * The catalogue is the only place a limit is recorded, so a change to it moves
+ * the pricing page too. A hand-written list beside it disagrees with the
+ * software the first time somebody edits one of them.
+ */
+function planLines(plan: Plan): string[] {
+  const lines = [
+    plan.limits.products === null
+      ? "As many products as you like"
+      : `${plan.limits.products} products`,
+    plan.limits.customDomains === 0
+      ? "A free BuilderHut address"
+      : plan.limits.customDomains === 1
+        ? "Your own domain"
+        : `${plan.limits.customDomains} of your own domains`,
+    plan.limits.staff === null
+      ? "As many people as you need"
+      : plan.limits.staff === 1
+        ? "Just you"
+        : `${plan.limits.staff} people on the shop`,
+    plan.limits.storageMb === null
+      ? "As many pictures as you like"
+      : `${plan.limits.storageMb >= 1000 ? `${plan.limits.storageMb / 1000} GB` : `${plan.limits.storageMb} MB`} of pictures`,
+  ];
+
+  if (plan.features.removeBranding) lines.push("No BuilderHut line in your footer");
+  if (plan.features.discountCodes) lines.push("Discount codes");
+  if (plan.features.marketingTools) lines.push("Marketing and abandoned baskets");
+  if (plan.features.prioritySupport) lines.push("Priority support");
+
+  return lines;
 }

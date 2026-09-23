@@ -6,6 +6,7 @@ import {
   readVerificationCode,
   signUpMerchant,
 } from "./support/journey";
+import { MAIL_LOG } from "./support/paths";
 
 /*
  * Phase 2: the visual builder.
@@ -15,13 +16,12 @@ import {
  * that rendered as nothing when added, duplicate DOM ids from rendering the
  * inspector twice. Each is cheap to check and expensive to notice by eye.
  *
- * Needs BH_E2E_MAIL_LOG; see merchant-journey.spec.ts.
+ * The server is started by Playwright; see e2e/support/paths.ts for how the
+ * verification codes are read back.
  */
 
-const MAIL_LOG = process.env.BH_E2E_MAIL_LOG;
 
 test.describe("visual builder", () => {
-  test.skip(!MAIL_LOG, "set BH_E2E_MAIL_LOG to the server's output file");
   test.describe.configure({ mode: "serial" });
 
   /*
@@ -53,7 +53,7 @@ test.describe("visual builder", () => {
   test("create a store with a product, then open the builder", async () => {
     await signUpMerchant(page, { name: "Builder Tester", email });
 
-    const code = await readVerificationCode(MAIL_LOG!, email);
+    const code = await readVerificationCode(MAIL_LOG, email);
     await page.fill('input[aria-label="Digit 1"]', code);
     await page.waitForURL(/\/onboarding/);
 

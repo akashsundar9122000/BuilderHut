@@ -1,29 +1,24 @@
 import { expect, test, type Page } from "@playwright/test";
 
 import { readVerificationCode, signUpMerchant } from "./support/journey";
+import { MAIL_LOG } from "./support/paths";
 
 /*
  * The journey blueprint section 100 defines, as far as Phase 1 reaches:
  * sign up → verify → onboard → store created → add a product → the public
  * storefront shows it.
  *
- * Runs against a built server. Two things it needs from the environment:
- *
- *   BH_E2E_MAIL_LOG  a file the server's stdout is written to, so the six-digit
- *                    code can be read back. Without SMTP configured the code is
- *                    printed there by design (see lib/email/provider.ts), which
- *                    is what makes this testable with no mail account.
- *   APP_URL          must match the port the server is on, or Better Auth
- *                    rejects the request origin as a CSRF attempt.
+ * Runs against a server Playwright builds and starts itself. Its output is
+ * redirected to a file so the six-digit codes can be read back: with no SMTP
+ * configured the email provider prints them by design (lib/email/provider.ts),
+ * which is what makes the whole signup journey testable with no mail account.
  *
  * Every run uses a fresh email and store name: the store address is globally
  * unique, so a fixed name passes once and fails forever after.
  */
 
-const MAIL_LOG = process.env.BH_E2E_MAIL_LOG;
 
 test.describe("merchant journey", () => {
-  test.skip(!MAIL_LOG, "set BH_E2E_MAIL_LOG to the server's output file");
   test.describe.configure({ mode: "serial" });
 
   /*
@@ -60,7 +55,7 @@ test.describe("merchant journey", () => {
   });
 
   test("verifies, onboards and lands on a live store", async () => {
-    const code = await readVerificationCode(MAIL_LOG!, email);
+    const code = await readVerificationCode(MAIL_LOG, email);
 
     await page.goto(`/verify?email=${encodeURIComponent(email)}`);
     // Typing the whole code into the first box spreads it across the rest.

@@ -164,7 +164,7 @@ export async function createProduct(input: ProductInput, currency: string): Prom
        * is also disabled at the limit, but a disabled button is a courtesy and
        * this is the rule.
        */
-      await requireCapacity(db.ctx.tenantId, "products");
+      await requireCapacity(db, "products");
       const rows = await db.insert(products, checked.values);
       const created = rows[0]!.id;
       await replaceImages(db, created, input.images);

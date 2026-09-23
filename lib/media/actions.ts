@@ -54,33 +54,32 @@ export async function uploadMediaAction(form: FormData): Promise<UploadResult> {
     };
   }
 
-  try {
-    /*
-     * Checked before the bytes are written, not after. Storing it first and
-     * then refusing would leave the object in the bucket with nothing pointing
-     * at it — and would let a shop over its limit keep filling the bucket.
-     */
-    await requireCapacity(actor.tenantId, "storageMb", Math.ceil(file.size / 1_000_000));
-  } catch (error) {
-    if (error instanceof EntitlementError) return { ok: false, message: error.message };
-    throw error;
-  }
-
   const data = new Uint8Array(await file.arrayBuffer());
   const width = numberFrom(form.get("width"));
   const height = numberFrom(form.get("height"));
 
   try {
-    const asset = await runForTenant((db) =>
-      saveUpload(db, data, {
+    const asset = await runForTenant(async (db) => {
+      /*
+       * Checked before the bytes are written, not after. Storing first and
+       * refusing second would leave the object in the bucket with nothing
+       * pointing at it, and would let a shop over its limit keep filling it.
+       *
+       * Inside the tenant transaction, because the meter counts rows that RLS
+       * only reveals with a tenant context set — outside one it reads zero and
+       * the ceiling never fires.
+       */
+      await requireCapacity(db, "storageMb", Math.ceil(file.size / 1_000_000));
+      return saveUpload(db, data, {
         filename: file.name,
         declaredType: file.type || undefined,
         width,
         height,
-      }),
-    );
+      });
+    });
     return { ok: true, asset: serialise(asset) };
   } catch (error) {
+    if (error instanceof EntitlementError) return { ok: false, message: error.message };
     // MediaError messages are written for merchants — "that file claims to be
     // a PNG but its contents are a PDF" is useful. Anything else is not.
     if (error instanceof MediaError) return { ok: false, message: error.message };

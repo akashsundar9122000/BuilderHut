@@ -66,39 +66,49 @@ export interface Usage {
   products: number;
   staff: number;
   customDomains: number;
+  /** Rounded, because the limit is written in whole megabytes. */
   storageMb: number;
+  /** The real figure, for display: "0 MB of 250 MB" after two uploads is true
+   *  and useless, and a merchant reads it as the upload having failed. */
+  storageBytes: number;
 }
 
 /**
  * What the shop is using now.
  *
- * One query per meter, on the root connection with an explicit tenant filter
- * rather than through the scoped builder, for the nesting reason above. Every
- * predicate here names tenant_id — a count that forgot it would report the
- * whole platform's products as one merchant's usage.
+ * Takes the caller's open transaction rather than opening its own, for two
+ * reasons that both bite. Nesting withTenant deadlocks against Neon's single
+ * connection in production while passing locally. And counting on the root
+ * connection — which is what this did first — reads through RLS with no
+ * tenant context set, so every meter came back zero: the plan screen reported
+ * "0 of 15 products" to a shop with forty, and no ceiling could ever fire.
+ * RLS does not raise on a missing context, it returns nothing, which is
+ * exactly why this has to run inside the scope.
  */
-export async function usageFor(tenantId: string): Promise<Usage> {
-  const db = getRootDb();
-
+export async function usageFor(db: TenantDb): Promise<Usage> {
   const [productRows, staffRows, domainRows, storageRows] = await Promise.all([
-    db
+    db.raw
       .select({ n: count() })
       .from(products)
-      .where(and(eq(products.tenantId, tenantId), isNull(products.deletedAt))),
-    db.select({ n: count() }).from(tenantMembers).where(eq(tenantMembers.tenantId, tenantId)),
-    db.select({ n: count() }).from(domains).where(eq(domains.tenantId, tenantId)),
-    db
+      .where(and(eq(products.tenantId, db.ctx.tenantId), isNull(products.deletedAt))),
+    db.raw
+      .select({ n: count() })
+      .from(tenantMembers)
+      .where(eq(tenantMembers.tenantId, db.ctx.tenantId)),
+    db.raw.select({ n: count() }).from(domains).where(eq(domains.tenantId, db.ctx.tenantId)),
+    db.raw
       .select({ bytes: sql<string>`COALESCE(SUM(${mediaAssets.sizeBytes}), 0)` })
       .from(mediaAssets)
-      .where(eq(mediaAssets.tenantId, tenantId)),
+      .where(eq(mediaAssets.tenantId, db.ctx.tenantId)),
   ]);
 
+  const storageBytes = Number(storageRows[0]?.bytes ?? 0);
   return {
     products: productRows[0]?.n ?? 0,
     staff: staffRows[0]?.n ?? 0,
     customDomains: domainRows[0]?.n ?? 0,
-    // Reported in whole megabytes, which is the unit the limit is written in.
-    storageMb: Math.round(Number(storageRows[0]?.bytes ?? 0) / 1_000_000),
+    storageMb: Math.round(storageBytes / 1_000_000),
+    storageBytes,
   };
 }
 
@@ -157,15 +167,15 @@ export interface LimitState {
  * whole batch rather than being refused halfway through with half of it saved.
  */
 export async function requireCapacity(
-  tenantId: string,
+  db: TenantDb,
   limit: LimitKey,
   adding = 1,
 ): Promise<void> {
-  const plan = await planFor(tenantId);
+  const plan = await planFor(db.ctx.tenantId);
   const ceiling = plan.limits[limit];
   if (ceiling === null) return;
 
-  const usage = await usageFor(tenantId);
+  const usage = await usageFor(db);
   const used = usageValue(usage, limit);
   if (used + adding <= ceiling) return;
 
@@ -196,12 +206,12 @@ function describeLimit(value: number | null): string {
 }
 
 /** Every meter at once, for the plan screen. */
-export async function limitStates(tenantId: string): Promise<{
+export async function limitStates(db: TenantDb): Promise<{
   plan: Plan;
   usage: Usage;
   meters: Record<"products" | "staff" | "customDomains" | "storageMb", LimitState>;
 }> {
-  const [plan, usage] = await Promise.all([planFor(tenantId), usageFor(tenantId)]);
+  const [plan, usage] = await Promise.all([planFor(db.ctx.tenantId), usageFor(db)]);
 
   const meter = (key: "products" | "staff" | "customDomains" | "storageMb"): LimitState => {
     const ceiling = plan.limits[key];
@@ -231,11 +241,11 @@ export async function limitStates(tenantId: string): Promise<{
  */
 export async function changePlan(
   db: TenantDb,
-  tenantId: string,
   to: PlanId,
 ): Promise<{ ok: true } | { ok: false; message: string }> {
   const target = PLANS[to];
-  const usage = await usageFor(tenantId);
+  const tenantId = db.ctx.tenantId;
+  const usage = await usageFor(db);
 
   for (const key of ["products", "staff", "customDomains", "storageMb"] as const) {
     const ceiling = target.limits[key];
@@ -244,7 +254,12 @@ export async function changePlan(
       const noun = ceiling === 1 ? LIMIT_LABELS[key].one : LIMIT_LABELS[key].many;
       return {
         ok: false,
-        message: `${target.name} includes ${ceiling} ${noun} and you're using ${used}. Remove some first, and then you can move down.`,
+        // A ceiling of zero is not "includes 0 domains" — that plan does not
+        // include the thing at all, which is a different sentence.
+        message:
+          ceiling === 0
+            ? `${target.name} doesn't include ${LIMIT_LABELS[key].many}, and you're using ${used}. Remove ${used === 1 ? "it" : "them"} first, and then you can move down.`
+            : `${target.name} includes ${ceiling} ${noun} and you're using ${used}. Remove some first, and then you can move down.`,
       };
     }
   }

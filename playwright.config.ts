@@ -1,5 +1,7 @@
 import { defineConfig, devices } from "@playwright/test";
 
+import { MAIL_LOG } from "./e2e/support/paths";
+
 const PORT = 3000;
 
 export default defineConfig({
@@ -26,7 +28,13 @@ export default defineConfig({
     { name: "mobile", use: { ...devices["iPhone 15"] } },
   ],
   webServer: {
-    command: "pnpm build && pnpm start",
+    /*
+     * Output redirected rather than inherited, so the signup specs can read
+     * the verification codes the email provider prints. Readiness is decided
+     * by the `url` check below, not by watching stdout, so redirecting it
+     * costs nothing.
+     */
+    command: `pnpm build && pnpm start > ${MAIL_LOG} 2>&1`,
     url: `http://localhost:${PORT}`,
     reuseExistingServer: !process.env.CI,
     timeout: 300_000,

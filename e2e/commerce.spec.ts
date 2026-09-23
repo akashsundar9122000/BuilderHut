@@ -1,6 +1,7 @@
 import { expect, test, type Page } from "@playwright/test";
 
 import { readVerificationCode, signUpMerchant } from "./support/journey";
+import { MAIL_LOG } from "./support/paths";
 
 /*
  * Phase 3: someone buys something.
@@ -10,16 +11,15 @@ import { readVerificationCode, signUpMerchant } from "./support/journey";
  * side of the same order, including the transitions the state machine must
  * refuse and a refund.
  *
- * Needs BH_E2E_MAIL_LOG; see merchant-journey.spec.ts.
+ * The server is started by Playwright; see e2e/support/paths.ts for how the
+ * verification codes are read back.
  */
 
-const MAIL_LOG = process.env.BH_E2E_MAIL_LOG;
 
 const CARD_GOOD = "4242 4242 4242 4242";
 const CARD_DECLINED = "4000 0000 0000 0002";
 
 test.describe("buying something", () => {
-  test.skip(!MAIL_LOG, "set BH_E2E_MAIL_LOG to the server's output file");
   test.describe.configure({ mode: "serial" });
 
   /*
@@ -52,7 +52,7 @@ test.describe("buying something", () => {
   test("a merchant opens a shop with one product", async () => {
     await signUpMerchant(page, { name: "Commerce Tester", email });
 
-    const code = await readVerificationCode(MAIL_LOG!, email);
+    const code = await readVerificationCode(MAIL_LOG, email);
     await page.fill('input[aria-label="Digit 1"]', code);
     await page.waitForURL(/\/onboarding/);
 
