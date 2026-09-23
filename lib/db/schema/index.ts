@@ -72,6 +72,7 @@ export const GLOBAL_OR_SCOPED = new Set<string>([]);
 
 /** Not owned by any tenant. Reading these outside a tenant context is correct. */
 export const PLATFORM = new Set<string>([
+  "tenant_invitations",
   "tenants",
   "audit_logs",
   // Authentication, owned by Better Auth. Not tenant-owned: a user exists

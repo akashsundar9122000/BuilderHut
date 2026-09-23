@@ -8,10 +8,18 @@ import { Loader2 } from "lucide-react";
 import { authClient } from "@/lib/auth/client";
 import { Button, Field, Input } from "@/components/ui";
 
-export function SignUpForm() {
+export function SignUpForm({
+  invite,
+  email: invitedEmail,
+}: {
+  /** An invitation token, carried through to /verify so the code screen can
+   *  hand the new member back to the shop that invited them. */
+  invite?: string;
+  email?: string;
+} = {}) {
   const router = useRouter();
   const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState(invitedEmail ?? "");
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [busy, setBusy] = useState(false);
@@ -76,7 +84,8 @@ export function SignUpForm() {
       console.error("[signup] sending the verification code threw", error);
     }
 
-    const next = `/verify?email=${encodeURIComponent(email.trim().toLowerCase())}`;
+    let next = `/verify?email=${encodeURIComponent(email.trim().toLowerCase())}`;
+    if (invite) next += `&invite=${encodeURIComponent(invite)}`;
     router.push(sendFailed ? `${next}&resend=1` : next);
   }
 

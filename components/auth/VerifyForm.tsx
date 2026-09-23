@@ -18,7 +18,17 @@ function maskEmail(email: string): string {
   return `${user[0]}${"*".repeat(Math.max(1, Math.min(user.length - 1, 3)))}@${domain}`;
 }
 
-export function VerifyForm({ email, needsResend = false }: { email: string; needsResend?: boolean }) {
+export function VerifyForm({
+  email,
+  needsResend = false,
+  invite,
+}: {
+  email: string;
+  needsResend?: boolean;
+  /** Set when they arrived from an invitation. They are joining somebody
+   *  else's shop, so onboarding — which creates a shop — is the wrong place. */
+  invite?: string;
+}) {
   const router = useRouter();
   const [digits, setDigits] = useState<string[]>(Array(LENGTH).fill(""));
   const [error, setError] = useState<string | null>(
@@ -81,7 +91,7 @@ export function VerifyForm({ email, needsResend = false }: { email: string; need
       return;
     }
 
-    router.push("/onboarding");
+    router.push(invite ? `/invite/${encodeURIComponent(invite)}` : "/onboarding");
     router.refresh();
   }
 

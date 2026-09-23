@@ -152,3 +152,42 @@ export const tenantMembers = pgTable(
     index("tenant_members_user_idx").on(t.userId),
   ],
 );
+
+/*
+ * An invitation to help run a shop.
+ *
+ * PLATFORM for the same reason tenant_members is: the person accepting has no
+ * tenant context yet — discovering which shop they have been invited to is
+ * the whole point of the row. Its authorization axis is the token, which is
+ * random, single-use and short-lived.
+ *
+ * The email is stored rather than a user id, because the usual case is
+ * inviting somebody who has no account yet. Accepting matches on the email of
+ * whoever is signed in, so an invitation cannot be redeemed by forwarding the
+ * link to someone else.
+ */
+export const tenantInvitations = pgTable(
+  "tenant_invitations",
+  {
+    id: primaryId(),
+    tenantId: uuid("tenant_id")
+      .notNull()
+      .references(() => tenants.id, { onDelete: "cascade" }),
+    email: text("email").notNull(),
+    role: memberRole("role").notNull().default("staff"),
+    /** Random, and the only thing that proves the link came from us. */
+    token: text("token").notNull(),
+    invitedBy: uuid("invited_by").references(() => users.id, { onDelete: "set null" }),
+    expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+    acceptedAt: nullableTimestamp("accepted_at"),
+    revokedAt: nullableTimestamp("revoked_at"),
+    ...timestamps(),
+  },
+  (t) => [
+    uniqueIndex("tenant_invitations_token_key").on(t.token),
+    // One live invitation per address per shop: re-inviting replaces rather
+    // than accumulating, so a revoked link cannot be resurrected by a second.
+    uniqueIndex("tenant_invitations_tenant_email_key").on(t.tenantId, t.email),
+    index("tenant_invitations_tenant_idx").on(t.tenantId, t.createdAt),
+  ],
+);

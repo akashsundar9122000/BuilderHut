@@ -70,3 +70,24 @@ export function passwordResetEmail(to: string, url: string): EmailMessage {
     text: `Reset your BuilderHut password\n\n${url}\n\nThis link expires in an hour. If you didn't request it, nothing has changed.`,
   };
 }
+
+/**
+ * An invitation to help run somebody's shop.
+ *
+ * The shop's name is in the subject, because the recipient probably does not
+ * know what BuilderHut is — they know they were expecting an email from the
+ * person whose shop it is.
+ */
+export function invitationEmail(to: string, shopName: string, url: string): EmailMessage {
+  return {
+    to,
+    subject: `You've been invited to help run ${shopName}`,
+    html: shell(
+      `Help run ${shopName}`,
+      `<p style="margin:0 0 20px;">You've been invited to help run <strong>${shopName}</strong> on BuilderHut. Accepting gives you access to its dashboard.</p>
+       <a href="${url}" style="display:inline-block;background:${CLAY};color:#ffffff;text-decoration:none;font:500 15px/1 -apple-system,Segoe UI,Roboto,sans-serif;padding:14px 22px;border-radius:8px;">Accept the invitation</a>
+       <p style="margin:20px 0 0;color:${MUTED};font-size:13px;">This link expires in three days and works once, for this address only. If you weren't expecting it, you can ignore this email — nothing has been created.</p>`,
+    ),
+    text: `Help run ${shopName}\n\nYou've been invited to help run ${shopName} on BuilderHut.\n\n${url}\n\nThis link expires in three days and works once, for this address only. If you weren't expecting it, ignore this email — nothing has been created.`,
+  };
+}

@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   BarChart3, Box, CreditCard, Globe, LayoutDashboard, Megaphone, Package,
-  Gem, PanelLeftClose, PanelLeft, Percent, Receipt, Settings, ShoppingBag, Truck, Users,
+  Gem, PanelLeftClose, PanelLeft, Percent, Receipt, Settings, ShoppingBag, Truck, UserPlus, Users,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -43,6 +43,7 @@ const GROUPS: { label: string; items: { href: string; label: string; icon: typeo
       { href: "/app/shipping", label: "Delivery", icon: Truck },
       { href: "/app/domains", label: "Domains", icon: Globe },
       { href: "/app/taxes", label: "Tax", icon: Receipt },
+      { href: "/app/team", label: "Team", icon: UserPlus },
       { href: "/app/plan", label: "Plan", icon: Gem },
       { href: "/app/settings", label: "Settings", icon: Settings },
     ],
