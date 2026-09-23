@@ -15,10 +15,10 @@ import { cn } from "@/lib/cn";
  * Sits above the home indicator via the safe-area token, so the last row of a
  * list is never trapped under it.
  */
-const ITEMS = [
+const ITEMS: { href: string; label: string; icon: typeof LayoutDashboard; soon?: boolean }[] = [
   { href: "/app", label: "Home", icon: LayoutDashboard },
   { href: "/app/products", label: "Products", icon: Package },
-  { href: "/app/orders", label: "Orders", icon: ShoppingBag, soon: true },
+  { href: "/app/orders", label: "Orders", icon: ShoppingBag },
 ];
 
 export function MobileNav({ storeSlug }: { storeSlug: string }) {

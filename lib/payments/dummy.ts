@@ -2,6 +2,7 @@ import "server-only";
 
 import { createHmac, randomBytes, timingSafeEqual } from "node:crypto";
 
+import { type DummyOutcome } from "./test-cards";
 import {
   PaymentError,
   type CreateIntentInput,
@@ -23,23 +24,6 @@ import {
  * The outcome is chosen by the test card number, which is how real gateways'
  * sandboxes work, so a merchant learns the same habit they will need later.
  */
-
-export const TEST_CARDS = [
-  { number: "4242 4242 4242 4242", label: "Payment succeeds", outcome: "succeeded" },
-  { number: "4000 0000 0000 0002", label: "Card declined", outcome: "failed" },
-  { number: "4000 0000 0000 0119", label: "Payment stays pending", outcome: "pending" },
-  { number: "4000 0000 0000 0069", label: "Gateway times out", outcome: "timeout" },
-] as const;
-
-export type DummyOutcome = (typeof TEST_CARDS)[number]["outcome"];
-
-export function outcomeForCard(cardNumber: string): DummyOutcome {
-  const digits = cardNumber.replace(/\D/g, "");
-  const match = TEST_CARDS.find((card) => card.number.replace(/\D/g, "") === digits);
-  // An unrecognised number succeeds, so a merchant poking at the checkout to see
-  // what it looks like is not stopped by a declined card they cannot explain.
-  return match?.outcome ?? "succeeded";
-}
 
 function secret(): string {
   // Only ever used to sign this provider's own simulated webhooks.
@@ -185,3 +169,5 @@ export function getPaymentProvider(id = "dummy"): PaymentProvider {
       throw new PaymentError(`No payment provider called "${id}" is available.`, "provider_error");
   }
 }
+
+export { TEST_CARDS, outcomeForCard, type DummyOutcome } from "./test-cards";

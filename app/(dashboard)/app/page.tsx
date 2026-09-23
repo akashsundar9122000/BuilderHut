@@ -3,6 +3,8 @@ import { ArrowUpRight, Check, Circle, ExternalLink, Package, Palette } from "luc
 
 import { Badge, Button, Card, CardBody } from "@/components/ui";
 import { requireActor } from "@/lib/auth/session";
+import { countOrderRevenue } from "@/lib/commerce/orders";
+import { formatMoney } from "@/lib/money";
 import { productStats } from "@/lib/products/service";
 
 /*
@@ -31,6 +33,7 @@ export default async function DashboardPage({
     productStats(),
     searchParams,
   ]);
+  const revenue = await countOrderRevenue(actor.tenantId!);
 
   const storeUrl = `/s/${actor.tenantSlug}`;
   const firstName = actor.name.split(" ")[0];
@@ -39,6 +42,7 @@ export default async function DashboardPage({
     { done: true, label: "Create your store", hint: "Done when you picked a template." },
     { done: stats.total > 0, label: "Add your first product", hint: "A photo, a name and a price is enough.", href: "/app/products/new" },
     { done: stats.active > 0, label: "Make a product live", hint: "Draft products don't show on your storefront." },
+    { done: revenue.orders > 0, label: "Take a test order", hint: "Buy from your own shop to see the whole flow.", href: `/s/${actor.tenantSlug}` },
     { done: false, label: "Customise your storefront", hint: "Change the words, colours and pictures.", href: "/app/builder" },
     { done: false, label: "Set up delivery", hint: "Arrives with commerce.", soon: true },
     { done: false, label: "Connect a domain", hint: "Arrives with hosting.", soon: true },
@@ -119,6 +123,29 @@ export default async function DashboardPage({
         </Card>
 
         <div className="flex flex-col gap-5">
+          <Card>
+            <CardBody>
+              <p className="text-muted text-xs tracking-[0.12em] uppercase">Revenue</p>
+              <p className="font-display mt-2 text-4xl">
+                {formatMoney(revenue.netMinor, "INR")}
+              </p>
+              <p className="text-muted mt-1 text-sm">
+                {revenue.orders} order{revenue.orders === 1 ? "" : "s"}
+                {revenue.refundedMinor > 0
+                  ? ` · ${formatMoney(revenue.refundedMinor, "INR")} refunded`
+                  : ""}
+              </p>
+              {revenue.pending > 0 ? (
+                <p className="text-warning mt-1 text-xs">
+                  {revenue.pending} awaiting payment
+                </p>
+              ) : null}
+              <Button asChild size="sm" variant="secondary" className="mt-4 w-full">
+                <Link href="/app/orders">View orders</Link>
+              </Button>
+            </CardBody>
+          </Card>
+
           <Card>
             <CardBody>
               <p className="text-muted text-xs tracking-[0.12em] uppercase">Products</p>

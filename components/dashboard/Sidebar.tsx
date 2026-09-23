@@ -24,8 +24,8 @@ const GROUPS: { label: string; items: { href: string; label: string; icon: typeo
       { href: "/app", label: "Dashboard", icon: LayoutDashboard },
       { href: "/app/builder", label: "Store builder", icon: PanelLeft },
       { href: "/app/products", label: "Products", icon: Package },
-      { href: "/app/orders", label: "Orders", icon: ShoppingBag, soon: true },
-      { href: "/app/customers", label: "Customers", icon: Users, soon: true },
+      { href: "/app/orders", label: "Orders", icon: ShoppingBag },
+      { href: "/app/customers", label: "Customers", icon: Users },
     ],
   },
   {

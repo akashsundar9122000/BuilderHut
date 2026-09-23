@@ -4,7 +4,16 @@ import { eq, sql } from "drizzle-orm";
 import { uuidv7 } from "uuidv7";
 
 import { getRootDb } from "@/lib/db/client";
-import { auditLogs, siteVersions, tenantMembers, tenants, websites } from "@/lib/db/schema";
+import {
+  auditLogs,
+  shippingMethods,
+  shippingZones,
+  siteVersions,
+  storeSettings,
+  tenantMembers,
+  tenants,
+  websites,
+} from "@/lib/db/schema";
 import { SCHEMA_VERSION } from "@/lib/schema/page";
 import { checkSlug } from "@/lib/slug";
 import { buildDocument } from "@/lib/templates";
@@ -143,6 +152,52 @@ export async function createStore(input: CreateStoreInput): Promise<CreateStoreR
         .update(websites)
         .set({ publishedVersionId: versionId, publishedAt: new Date() })
         .where(eq(websites.id, websiteId));
+
+      /*
+       * Commerce defaults, so the checkout works the moment a product exists.
+       *
+       * A store that opens with no delivery option has a checkout that cannot
+       * complete, and the merchant has no way to know why. Two options is the
+       * smallest set that is actually useful: post it, or come and collect.
+       *
+       * No tax rule is created. Blueprint section 13 is explicit that a
+       * jurisdiction's rate must not be assumed as universal truth — guessing
+       * 18% GST for a merchant in Manchester would put a wrong number on their
+       * invoices, which is worse than putting none.
+       */
+      await tx.insert(storeSettings).values({ id: uuidv7(), tenantId });
+
+      const zoneId = uuidv7();
+      await tx.insert(shippingZones).values({
+        id: zoneId,
+        tenantId,
+        name: input.country === "IN" ? "India" : "Everywhere",
+        countries: input.country === "IN" ? ["IN"] : [],
+      });
+
+      await tx.insert(shippingMethods).values([
+        {
+          id: uuidv7(),
+          tenantId,
+          zoneId,
+          name: "Standard delivery",
+          description: "3–5 working days",
+          kind: "flat",
+          priceMinor: 0n,
+          position: 0,
+        },
+        {
+          id: uuidv7(),
+          tenantId,
+          zoneId,
+          name: "Collect in person",
+          description: "Arrange a time with us after ordering",
+          kind: "free",
+          priceMinor: 0n,
+          isPickup: true,
+          position: 1,
+        },
+      ]);
 
       await tx.insert(auditLogs).values({
         id: uuidv7(),

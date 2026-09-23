@@ -88,9 +88,21 @@ export function Header({
         </nav>
 
         <div className="ml-auto flex items-center gap-4 md:ml-0">
-          {props.showSearch ? <IconGlyph label="Search" d="M11 19a8 8 0 1 1 0-16 8 8 0 0 1 0 16Zm10 2-4.35-4.35" /> : null}
-          {props.showAccount ? <IconGlyph label="Account" d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z" /> : null}
-          {props.showCart ? <IconGlyph label="Cart" d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4H6ZM3 6h18M16 10a4 4 0 0 1-8 0" /> : null}
+          {props.showSearch ? (
+            <IconGlyph label="Search" d="M11 19a8 8 0 1 1 0-16 8 8 0 0 1 0 16Zm10 2-4.35-4.35" />
+          ) : null}
+          {props.showAccount ? (
+            <IconGlyph label="Account" d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z" />
+          ) : null}
+          {props.showCart ? (
+            // The one icon that has to work. In the builder it is inert, so
+            // clicking it does not navigate the merchant out of the editor.
+            <IconGlyph
+              label="Basket"
+              d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4H6ZM3 6h18M16 10a4 4 0 0 1-8 0"
+              href={ctx.editing ? undefined : linkTo(ctx, "/cart")}
+            />
+          ) : null}
         </div>
       </div>
     </header>
@@ -98,12 +110,38 @@ export function Header({
 }
 
 /** Inline SVG so a storefront never loads an icon font or a script for chrome. */
-function IconGlyph({ label, d }: { label: string; d: string }) {
+function IconGlyph({ label, d, href }: { label: string; d: string; href?: string }) {
+  const glyph = (
+    <svg
+      width="19"
+      height="19"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.6"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d={d} />
+    </svg>
+  );
+
+  if (href) {
+    return (
+      <a
+        href={href}
+        aria-label={label}
+        // 44px hit area on touch without changing the visual size.
+        style={{ display: "inline-flex", padding: 12, margin: -12, color: "inherit", opacity: 0.8 }}
+      >
+        {glyph}
+      </a>
+    );
+  }
   return (
     <span aria-label={label} role="img" style={{ display: "inline-flex", opacity: 0.8 }}>
-      <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-        <path d={d} />
-      </svg>
+      {glyph}
     </span>
   );
 }
