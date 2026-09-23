@@ -1,0 +1,6 @@
+# Not a workspace — this file exists only to pin pnpm build behaviour.
+# Postinstall scripts run only for packages listed here, so native builds are deliberate.
+allowBuilds:
+  esbuild: true
+  sharp: false
+  unrs-resolver: false

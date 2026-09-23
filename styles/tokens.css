@@ -1,0 +1,359 @@
+/*
+ * BuilderHut design tokens — "warm editorial / craft".
+ *
+ * The audience makes things by hand: crochet, invitations, bakes, jewellery. The
+ * product should look like it belongs in that world, not in an admin panel. So:
+ * a bone-paper canvas, ink text, a single clay accent, and a serif display face
+ * against a clean grotesque. Deliberately unlike the slate-dark, gradient-accent
+ * language of the other products in this family.
+ *
+ * Two hard rules:
+ *   1. No raw hex in any component, ever. Tokens only.
+ *   2. Tailwind v4 reads colours from `--color-*` in @theme. A token mapped under
+ *      any other prefix silently renders black.
+ *
+ * Dark mode is a re-derivation, not an inversion: a warm near-black page and a
+ * raised warm-brown sheet, with the accent lifted so it still carries contrast.
+ * Every pair below is checked by scripts/check-contrast.ts in `pnpm verify`.
+ *
+ * Merchant storefronts do NOT use these tokens. They carry their own template
+ * themes — a bakery inheriting BuilderHut's palette would defeat the product.
+ */
+
+@import "tailwindcss";
+
+/* Touch-only variant, so the 44px target floor applies to fingers, not cursors. */
+@custom-variant coarse (@media (pointer: coarse));
+
+:root {
+  color-scheme: light;
+
+  /* ---- surfaces: paper, stacked ---- */
+  --bh-canvas: #fbf8f3; /* bone — the page itself */
+  --bh-surface: #ffffff; /* cards, panels */
+  --bh-raised: #f5f0e8; /* a sheet lifted off the page */
+  --bh-sunken: #efe8dd; /* wells, inset fields, canvas behind the builder */
+  --bh-overlay: rgb(28 25 23 / 0.45); /* scrim behind modals */
+
+  /* ---- borders: fine, never heavy ---- */
+  --bh-border: #e7dfd3;
+  --bh-border-strong: #cdbfac; /* dividers, card edges — decorative */
+  --bh-border-input: #8c8377; /* form control boundaries — must clear 3:1 */
+  --bh-border-accent: #e0b5a2;
+
+  /* ---- text ---- */
+  --bh-text: #1c1917; /* ink */
+  --bh-text-secondary: #453d36;
+  --bh-muted: #6b625a;
+  --bh-faint: #8a7f74;
+  --bh-on-accent: #ffffff;
+
+  /* ---- accent: clay, used sparingly and with intent ---- */
+  --bh-accent: #a84c32;
+  --bh-accent-hover: #8d3d27;
+  --bh-accent-soft: #fbefea;
+  --bh-accent-border: #e3bdab;
+
+  /* ---- secondary accent: deep botanical green ---- */
+  --bh-accent-2: #1f6f5c;
+  --bh-accent-2-soft: #e2f0eb;
+
+  /* ---- status ---- */
+  --bh-success: #2c6e49;
+  --bh-success-soft: #e3f0e8;
+  --bh-warning: #8a5a0b;
+  --bh-warning-soft: #fbf1e1;
+  --bh-danger: #a63328;
+  --bh-danger-soft: #f9e5e2;
+  --bh-info: #29607f;
+  --bh-info-soft: #e2eef4;
+
+  /* ---- charts: warm-led, distinguishable in both modes and to colour-blind eyes ---- */
+  --bh-chart-1: #a84c32;
+  --bh-chart-2: #1f6f5c;
+  --bh-chart-3: #8a5a0b;
+  --bh-chart-4: #5c5470;
+  --bh-chart-5: #29607f;
+  --bh-chart-6: #8a7f74;
+
+  /* ---- radii: moderate and consistent. Not pill-everything, not sharp. ---- */
+  --bh-radius-xs: 4px;
+  --bh-radius-sm: 6px;
+  --bh-radius-md: 8px; /* controls */
+  --bh-radius-lg: 12px; /* cards */
+  --bh-radius-xl: 18px; /* sheets, hero surfaces */
+  --bh-radius-full: 999px;
+
+  /* ---- elevation: low and soft. Paper lifting, not a dropped box. ---- */
+  --bh-shadow-xs: 0 1px 2px rgb(28 25 23 / 0.05);
+  --bh-shadow-sm: 0 1px 3px rgb(28 25 23 / 0.06), 0 1px 2px rgb(28 25 23 / 0.04);
+  --bh-shadow-md: 0 4px 12px rgb(28 25 23 / 0.07), 0 1px 3px rgb(28 25 23 / 0.05);
+  --bh-shadow-lg: 0 12px 32px rgb(28 25 23 / 0.10), 0 2px 8px rgb(28 25 23 / 0.05);
+  --bh-shadow-accent: 0 6px 20px rgb(168 76 50 / 0.22);
+
+  /* ---- motion: durations and easings are tokens so nothing is hand-tuned ---- */
+  --bh-duration-instant: 90ms;
+  --bh-duration-fast: 150ms;
+  --bh-duration-base: 240ms;
+  --bh-duration-slow: 400ms;
+  --bh-duration-deliberate: 650ms;
+  --bh-ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --bh-ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --bh-ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* ---- safe areas, named once so e2e can override them with real device insets ---- */
+  --bh-safe-top: env(safe-area-inset-top, 0px);
+  --bh-safe-right: env(safe-area-inset-right, 0px);
+  --bh-safe-bottom: env(safe-area-inset-bottom, 0px);
+  --bh-safe-left: env(safe-area-inset-left, 0px);
+
+  /* ---- layout metrics shared between chrome and content ---- */
+  --bh-sidebar-w: 248px;
+  --bh-sidebar-collapsed-w: 64px;
+  --bh-topbar-h: 56px;
+  --bh-bottom-nav-h: 56px;
+  --bh-inspector-w: 304px;
+}
+
+/* System preference. Guarded so an explicit light choice still wins. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+
+    --bh-canvas: #17130f;
+    --bh-surface: #211b16;
+    --bh-raised: #2b231c;
+    --bh-sunken: #100d0a;
+    --bh-overlay: rgb(9 7 5 / 0.62);
+
+    --bh-border: #372e25;
+    --bh-border-strong: #52463a;
+    --bh-border-input: #7d7063;
+    --bh-border-accent: #6d4432;
+
+    --bh-text: #f5efe7;
+    --bh-text-secondary: #ddd2c5;
+    --bh-muted: #a89c8e;
+    --bh-faint: #8a7d6e;
+    --bh-on-accent: #24120a;
+
+    --bh-accent: #e8845c;
+    --bh-accent-hover: #f39d79;
+    --bh-accent-soft: #3a2419;
+    --bh-accent-border: #6d4432;
+
+    --bh-accent-2: #58c2a2;
+    --bh-accent-2-soft: #16302a;
+
+    --bh-success: #6dc48f;
+    --bh-success-soft: #172d21;
+    --bh-warning: #e0a350;
+    --bh-warning-soft: #33250f;
+    --bh-danger: #f08573;
+    --bh-danger-soft: #371a16;
+    --bh-info: #79b6d6;
+    --bh-info-soft: #162a34;
+
+    --bh-chart-1: #e8845c;
+    --bh-chart-2: #58c2a2;
+    --bh-chart-3: #e0a350;
+    --bh-chart-4: #a596c4;
+    --bh-chart-5: #79b6d6;
+    --bh-chart-6: #a89c8e;
+
+    --bh-shadow-xs: 0 1px 2px rgb(0 0 0 / 0.30);
+    --bh-shadow-sm: 0 1px 3px rgb(0 0 0 / 0.36), 0 1px 2px rgb(0 0 0 / 0.24);
+    --bh-shadow-md: 0 4px 12px rgb(0 0 0 / 0.42), 0 1px 3px rgb(0 0 0 / 0.28);
+    --bh-shadow-lg: 0 14px 36px rgb(0 0 0 / 0.52), 0 2px 8px rgb(0 0 0 / 0.32);
+    --bh-shadow-accent: 0 6px 20px rgb(232 132 92 / 0.24);
+  }
+}
+
+/*
+ * Duplicated rather than shared, and this is deliberate: an explicit choice has
+ * to win in BOTH directions. A single block keyed only on the media query cannot
+ * turn dark on for someone whose OS is light.
+ */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  --bh-canvas: #17130f;
+  --bh-surface: #211b16;
+  --bh-raised: #2b231c;
+  --bh-sunken: #100d0a;
+  --bh-overlay: rgb(9 7 5 / 0.62);
+
+  --bh-border: #372e25;
+  --bh-border-strong: #52463a;
+  --bh-border-input: #7d7063;
+  --bh-border-accent: #6d4432;
+
+  --bh-text: #f5efe7;
+  --bh-text-secondary: #ddd2c5;
+  --bh-muted: #a89c8e;
+  --bh-faint: #8a7d6e;
+  --bh-on-accent: #24120a;
+
+  --bh-accent: #e8845c;
+  --bh-accent-hover: #f39d79;
+  --bh-accent-soft: #3a2419;
+  --bh-accent-border: #6d4432;
+
+  --bh-accent-2: #58c2a2;
+  --bh-accent-2-soft: #16302a;
+
+  --bh-success: #6dc48f;
+  --bh-success-soft: #172d21;
+  --bh-warning: #e0a350;
+  --bh-warning-soft: #33250f;
+  --bh-danger: #f08573;
+  --bh-danger-soft: #371a16;
+  --bh-info: #79b6d6;
+  --bh-info-soft: #162a34;
+
+  --bh-chart-1: #e8845c;
+  --bh-chart-2: #58c2a2;
+  --bh-chart-3: #e0a350;
+  --bh-chart-4: #a596c4;
+  --bh-chart-5: #79b6d6;
+  --bh-chart-6: #a89c8e;
+
+  --bh-shadow-xs: 0 1px 2px rgb(0 0 0 / 0.30);
+  --bh-shadow-sm: 0 1px 3px rgb(0 0 0 / 0.36), 0 1px 2px rgb(0 0 0 / 0.24);
+  --bh-shadow-md: 0 4px 12px rgb(0 0 0 / 0.42), 0 1px 3px rgb(0 0 0 / 0.28);
+  --bh-shadow-lg: 0 14px 36px rgb(0 0 0 / 0.52), 0 2px 8px rgb(0 0 0 / 0.32);
+  --bh-shadow-accent: 0 6px 20px rgb(232 132 92 / 0.24);
+}
+
+/*
+ * Map every token onto a Tailwind utility. `inline` means the utility emits
+ * var(--bh-*) rather than a resolved value, so the theme blocks above keep
+ * working at runtime without a second build.
+ */
+@theme inline {
+  --color-canvas: var(--bh-canvas);
+  --color-surface: var(--bh-surface);
+  --color-raised: var(--bh-raised);
+  --color-sunken: var(--bh-sunken);
+  --color-overlay: var(--bh-overlay);
+
+  --color-border: var(--bh-border);
+  --color-border-strong: var(--bh-border-strong);
+  --color-border-input: var(--bh-border-input);
+  --color-border-accent: var(--bh-border-accent);
+
+  --color-text: var(--bh-text);
+  --color-text-secondary: var(--bh-text-secondary);
+  --color-muted: var(--bh-muted);
+  --color-faint: var(--bh-faint);
+  --color-on-accent: var(--bh-on-accent);
+
+  --color-accent: var(--bh-accent);
+  --color-accent-hover: var(--bh-accent-hover);
+  --color-accent-soft: var(--bh-accent-soft);
+  --color-accent-border: var(--bh-accent-border);
+  --color-accent-2: var(--bh-accent-2);
+  --color-accent-2-soft: var(--bh-accent-2-soft);
+
+  --color-success: var(--bh-success);
+  --color-success-soft: var(--bh-success-soft);
+  --color-warning: var(--bh-warning);
+  --color-warning-soft: var(--bh-warning-soft);
+  --color-danger: var(--bh-danger);
+  --color-danger-soft: var(--bh-danger-soft);
+  --color-info: var(--bh-info);
+  --color-info-soft: var(--bh-info-soft);
+
+  --color-chart-1: var(--bh-chart-1);
+  --color-chart-2: var(--bh-chart-2);
+  --color-chart-3: var(--bh-chart-3);
+  --color-chart-4: var(--bh-chart-4);
+  --color-chart-5: var(--bh-chart-5);
+  --color-chart-6: var(--bh-chart-6);
+
+  /* The pairing IS the identity: editorial serif display, quiet grotesque UI. */
+  --font-display: var(--font-fraunces), ui-serif, Georgia, "Times New Roman", serif;
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", Menlo, monospace;
+
+  --radius-xs: var(--bh-radius-xs);
+  --radius-sm: var(--bh-radius-sm);
+  --radius-md: var(--bh-radius-md);
+  --radius-lg: var(--bh-radius-lg);
+  --radius-xl: var(--bh-radius-xl);
+
+  --shadow-xs: var(--bh-shadow-xs);
+  --shadow-sm: var(--bh-shadow-sm);
+  --shadow-md: var(--bh-shadow-md);
+  --shadow-lg: var(--bh-shadow-lg);
+  --shadow-accent: var(--bh-shadow-accent);
+
+  --ease-out: var(--bh-ease-out);
+  --ease-in-out: var(--bh-ease-in-out);
+  --ease-spring: var(--bh-ease-spring);
+}
+
+@layer base {
+  * {
+    border-color: var(--bh-border);
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background-color: var(--bh-canvas);
+    color: var(--bh-text);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Editorial headlines: large, tight, confident. */
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-display);
+    letter-spacing: -0.018em;
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  /* One focus treatment everywhere, so nothing is ever unreachable by keyboard. */
+  :focus-visible {
+    outline: 2px solid var(--bh-accent);
+    outline-offset: 2px;
+    border-radius: var(--bh-radius-xs);
+  }
+
+  /* Inputs below 16px make iOS Safari zoom the page on focus. */
+  input,
+  textarea,
+  select {
+    font-size: max(16px, 1rem);
+  }
+
+  ::selection {
+    background-color: var(--bh-accent-soft);
+    color: var(--bh-text);
+  }
+}
+
+/*
+ * Motion is a product feature, but it is never mandatory. Everything below
+ * collapses to an instant state change for anyone who asks for less of it.
+ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

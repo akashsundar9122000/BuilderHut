@@ -1,0 +1,30 @@
+# dependencies
+node_modules
+.pnpm-store
+
+# next
+.next
+out
+next-env.d.ts
+*.tsbuildinfo
+
+# env — never commit secrets
+.env
+.env.*
+!.env.example
+
+# deploy
+.vercel
+
+# test artefacts
+test-results
+playwright-report
+blob-report
+coverage
+.playwright
+
+# local media fallback (before R2 is configured)
+.uploads
+
+# os
+.DS_Store

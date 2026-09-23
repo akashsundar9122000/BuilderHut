@@ -1,0 +1,77 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # Everything that needs no database. Fails fast on the common mistakes.
+  quality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Contrast (WCAG AA, both themes)
+        run: pnpm check:contrast
+      - name: Secrets in tracked files
+        run: pnpm check:secrets
+      - run: pnpm typecheck
+      - run: pnpm lint
+      - run: pnpm build
+      - name: Client bundle budget
+        run: pnpm check:budget
+
+  # Tenancy and RLS have to run against a real Postgres. A mock would prove
+  # nothing: the entire point is that the database enforces the boundary.
+  integration:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:18
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: builderhut_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports: [5432:5432]
+    env:
+      # Assembled from parts rather than written as literal connection strings,
+      # so scripts/check-secrets.mjs stays strict. These are throwaway values for
+      # a container that lives for the length of one job.
+      PGUSER: postgres
+      PGPASSWORD: postgres
+      PGDATABASE: builderhut_test
+      APP_ROLE: builderhut_app
+      BUILDERHUT_APP_PASSWORD: ci-ephemeral-role-password-01
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Compose connection strings
+        run: |
+          echo "DATABASE_URL_UNPOOLED=postgresql://$PGUSER:$PGPASSWORD@localhost:5432/$PGDATABASE" >> "$GITHUB_ENV"
+          echo "DATABASE_URL=postgresql://$APP_ROLE:$BUILDERHUT_APP_PASSWORD@localhost:5432/$PGDATABASE" >> "$GITHUB_ENV"
+      - name: Create the NOBYPASSRLS app role
+        run: pnpm db:roles
+      - run: pnpm db:migrate
+      - name: Tests (unit, integration, cross-tenant security)
+        # DATABASE_URL connects as the app role, so RLS applies exactly as it
+        # does in production. Migrations use the owner URL.
+        run: pnpm test

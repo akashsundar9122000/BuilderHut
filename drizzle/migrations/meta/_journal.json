@@ -1,0 +1,27 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1790167123614,
+      "tag": "0000_small_cobalt_man",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1790167123615,
+      "tag": "0001_rls_and_constraints",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1790167123616,
+      "tag": "0002_rls_null_safe_tenant",
+      "breakpoints": true
+    }
+  ]
+}
