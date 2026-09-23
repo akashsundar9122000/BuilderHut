@@ -36,6 +36,20 @@
       "when": 1790169427297,
       "tag": "0004_identity_constraints",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1790173436414,
+      "tag": "0005_elite_toad",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1790173436415,
+      "tag": "0006_commerce_rls_and_constraints",
+      "breakpoints": true
     }
   ]
 }

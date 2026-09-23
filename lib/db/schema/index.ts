@@ -3,6 +3,9 @@ export * from "./tenancy";
 export * from "./identity";
 export * from "./storefront";
 export * from "./catalog";
+export * from "./customers";
+export * from "./commerce";
+export * from "./operations_commerce";
 export * from "./operations";
 
 /*
@@ -19,9 +22,36 @@ export * from "./operations";
 
 /** Owned by one merchant. tenant_id NOT NULL, FK to tenants, leading-tenant index. */
 export const TENANT_SCOPED = new Set<string>([
+  // storefront
   "websites",
   "site_versions",
+  // catalog
   "products",
+  "product_images",
+  "categories",
+  "product_categories",
+  "inventory_movements",
+  // customers — a separate identity realm, owned by one store
+  "customers",
+  "customer_sessions",
+  "customer_addresses",
+  "wishlist_items",
+  // commerce
+  "carts",
+  "cart_items",
+  "orders",
+  "order_items",
+  "order_addresses",
+  "payments",
+  "refunds",
+  "idempotency_keys",
+  "discounts",
+  "discount_redemptions",
+  // operations
+  "shipping_zones",
+  "shipping_methods",
+  "tax_rules",
+  "store_settings",
 ]);
 
 /**
