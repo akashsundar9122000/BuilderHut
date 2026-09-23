@@ -21,6 +21,19 @@ export default defineConfig({
     command: "pnpm build && pnpm start",
     url: `http://localhost:${PORT}`,
     reuseExistingServer: !process.env.CI,
-    timeout: 180_000,
+    timeout: 300_000,
+    env: {
+      // The origin must match or Better Auth rejects requests as CSRF.
+      APP_URL: `http://localhost:${PORT}`,
+      /*
+       * SMTP is deliberately blanked so the email provider falls back to
+       * printing verification codes, which is how the suite reads them back.
+       * Without this, a developer with real SMTP configured would have the
+       * codes sent to a non-existent @builderhut.test address instead.
+       */
+      SMTP_HOST: "",
+      SMTP_USER: "",
+      SMTP_PASS: "",
+    },
   },
 });

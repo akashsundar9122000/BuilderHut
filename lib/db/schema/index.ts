@@ -1,5 +1,6 @@
 export * from "./_shared";
 export * from "./tenancy";
+export * from "./identity";
 export * from "./storefront";
 export * from "./catalog";
 export * from "./operations";
@@ -32,7 +33,19 @@ export const TENANT_SCOPED = new Set<string>([
 export const GLOBAL_OR_SCOPED = new Set<string>([]);
 
 /** Not owned by any tenant. Reading these outside a tenant context is correct. */
-export const PLATFORM = new Set<string>(["tenants", "audit_logs"]);
+export const PLATFORM = new Set<string>([
+  "tenants",
+  "audit_logs",
+  // Authentication, owned by Better Auth. Not tenant-owned: a user exists
+  // before any store does, and may belong to several.
+  "users",
+  "sessions",
+  "accounts",
+  "verifications",
+  // Read to DISCOVER a user's tenants, which necessarily happens before a
+  // tenant context exists. Authorized by userId instead — see identity.ts.
+  "tenant_members",
+]);
 
 export function classify(table: string): "tenant" | "global" | "platform" {
   if (TENANT_SCOPED.has(table)) return "tenant";

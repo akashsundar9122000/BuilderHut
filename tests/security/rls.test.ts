@@ -157,3 +157,45 @@ describe("guard rails", () => {
     ).rejects.toThrow(/justification/);
   });
 });
+
+describe("scoped query chaining", () => {
+  /*
+   * The scoped select is a proxy, and a proxy that stops proxying mid-chain is
+   * worse than none: it throws only for the combinations nobody wrote a test
+   * for. `.where().limit()` reached production and failed there, so every
+   * shape the codebase actually uses is exercised here.
+   */
+  it("survives .where().orderBy().limit()", async () => {
+    const rows = await withTenant(ctxA, (db) =>
+      db
+        .select(products)
+        .where(eq(products.status, "active"))
+        .orderBy(products.createdAt)
+        .limit(5),
+    );
+    expect(Array.isArray(rows)).toBe(true);
+  });
+
+  it("survives .orderBy().where() in the other order", async () => {
+    const rows = await withTenant(ctxA, (db) =>
+      db.select(products).orderBy(products.createdAt).where(eq(products.status, "active")),
+    );
+    expect(Array.isArray(rows)).toBe(true);
+  });
+
+  it("still scopes to the tenant after a chain", async () => {
+    // The chain must not lose the tenant predicate on the way through.
+    const mine = await withTenant(ctxA, (db) =>
+      db.select(products).where(eq(products.status, "active")).limit(50),
+    );
+    for (const row of mine) expect(row.tenantId).toBe(tenantA);
+  });
+
+  it("combines a caller's where with the tenant scope rather than replacing it", async () => {
+    const none = await withTenant(ctxA, (db) =>
+      db.select(products).where(eq(products.slug, "foil-invitation")).limit(10),
+    );
+    // That slug belongs to tenant B. Filtering for it as A must find nothing.
+    expect(none).toEqual([]);
+  });
+});

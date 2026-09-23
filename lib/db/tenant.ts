@@ -118,12 +118,15 @@ function tenantColumn(table: PgTable): PgColumn {
  * join and is the caller's business to narrow.
  */
 export interface ScopedSelect<Row> extends PromiseLike<Row[]> {
-  where(condition: SQL): ScopedSelect<Row>;
+  // SQL | undefined, because drizzle's and()/or() return undefined when every
+  // argument is undefined. Accepting it here means callers compose conditions
+  // freely instead of asserting non-null at each site.
+  where(condition: SQL | undefined): ScopedSelect<Row>;
   orderBy(...columns: unknown[]): ScopedSelect<Row>;
   limit(n: number): ScopedSelect<Row>;
   offset(n: number): ScopedSelect<Row>;
   groupBy(...columns: unknown[]): ScopedSelect<Row>;
-  having(condition: SQL): ScopedSelect<Row>;
+  having(condition: SQL | undefined): ScopedSelect<Row>;
   for(strength: "update" | "no key update" | "share" | "key share"): ScopedSelect<Row>;
   innerJoin(table: PgTable, on: SQL): ScopedSelect<Record<string, unknown>>;
   leftJoin(table: PgTable, on: SQL): ScopedSelect<Record<string, unknown>>;
@@ -238,10 +241,28 @@ function makeScoped<Row>(builder: unknown, scope: SQL): ScopedSelect<Row> {
   let userWhere: SQL | undefined;
   let executed = false;
 
-  const proxy = {
-    where(condition: SQL) {
-      userWhere = userWhere ? (and(userWhere, condition) as SQL) : condition;
-      return proxy;
+  /*
+   * `wrapped` is declared before the methods that return it and assigned just
+   * below. Every method must hand back the PROXY, not this plain target —
+   * returning the target broke the chain the moment anything followed a
+   * .where(), because the trap that forwards unknown methods to drizzle lives
+   * on the proxy alone. `db.select(t).where(x).limit(1)` threw
+   * "limit is not a function" in production while the tests, which never
+   * chained past .where(), stayed green.
+   */
+  // Forward-declared because the methods on `target` below close over it and
+  // must return the proxy, which cannot exist until `target` does. Assigned
+  // exactly once, which is why prefer-const objects — but `const` here would be
+  // a use-before-declaration.
+  // eslint-disable-next-line prefer-const
+  let wrapped: ScopedSelect<Row>;
+
+  const target = {
+    where(condition: SQL | undefined) {
+      if (condition) {
+        userWhere = userWhere ? (and(userWhere, condition) as SQL) : condition;
+      }
+      return wrapped;
     },
     then(
       onFulfilled?: ((value: Row[]) => unknown) | null,
@@ -259,17 +280,19 @@ function makeScoped<Row>(builder: unknown, scope: SQL): ScopedSelect<Row> {
     },
   } as Record<string, unknown>;
 
-  // innerJoin, orderBy, limit, groupBy, for — pass through to drizzle and keep
-  // the proxy in front so the chain stays scoped all the way to execution.
-  return new Proxy(proxy, {
-    get(target, prop: string) {
-      if (prop in target) return target[prop];
+  // orderBy, limit, offset, groupBy, having, innerJoin, for — forwarded to
+  // drizzle, with the proxy kept in front so the chain stays scoped.
+  wrapped = new Proxy(target, {
+    get(t, prop: string) {
+      if (prop in t) return t[prop];
       const value = (builder as Record<string, unknown>)[prop];
       if (typeof value !== "function") return value;
       return (...args: unknown[]) => {
         (value as (...a: unknown[]) => unknown).apply(builder, args);
-        return proxy;
+        return wrapped;
       };
     },
   }) as unknown as ScopedSelect<Row>;
+
+  return wrapped;
 }
