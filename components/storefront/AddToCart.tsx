@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { Check, Loader2 } from "lucide-react";
 
 import { addToCartAction } from "@/app/(storefront)/s/[slug]/actions";
@@ -27,6 +27,20 @@ export function AddToCart({
   const [pending, start] = useTransition();
   const [added, setAdded] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  /*
+   * The confirmation clears itself, but only once it is actually on screen.
+   *
+   * Starting the timer inside the transition meant that on a slow connection
+   * the two and a half seconds ran out while the button still said "Adding" —
+   * so the confirmation never appeared at all, and the button snapped back as
+   * though nothing had happened.
+   */
+  useEffect(() => {
+    if (!added || pending) return;
+    const timer = setTimeout(() => setAdded(false), 2400);
+    return () => clearTimeout(timer);
+  }, [added, pending]);
 
   const style: React.CSSProperties = {
     display: "inline-flex",
@@ -57,12 +71,8 @@ export function AddToCart({
           start(async () => {
             setError(null);
             const result = await addToCartAction(slug, productId, 1);
-            if (result.ok) {
-              setAdded(true);
-              setTimeout(() => setAdded(false), 2400);
-            } else {
-              setError(result.message ?? "That didn't work.");
-            }
+            if (result.ok) setAdded(true);
+            else setError(result.message ?? "That didn't work.");
           })
         }
       >

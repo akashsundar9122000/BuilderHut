@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { after } from "next/server";
 import { randomUUID } from "node:crypto";
 import { z } from "zod";
 
@@ -17,6 +18,7 @@ import { recordPayment } from "@/lib/commerce/orders";
 import { getPaymentProvider, settleSimulatedPayment } from "@/lib/payments/dummy";
 import { outcomeForCard } from "@/lib/payments/test-cards";
 import { loadPublishedSite } from "@/lib/stores/storefront";
+import { track, trackContext } from "@/lib/analytics/track";
 import { loadOrderForPayment } from "@/lib/commerce/orders";
 
 /*
@@ -38,7 +40,29 @@ async function resolveStore(slug: string) {
 export async function addToCartAction(slug: string, productId: string, quantity = 1) {
   const site = await resolveStore(slug);
   const result = await addToCart(site.tenantId, site.currency, productId, quantity);
-  revalidatePath(`/s/${slug}`, "layout");
+
+  /*
+   * after(), not await: the customer should not wait on a second database
+   * round trip for a number nobody is looking at yet. Awaiting it roughly
+   * doubled how long "Adding…" stayed on screen.
+   */
+  if (result.ok) {
+    const measured = await trackContext();
+    after(() => track(site.tenantId, "add_to_cart", measured, { productId }));
+  }
+
+  /*
+   * No revalidatePath here, deliberately.
+   *
+   * Revalidating the storefront layout from an action that runs ON a page
+   * inside that layout makes Next re-render the page as part of the action's
+   * response — and that re-render aborted the response stream, so "add to
+   * basket" appeared to do nothing while the row was already in the database.
+   *
+   * Nothing on the current page depends on the basket's contents anyway. The
+   * basket page reads fresh on navigation, and the action returns its own
+   * result for the button to report.
+   */
   return result.ok ? { ok: true as const } : { ok: false as const, message: result.message };
 }
 

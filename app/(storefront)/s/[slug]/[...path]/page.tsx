@@ -4,6 +4,8 @@ import { notFound } from "next/navigation";
 import { RenderPage } from "@/lib/render/render";
 import { findPage } from "@/lib/schema/page";
 import { loadStorefront } from "@/lib/stores/storefront";
+import { after } from "next/server";
+import { track, trackContext } from "@/lib/analytics/track";
 
 /*
  * Every non-home page of a storefront: /about, /shop, /shipping-policy and any
@@ -41,6 +43,11 @@ export default async function StorefrontPage({
 
   const page = findPage(store.doc, path.join("/"));
   if (!page || page.hidden) notFound();
+
+  const measured = await trackContext();
+  after(() =>
+    track(store.tenantId, "page_view", measured, { path: `/${path.join("/")}` }),
+  );
 
   return (
     <RenderPage

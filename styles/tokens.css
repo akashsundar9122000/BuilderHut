@@ -68,13 +68,30 @@
   --bh-info: #29607f;
   --bh-info-soft: #e2eef4;
 
-  /* ---- charts: warm-led, distinguishable in both modes and to colour-blind eyes ---- */
-  --bh-chart-1: #a84c32;
-  --bh-chart-2: #1f6f5c;
-  --bh-chart-3: #8a5a0b;
-  --bh-chart-4: #5c5470;
-  --bh-chart-5: #29607f;
-  --bh-chart-6: #8a7f74;
+  /*
+   * ---- charts ----
+   *
+   * These are NOT the brand palette, and that is deliberate. A categorical
+   * series palette has to survive colour-blind vision and still read as six
+   * distinct identities; the warm, low-chroma tokens above cannot do that — the
+   * plum and the blue that were here first came out 6.8 ΔE apart, which is
+   * indistinguishable even with full colour vision.
+   *
+   * Both modes are validated (lightness band, chroma floor, adjacent CVD
+   * separation, normal-vision floor, contrast against the card). Dark is a
+   * separate set of steps, not a lightened copy — its band is lower and
+   * narrower than light's.
+   *
+   * Warm-led so the first series still belongs to this product. Assign slots in
+   * order and never cycle: a seventh series folds into "other" or becomes a
+   * second chart.
+   */
+  --bh-chart-1: #c05430;
+  --bh-chart-2: #2a78d6;
+  --bh-chart-3: #15996a;
+  --bh-chart-4: #b07500;
+  --bh-chart-5: #4a3aa7;
+  --bh-chart-6: #c25f88;
 
   /* ---- radii: moderate and consistent. Not pill-everything, not sharp. ---- */
   --bh-radius-xs: 4px;
@@ -154,12 +171,12 @@
     --bh-info: #79b6d6;
     --bh-info-soft: #162a34;
 
-    --bh-chart-1: #e8845c;
-    --bh-chart-2: #58c2a2;
-    --bh-chart-3: #e0a350;
-    --bh-chart-4: #a596c4;
-    --bh-chart-5: #79b6d6;
-    --bh-chart-6: #a89c8e;
+    --bh-chart-1: #d4703f;
+    --bh-chart-2: #4d8fe0;
+    --bh-chart-3: #1fa077;
+    --bh-chart-4: #b8862a;
+    --bh-chart-5: #8478e0;
+    --bh-chart-6: #c46e90;
 
     --bh-shadow-xs: 0 1px 2px rgb(0 0 0 / 0.30);
     --bh-shadow-sm: 0 1px 3px rgb(0 0 0 / 0.36), 0 1px 2px rgb(0 0 0 / 0.24);
@@ -211,12 +228,12 @@
   --bh-info: #79b6d6;
   --bh-info-soft: #162a34;
 
-  --bh-chart-1: #e8845c;
-  --bh-chart-2: #58c2a2;
-  --bh-chart-3: #e0a350;
-  --bh-chart-4: #a596c4;
-  --bh-chart-5: #79b6d6;
-  --bh-chart-6: #a89c8e;
+  --bh-chart-1: #d4703f;
+  --bh-chart-2: #4d8fe0;
+  --bh-chart-3: #1fa077;
+  --bh-chart-4: #b8862a;
+  --bh-chart-5: #8478e0;
+  --bh-chart-6: #c46e90;
 
   --bh-shadow-xs: 0 1px 2px rgb(0 0 0 / 0.30);
   --bh-shadow-sm: 0 1px 3px rgb(0 0 0 / 0.36), 0 1px 2px rgb(0 0 0 / 0.24);

@@ -31,7 +31,7 @@ const GROUPS: { label: string; items: { href: string; label: string; icon: typeo
   {
     label: "Grow",
     items: [
-      { href: "/app/analytics", label: "Analytics", icon: BarChart3, soon: true },
+      { href: "/app/analytics", label: "Analytics", icon: BarChart3 },
       { href: "/app/discounts", label: "Discounts", icon: Percent },
       { href: "/app/marketing", label: "Marketing", icon: Megaphone, soon: true },
     ],

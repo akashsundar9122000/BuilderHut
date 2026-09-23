@@ -57,6 +57,20 @@
       "when": 1790175073676,
       "tag": "0007_green_abomination",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1790175323498,
+      "tag": "0008_serious_spot",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1790175323499,
+      "tag": "0009_analytics_rls",
+      "breakpoints": true
     }
   ]
 }

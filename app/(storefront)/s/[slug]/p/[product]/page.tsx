@@ -10,6 +10,8 @@ import { products } from "@/lib/db/schema";
 import { discountPercent, formatMoney } from "@/lib/money";
 import { homePage } from "@/lib/schema/page";
 import { loadStorefront } from "@/lib/stores/storefront";
+import { after } from "next/server";
+import { track, trackContext } from "@/lib/analytics/track";
 
 async function loadProduct(tenantId: string, slug: string) {
   const rows = await withTenant({ tenantId, actorId: tenantId, role: "staff" }, (db) =>
@@ -50,6 +52,14 @@ export default async function ProductPage({
 
   const product = await loadProduct(store.tenantId, productSlug);
   if (!product) notFound();
+
+  const measured = await trackContext();
+  after(() =>
+    track(store.tenantId, "product_view", measured, {
+      path: `/p/${productSlug}`,
+      productId: product.id,
+    }),
+  );
 
   const ctx = {
     doc: store.doc,

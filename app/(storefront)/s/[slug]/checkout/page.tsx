@@ -11,6 +11,8 @@ import { shippingMethods, storeSettings } from "@/lib/db/schema";
 import { formatMoney } from "@/lib/money";
 import { homePage } from "@/lib/schema/page";
 import { loadStorefront } from "@/lib/stores/storefront";
+import { after } from "next/server";
+import { track, trackContext } from "@/lib/analytics/track";
 
 export const metadata: Metadata = { title: "Checkout", robots: { index: false } };
 
@@ -22,6 +24,15 @@ export default async function CheckoutPage({ params }: { params: Promise<{ slug:
   const cart = await getCart(store.tenantId, store.currency);
   // Nothing to check out. Sending them to the basket explains itself.
   if (cart.lines.length === 0) redirect(`/s/${slug}/cart`);
+
+  const measured = await trackContext();
+  after(() =>
+    track(store.tenantId, "checkout_start", measured, {
+      path: "/checkout",
+      valueMinor: cart.totals.totalMinor,
+      currency: store.currency,
+    }),
+  );
 
   const { methods, settings } = await withTenant(
     { tenantId: store.tenantId, actorId: store.tenantId, role: "staff" },

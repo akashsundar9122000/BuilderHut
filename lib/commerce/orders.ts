@@ -5,6 +5,7 @@ import { uuidv7 } from "uuidv7";
 
 import { withTenant, type TenantDb } from "@/lib/db/tenant";
 import {
+  analyticsEvents,
   auditLogs,
   cartItems,
   carts,
@@ -410,6 +411,19 @@ export async function recordPayment(
         entityType: "order",
         entityId: orderId,
         metadata: { reference: payment.reference, amountMinor: payment.amountMinor },
+      });
+
+      /*
+       * Written directly rather than through track(): this runs inside the
+       * transaction that marked the order paid, so the revenue figure and the
+       * order status can never disagree. track() opens its own transaction,
+       * which withTenant would rightly refuse from in here.
+       */
+      await db.insert(analyticsEvents, {
+        id: uuidv7(),
+        name: "order_paid",
+        valueMinor: order.totalMinor,
+        currency: order.currency,
       });
 
       return { ok: true, status: "paid" };

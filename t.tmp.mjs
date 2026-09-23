@@ -1,0 +1,11 @@
+import { chromium } from "@playwright/test";
+const [port, slug] = process.argv.slice(2);
+const b = await chromium.launch();
+const p = await (await b.newContext()).newPage();
+await p.goto(`http://localhost:${port}/s/${slug}/p/mohair-beanie`, { waitUntil: "networkidle" });
+await p.click('button:has-text("Add to basket")');
+await p.waitForSelector("text=In your basket", { timeout: 20000 });
+const res = await p.goto(`http://localhost:${port}/s/${slug}/checkout`, { waitUntil: "networkidle" });
+console.log("checkout status:", res.status(), "url:", p.url());
+await p.waitForTimeout(3000);
+await b.close();
