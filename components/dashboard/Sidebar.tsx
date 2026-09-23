@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   BarChart3, Box, CreditCard, Globe, LayoutDashboard, Megaphone, Package,
-  PanelLeftClose, PanelLeft, Percent, Settings, ShoppingBag, Truck, Users,
+  PanelLeftClose, PanelLeft, Percent, Receipt, Settings, ShoppingBag, Truck, Users,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -32,7 +32,7 @@ const GROUPS: { label: string; items: { href: string; label: string; icon: typeo
     label: "Grow",
     items: [
       { href: "/app/analytics", label: "Analytics", icon: BarChart3, soon: true },
-      { href: "/app/discounts", label: "Discounts", icon: Percent, soon: true },
+      { href: "/app/discounts", label: "Discounts", icon: Percent },
       { href: "/app/marketing", label: "Marketing", icon: Megaphone, soon: true },
     ],
   },
@@ -40,9 +40,10 @@ const GROUPS: { label: string; items: { href: string; label: string; icon: typeo
     label: "Configure",
     items: [
       { href: "/app/payments", label: "Payments", icon: CreditCard, soon: true },
-      { href: "/app/shipping", label: "Shipping", icon: Truck, soon: true },
+      { href: "/app/shipping", label: "Delivery", icon: Truck },
       { href: "/app/domains", label: "Domains", icon: Globe, soon: true },
-      { href: "/app/settings", label: "Settings", icon: Settings, soon: true },
+      { href: "/app/taxes", label: "Tax", icon: Receipt },
+      { href: "/app/settings", label: "Settings", icon: Settings },
     ],
   },
 ];

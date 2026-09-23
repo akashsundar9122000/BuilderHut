@@ -67,6 +67,13 @@ export const carts = pgTable(
     /** Opaque cookie value for an anonymous visitor. */
     token: text("token").notNull(),
     currency: varchar("currency", { length: 3 }).notNull(),
+    /*
+     * A code the customer has entered. Kept on the cart rather than in a cookie
+     * so it survives a different device, and so the discount is recomputed from
+     * the live rule every time — a code that expires between adding it and
+     * paying must stop applying, not be honoured because a cookie said so.
+     */
+    discountCode: varchar("discount_code", { length: 40 }),
     /** Set when the cart becomes an order; an ordered cart is never reopened. */
     convertedOrderId: uuid("converted_order_id"),
     ...timestamps(),

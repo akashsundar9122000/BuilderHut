@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import { Loader2, Minus, Plus, X } from "lucide-react";
 
-import { setQuantityAction } from "@/app/(storefront)/s/[slug]/actions";
+import { applyDiscountAction, setQuantityAction } from "@/app/(storefront)/s/[slug]/actions";
 import type { CartView } from "@/lib/commerce/cart";
 import { formatMoney } from "@/lib/money";
 
@@ -21,6 +21,8 @@ export function CartLines({ slug, cart: initial }: { slug: string; cart: CartVie
   // Seeded from the server render, then replaced by whatever the server returns
   // from a quantity change. The browser never computes a total itself.
   const [cart, setCart] = useState(initial);
+  const [code, setCode] = useState("");
+  const [codeMessage, setCodeMessage] = useState<string | null>(null);
 
   if (cart.lines.length === 0) {
     return (
@@ -126,7 +128,68 @@ export function CartLines({ slug, cart: initial }: { slug: string; cart: CartVie
       </ul>
 
       <div style={{ marginTop: 24, fontFamily: "var(--sf-font-body)" }}>
+        {/* A discount code. Re-checked on the server every time the basket is
+            priced, so one that expires stops applying rather than lingering. */}
+        <div style={{ display: "flex", gap: 8, marginBottom: 18, flexWrap: "wrap" }}>
+          <input
+            aria-label="Discount code"
+            placeholder="Discount code"
+            value={cart.totals.discountCode ?? code}
+            disabled={Boolean(cart.totals.discountCode) || pending}
+            onChange={(e) => setCode(e.target.value.toUpperCase())}
+            style={{
+              flex: "1 1 180px",
+              minHeight: 44,
+              padding: "0 13px",
+              fontSize: "max(16px, 0.9rem)",
+              fontFamily: "var(--sf-font-body)",
+              color: "var(--sf-text)",
+              background: "var(--sf-surface)",
+              border: "max(1px, var(--sf-border-width)) solid var(--sf-border)",
+              borderRadius: "var(--sf-button-radius)",
+              textTransform: "uppercase",
+            }}
+          />
+          <button
+            type="button"
+            disabled={pending}
+            onClick={() =>
+              start(async () => {
+                const applied = cart.totals.discountCode;
+                const result = await applyDiscountAction(slug, applied ? null : code);
+                setCart(result.cart);
+                setCodeMessage(result.message ?? null);
+                if (applied) setCode("");
+              })
+            }
+            style={{
+              minHeight: 44,
+              padding: "0 18px",
+              background: "transparent",
+              color: "inherit",
+              border: "max(1px, var(--sf-border-width)) solid var(--sf-border)",
+              borderRadius: "var(--sf-button-radius)",
+              fontFamily: "var(--sf-font-body)",
+              fontSize: "0.9rem",
+              cursor: "pointer",
+            }}
+          >
+            {cart.totals.discountCode ? "Remove" : "Apply"}
+          </button>
+        </div>
+        {codeMessage ? (
+          <p style={{ color: "var(--sf-accent)", fontSize: "0.83rem", marginTop: -10, marginBottom: 14 }}>
+            {codeMessage}
+          </p>
+        ) : null}
+
         <Row label="Subtotal" value={formatMoney(cart.totals.subtotalMinor, cart.currency)} />
+        {cart.totals.discountMinor > 0 ? (
+          <Row
+            label={`Discount (${cart.totals.discountCode})`}
+            value={`−${formatMoney(cart.totals.discountMinor, cart.currency)}`}
+          />
+        ) : null}
         {cart.totals.taxInclusive && cart.totals.taxName ? (
           <Row
             label={`Includes ${cart.totals.taxName}`}

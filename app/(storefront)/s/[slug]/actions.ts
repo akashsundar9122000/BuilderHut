@@ -5,7 +5,13 @@ import { redirect } from "next/navigation";
 import { randomUUID } from "node:crypto";
 import { z } from "zod";
 
-import { addToCart, getCart, readCartToken, setCartQuantity } from "@/lib/commerce/cart";
+import {
+  addToCart,
+  applyDiscountCode,
+  getCart,
+  readCartToken,
+  setCartQuantity,
+} from "@/lib/commerce/cart";
 import { placeOrder } from "@/lib/commerce/orders";
 import { recordPayment } from "@/lib/commerce/orders";
 import { getPaymentProvider, settleSimulatedPayment } from "@/lib/payments/dummy";
@@ -49,6 +55,13 @@ export async function setQuantityAction(slug: string, productId: string, quantit
   await setCartQuantity(site.tenantId, site.currency, productId, quantity);
   revalidatePath(`/s/${slug}`, "layout");
   return getCart(site.tenantId, site.currency);
+}
+
+export async function applyDiscountAction(slug: string, code: string | null) {
+  const site = await resolveStore(slug);
+  const result = await applyDiscountCode(site.tenantId, site.currency, code);
+  revalidatePath(`/s/${slug}`, "layout");
+  return result;
 }
 
 const CheckoutSchema = z.object({

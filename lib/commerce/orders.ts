@@ -9,6 +9,8 @@ import {
   cartItems,
   carts,
   customers,
+  discountRedemptions,
+  discounts,
   idempotencyKeys,
   inventoryMovements,
   orderAddresses,
@@ -21,6 +23,7 @@ import {
   taxRules,
 } from "@/lib/db/schema";
 import { computeTotals, type PriceableLine } from "./pricing";
+import { lookupDiscount } from "./discount-lookup";
 import { assertTransition, type OrderStatus } from "./order-state";
 
 /*
@@ -156,7 +159,37 @@ export async function placeOrder(input: PlaceOrderInput): Promise<PlaceOrderResu
         ? { name: rules[0].name, rateBasisPoints: rules[0].rateBasisPoints, inclusive: rules[0].inclusive }
         : null;
 
-      const totals = computeTotals({ lines: priceable, shipping, taxRule: rule });
+      /*
+       * The code is validated again here, inside the transaction that creates
+       * the order. Between the basket page and this moment a code can expire,
+       * be switched off, or hit its redemption limit — and the redemption
+       * counter has to be incremented in the same transaction as the order, or
+       * a limited code can be over-redeemed by simultaneous checkouts.
+       */
+      let discount = null;
+      let discountRow = null;
+      if (cart.discountCode) {
+        const found = await lookupDiscount(db, cart.discountCode);
+        if (found.ok) {
+          discount = found.discount;
+          [discountRow] = await db
+            .select(discounts)
+            .where(eq(discounts.code, found.discount.code))
+            .for("update")
+            .limit(1);
+          // Re-read under the lock: another checkout may have taken the last one.
+          if (
+            discountRow &&
+            discountRow.maxRedemptions !== null &&
+            discountRow.redemptions >= discountRow.maxRedemptions
+          ) {
+            discount = null;
+            discountRow = null;
+          }
+        }
+      }
+
+      const totals = computeTotals({ lines: priceable, shipping, taxRule: rule, discount });
 
       const needsAddress = priceable.some((l) => l.requiresShipping) && !isPickup;
       if (needsAddress && !input.address) {
@@ -188,6 +221,7 @@ export async function placeOrder(input: PlaceOrderInput): Promise<PlaceOrderResu
         totalMinor: BigInt(totals.totalMinor),
         fulfilment: isPickup ? "pickup" : needsAddress ? "delivery" : "digital",
         shippingMethodName: shippingName,
+        discountCode: totals.discountCode,
         customerNote: input.customerNote ?? null,
         placedAt: new Date(),
       });
@@ -248,6 +282,21 @@ export async function placeOrder(input: PlaceOrderInput): Promise<PlaceOrderResu
           balanceAfter,
           reason: "sale",
           orderId,
+        });
+      }
+
+      if (discountRow && totals.discountMinor >= 0 && totals.discountCode) {
+        await db.update(
+          discounts,
+          { redemptions: discountRow.redemptions + 1 },
+          eq(discounts.id, discountRow.id),
+        );
+        await db.insert(discountRedemptions, {
+          id: uuidv7(),
+          discountId: discountRow.id,
+          orderId,
+          customerId: input.customerId ?? null,
+          amountMinor: BigInt(totals.discountMinor),
         });
       }
 

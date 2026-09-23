@@ -8,6 +8,7 @@ import { uuidv7 } from "uuidv7";
 import { withTenant, type TenantDb } from "@/lib/db/tenant";
 import { cartItems, carts, products, shippingMethods, taxRules } from "@/lib/db/schema";
 import { computeTotals, type CartTotals, type PriceableLine } from "./pricing";
+import { lookupDiscount } from "./discount-lookup";
 
 /*
  * The cart.
@@ -99,6 +100,7 @@ async function priceCart(
   db: TenantDb,
   lines: CartLine[],
   shippingMethodId?: string | null,
+  discountCode?: string | null,
 ): Promise<CartTotals> {
   const priceable: PriceableLine[] = lines.map((line) => ({
     productId: line.productId,
@@ -135,7 +137,15 @@ async function priceCart(
       }
     : null;
 
-  return computeTotals({ lines: priceable, shipping, taxRule: rule });
+  // Re-checked here rather than trusted from the cart row: a code switched off
+  // since it was entered must stop applying.
+  let discount = null;
+  if (discountCode) {
+    const found = await lookupDiscount(db, discountCode);
+    if (found.ok) discount = found.discount;
+  }
+
+  return computeTotals({ lines: priceable, shipping, taxRule: rule, discount });
 }
 
 export async function getCart(
@@ -167,7 +177,7 @@ export async function getCart(
     }
 
     const lines = await loadLines(db, cart.id);
-    const totals = await priceCart(db, lines, shippingMethodId);
+    const totals = await priceCart(db, lines, shippingMethodId, cart.discountCode);
     return {
       id: cart.id,
       lines,
@@ -291,4 +301,46 @@ export async function closeCart(db: TenantDb, cartId: string, orderId: string): 
 export async function clearCartCookie(tenantId: string): Promise<void> {
   const jar = await cookies();
   jar.delete(cookieName(tenantId));
+}
+
+export type DiscountResult = { ok: boolean; message?: string; cart: CartView };
+
+/** Attach or clear a discount code on the basket. */
+export async function applyDiscountCode(
+  tenantId: string,
+  currency: string,
+  code: string | null,
+): Promise<DiscountResult> {
+  const token = await readCartToken(tenantId);
+  if (!token) return { ok: false, message: "Your basket has expired.", cart: await getCart(tenantId, currency) };
+
+  const outcome = await withTenant(
+    { tenantId, actorId: tenantId, role: "staff" },
+    async (db): Promise<{ ok: boolean; message?: string }> => {
+      const [cart] = await db.select(carts).where(eq(carts.token, token)).limit(1);
+      if (!cart) return { ok: false, message: "Your basket has expired." };
+
+      if (code === null) {
+        await db.update(carts, { discountCode: null }, eq(carts.id, cart.id));
+        return { ok: true };
+      }
+
+      const found = await lookupDiscount(db, code);
+      if (!found.ok) return { ok: false, message: found.reason };
+
+      await db.update(carts, { discountCode: found.discount.code }, eq(carts.id, cart.id));
+      return { ok: true };
+    },
+  );
+
+  const cart = await getCart(tenantId, currency);
+  /*
+   * A code that is real but does not apply yet — below its minimum basket —
+   * is accepted and explained rather than rejected. "Spend ₹200 more" is a
+   * useful thing to be told; "invalid code" is not.
+   */
+  if (outcome.ok && cart.totals.discountRejected === "min_subtotal") {
+    return { ok: true, message: "That code needs a bigger basket. It'll apply once you reach the minimum.", cart };
+  }
+  return { ...outcome, cart };
 }
