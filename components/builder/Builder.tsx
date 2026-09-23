@@ -197,11 +197,19 @@ function BuilderBody({ products }: { products: ProductCard[] }) {
         <Canvas products={products} />
       </div>
 
-      <aside className="border-border bg-surface row-start-2 max-h-[42dvh] overflow-y-auto border-t border-r lg:row-start-1 lg:col-start-1 lg:max-h-none lg:border-t-0 lg:border-r">
+      {/*
+        * Hidden below `sm`, even though this branch is not what a phone ends
+        * up with. The server cannot know the viewport, so it renders this one
+        * and the phone layout appears on hydration — without these, a phone
+        * showed a flash of two squeezed columns first. The CSS suppresses that
+        * frame; the panels below `sm` are the sheets, rendered by the branch
+        * above once the client knows where it is.
+        */}
+      <aside className="border-border bg-surface row-start-2 max-h-[42dvh] overflow-y-auto border-t border-r max-sm:hidden lg:row-start-1 lg:col-start-1 lg:max-h-none lg:border-t-0 lg:border-r">
         <LeftPanel />
       </aside>
 
-      <aside className="border-border bg-surface row-start-2 max-h-[42dvh] overflow-y-auto border-t lg:row-start-1 lg:col-start-3 lg:max-h-none lg:border-t-0 lg:border-l">
+      <aside className="border-border bg-surface row-start-2 max-h-[42dvh] overflow-y-auto border-t max-sm:hidden lg:row-start-1 lg:col-start-3 lg:max-h-none lg:border-t-0 lg:border-l">
         <Inspector />
       </aside>
     </div>

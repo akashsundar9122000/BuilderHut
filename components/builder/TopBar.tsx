@@ -44,7 +44,13 @@ export function TopBar({
       <Button asChild variant="ghost" size="sm" className="shrink-0">
         <Link href="/app">
           <ArrowLeft className="size-4" />
-          <span className="hidden sm:inline">Dashboard</span>
+          {/*
+           * The word is hidden below `sm`, which left the link with an icon and
+           * no accessible name at all — a screen reader announced "link". The
+           * label is now always present and only visually hidden, so the arrow
+           * still has something to say for itself on a phone.
+           */}
+          <span className="sr-only sm:not-sr-only">Dashboard</span>
         </Link>
       </Button>
 
@@ -191,10 +197,22 @@ function Status({
     warning: "text-warning",
     danger: "text-danger",
   };
+  /*
+   * Announced, and visible on a phone.
+   *
+   * The whole indicator used to be hidden below `sm`, which meant the one piece
+   * of reassurance a merchant needs most — is my work saved? — disappeared on
+   * the device most likely to lose its connection. The icon now always shows,
+   * the words appear when there is room, and `role="status"` means a screen
+   * reader hears the change either way.
+   */
   return (
-    <span className={cn("ml-2 hidden items-center gap-1.5 text-xs sm:flex", tones[tone])}>
+    <span
+      role="status"
+      className={cn("ml-2 flex shrink-0 items-center gap-1.5 text-xs", tones[tone])}
+    >
       {icon}
-      {children}
+      <span className="sr-only sm:not-sr-only">{children}</span>
     </span>
   );
 }

@@ -2,7 +2,7 @@ import "server-only";
 
 import { randomBytes } from "node:crypto";
 import { and, eq, isNull } from "drizzle-orm";
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { uuidv7 } from "uuidv7";
 
 import { withTenant, type TenantDb } from "@/lib/db/tenant";
@@ -55,14 +55,30 @@ export async function readCartToken(tenantId: string): Promise<string | null> {
   return jar.get(cookieName(tenantId))?.value ?? null;
 }
 
+/*
+ * Secure follows the transport, not the build.
+ *
+ * Safari refuses a Secure cookie over plain http, including on localhost — so
+ * keying this off NODE_ENV meant a production build served over http had a
+ * basket that silently never filled: the row was written, the cookie was
+ * dropped, and the next page found no cart. It cost an afternoon to find,
+ * because everything reported success.
+ *
+ * The proxy header is what Vercel sets, and it is what middleware already uses
+ * for the analytics cookies, so the two now agree.
+ */
+async function isSecureRequest(): Promise<boolean> {
+  const proto = (await headers()).get("x-forwarded-proto");
+  if (proto) return proto.split(",")[0]!.trim() === "https";
+  return (process.env.APP_URL ?? "").startsWith("https://");
+}
+
 async function writeCartToken(tenantId: string, token: string): Promise<void> {
   const jar = await cookies();
   jar.set(cookieName(tenantId), token, {
     httpOnly: true,
     sameSite: "lax",
-    // Secure only over HTTPS: Safari drops Secure cookies on plain localhost,
-    // which would make the cart silently fail to persist in development.
-    secure: process.env.NODE_ENV === "production",
+    secure: await isSecureRequest(),
     path: "/",
     maxAge: CART_COOKIE_MAX_AGE,
   });

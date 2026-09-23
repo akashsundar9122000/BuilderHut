@@ -1,5 +1,6 @@
-import { expect, test } from "@playwright/test";
-import { readFileSync } from "node:fs";
+import { expect, test, type Page } from "@playwright/test";
+
+import { readVerificationCode, signUpMerchant } from "./support/journey";
 
 /*
  * Phase 3: someone buys something.
@@ -21,23 +22,37 @@ test.describe("buying something", () => {
   test.skip(!MAIL_LOG, "set BH_E2E_MAIL_LOG to the server's output file");
   test.describe.configure({ mode: "serial" });
 
+  /*
+   * One page for the whole journey.
+   *
+   * Playwright gives every test its own browser context, which means its own
+   * cookie jar — so a spec that signs in during the first test and relies on
+   * being signed in during the second is signed out before it starts. Serial
+   * mode fixes the ORDER, not the isolation. The journeys here are genuinely
+   * sequential (you cannot add a product to a store you have not created), so
+   * they share one page, opened once.
+   *
+   * Tests that deliberately want a clean visitor — a shopper who is not the
+   * merchant — still take `browser` and open their own context.
+   */
+  let page: Page;
+
+  test.beforeAll(async ({ browser }) => {
+    page = await browser.newPage();
+  });
+
+  test.afterAll(async () => {
+    await page.close();
+  });
+
   const tag = Date.now().toString(36);
   const email = `commerce-${tag}@builderhut.test`;
   let slug: string;
 
-  test("a merchant opens a shop with one product", async ({ page }) => {
-    await page.goto("/signup");
-    await page.fill("#name", "Commerce Tester");
-    await page.fill("#email", email);
-    await page.fill("#password", "a-long-enough-password");
-    await page.click('button[type="submit"]');
-    await page.waitForURL(/\/verify/);
+  test("a merchant opens a shop with one product", async () => {
+    await signUpMerchant(page, { name: "Commerce Tester", email });
 
-    const code = [
-      ...readFileSync(MAIL_LOG!, "utf8").matchAll(
-        new RegExp(`To:\\s+${email}[\\s\\S]{0,400}?verification code is (\\d{6})`, "g"),
-      ),
-    ].pop()![1]!;
+    const code = await readVerificationCode(MAIL_LOG!, email);
     await page.fill('input[aria-label="Digit 1"]', code);
     await page.waitForURL(/\/onboarding/);
 
@@ -120,7 +135,7 @@ test.describe("buying something", () => {
      * customer lands on their unpaid order instead, and pays against it.
      */
     await page.waitForURL(/\/order\//);
-    await expect(page.getByText("awaiting payment")).toBeVisible();
+    await expect(page.getByText("awaiting payment").first()).toBeVisible();
     await expect(page.getByText("try another card")).toBeVisible();
 
     await page.fill("#retry-card", CARD_GOOD);
@@ -130,7 +145,7 @@ test.describe("buying something", () => {
     await shopper.close();
   });
 
-  test("the merchant sees the order, advances it, and refunds part of it", async ({ page }) => {
+  test("the merchant sees the order, advances it, and refunds part of it", async () => {
     await page.goto("/app/orders");
     await expect(page.getByText(`buyer-${tag}@example.test`)).toBeVisible();
 
@@ -153,7 +168,7 @@ test.describe("buying something", () => {
     await expect(page.getByText("Partly refunded").first()).toBeVisible();
   });
 
-  test("revenue on the dashboard is net of the refund", async ({ page }) => {
+  test("revenue on the dashboard is net of the refund", async () => {
     await page.goto("/app");
     await expect(page.getByText("Revenue")).toBeVisible();
     // ₹2,400 paid less ₹1,000 refunded.

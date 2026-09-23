@@ -23,6 +23,18 @@ export function StoreFrame({
   return (
     <div
       className={className}
+      /*
+       * One image, not a page. The miniature is drawn at a ninth of real size —
+       * its 9px sample text is an impression of a shop, not something anyone is
+       * meant to read, and holding it to a text contrast ratio would mean
+       * drawing a picture of a storefront that looks nothing like one.
+       *
+       * So it is labelled as a whole and its innards are hidden from assistive
+       * technology. Every fact it illustrates — the name, the blurb, the type
+       * pairing, the corners, the trades — is real text in the card around it.
+       */
+      role="img"
+      aria-label={`A preview of the ${template.name} template: ${template.blurb}`}
       style={{
         background: c.background,
         color: c.text,
@@ -32,6 +44,7 @@ export function StoreFrame({
         containerType: "inline-size",
       }}
     >
+      <div aria-hidden="true" style={{ display: "contents" }}>
       <div
         style={{
           display: "flex",
@@ -52,7 +65,13 @@ export function StoreFrame({
         >
           {template.name}
         </span>
-        <span style={{ marginLeft: "auto", display: "flex", gap: 10, opacity: 0.55, fontSize: 9 }}>
+        {/*
+          * The theme's own muted colour at full strength, not text faded to
+          * 55%. Every template's muted clears AA against its background — the
+          * blend did not, and a sighted reader with low vision still has to
+          * look at this even though assistive technology does not.
+          */}
+        <span style={{ marginLeft: "auto", display: "flex", gap: 10, color: c.muted, fontSize: 10 }}>
           <span>Shop</span>
           <span>About</span>
         </span>
@@ -98,15 +117,16 @@ export function StoreFrame({
                   borderRadius: s.radius,
                 }}
               />
-              <p style={{ fontFamily: FONT_STACKS[t.body], fontSize: 9, marginTop: 5, marginBottom: 0, opacity: 0.85 }}>
+              <p style={{ fontFamily: FONT_STACKS[t.body], fontSize: 10, marginTop: 5, marginBottom: 0 }}>
                 {name}
               </p>
-              <p style={{ fontFamily: FONT_STACKS[t.body], fontSize: 9, margin: 0, color: c.muted }}>
+              <p style={{ fontFamily: FONT_STACKS[t.body], fontSize: 10, margin: 0, color: c.muted }}>
                 ₹{[499, 349, 1299][i]}
               </p>
             </div>
           ))}
         </div>
+      </div>
       </div>
     </div>
   );

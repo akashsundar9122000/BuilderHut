@@ -45,7 +45,7 @@
   --bh-text: #1c1917; /* ink */
   --bh-text-secondary: #453d36;
   --bh-muted: #6b625a;
-  --bh-faint: #8a7f74;
+  --bh-faint: #736a5f;
   --bh-on-accent: #ffffff;
 
   /* ---- accent: clay, used sparingly and with intent ---- */
@@ -151,7 +151,7 @@
     --bh-text: #f5efe7;
     --bh-text-secondary: #ddd2c5;
     --bh-muted: #a89c8e;
-    --bh-faint: #8a7d6e;
+    --bh-faint: #968a7a;
     --bh-on-accent: #24120a;
 
     --bh-accent: #e8845c;
@@ -208,7 +208,7 @@
   --bh-text: #f5efe7;
   --bh-text-secondary: #ddd2c5;
   --bh-muted: #a89c8e;
-  --bh-faint: #8a7d6e;
+  --bh-faint: #968a7a;
   --bh-on-accent: #24120a;
 
   --bh-accent: #e8845c;

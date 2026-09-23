@@ -9,6 +9,14 @@ export default defineConfig({
   retries: process.env.CI ? 1 : 0,
   workers: 1,
   reporter: process.env.CI ? "github" : "list",
+  /*
+   * Longer than Playwright's 5s default, because these run against a real
+   * Neon database that is usually in a different region from whoever is
+   * running them — about 78ms per round trip from here. A single "add to
+   * basket" is a handful of those, and a suite that fails on network distance
+   * teaches people to ignore it.
+   */
+  expect: { timeout: 15_000 },
   use: {
     baseURL: `http://localhost:${PORT}`,
     trace: "on-first-retry",

@@ -179,7 +179,7 @@ export function CheckoutForm({
               marginTop: 18,
               padding: "12px 14px",
               background: "var(--sf-raised)",
-              border: "max(1px, var(--sf-border-width)) solid var(--sf-accent)",
+              border: "max(1px, var(--sf-border-width)) solid var(--sf-danger)",
               borderRadius: "var(--sf-radius)",
               fontSize: "0.9rem",
             }}
@@ -337,10 +337,10 @@ function Field({
         required={required}
         defaultValue={defaultValue}
         aria-invalid={Boolean(error)}
-        style={{ ...inputStyle, borderColor: error ? "var(--sf-accent)" : undefined }}
+        style={{ ...inputStyle, borderColor: error ? "var(--sf-danger)" : undefined }}
       />
       {error ? (
-        <span style={{ display: "block", color: "var(--sf-accent)", fontSize: "0.8rem", marginTop: 5 }}>
+        <span style={{ display: "block", color: "var(--sf-danger)", fontSize: "0.8rem", marginTop: 5 }}>
           {error}
         </span>
       ) : hint ? (

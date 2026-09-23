@@ -139,7 +139,12 @@ function ProductTile({
         <p style={{ fontFamily: "var(--sf-font-body)", fontSize: "0.9rem", color: "var(--sf-muted)", marginTop: 4, display: "flex", gap: 8 }}>
           <span style={{ color: "var(--sf-text)" }}>{formatMoney(product.priceMinor, product.currency)}</span>
           {off ? (
-            <s style={{ opacity: 0.6 }}>{formatMoney(product.compareAtMinor!, product.currency)}</s>
+            /*
+             * The old price at full muted, not faded further. A struck price
+             * is the reason a shopper believes the new one, and at 60% opacity
+             * it was 2.4:1 — decoration rather than information.
+             */
+            <s>{formatMoney(product.compareAtMinor!, product.currency)}</s>
           ) : null}
         </p>
       ) : null}

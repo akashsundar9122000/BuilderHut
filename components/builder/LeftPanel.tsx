@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Eye, EyeOff, FileText, GripVertical, Layers, Lock, Plus, Sparkles } from "lucide-react";
 
 import { cn } from "@/lib/cn";
-import { insertableRange } from "@/lib/builder/commands";
+import { insertableRange, newSectionId } from "@/lib/builder/commands";
 import { useBuilder } from "@/lib/builder/store";
 import { AssistPanel } from "./AssistPanel";
 import { REGISTRY } from "@/lib/render/registry";
@@ -94,10 +94,19 @@ function AddPanel() {
                 <button
                   key={type}
                   onClick={() => {
-                    // New sections land at the end of the editable range, just
-                    // above the footer, which is where people expect them.
-                    run({ type: "addSection", pageId: page.id, index: max, sectionType: type });
-                    select(null);
+                    /*
+                     * New sections land at the end of the editable range, just
+                     * above the footer, which is where people expect them —
+                     * and the new one is selected, so its settings are right
+                     * there rather than needing to be hunted for on the
+                     * canvas. On a phone that is what swaps the sheet from the
+                     * section list to the settings for what was just added;
+                     * before this, adding a section left the list sitting over
+                     * the canvas with nothing to show for it.
+                     */
+                    const sectionId = newSectionId(type, page.sections);
+                    run({ type: "addSection", pageId: page.id, index: max, sectionType: type, sectionId });
+                    select(sectionId);
                   }}
                   className="border-border hover:border-accent hover:bg-accent-soft group rounded-md border px-3 py-2.5 text-left transition-all duration-(--bh-duration-fast)"
                 >

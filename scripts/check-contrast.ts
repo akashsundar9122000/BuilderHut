@@ -86,11 +86,18 @@ const PAIRS: Pair[] = [
     min: 4.5,
     why: "muted text (labels, captions)",
   })),
-  ...["bh-canvas", "bh-surface"].map((bg) => ({
+  /*
+   * `faint` was gated at 3.0 on the theory that it was decorative. It is not:
+   * an axe sweep found it carrying 12px captions on every dashboard, admin and
+   * marketing page, at 3.4–3.9 against the surfaces it sits on. A token used
+   * for text is text, so it is held to AA on every background including
+   * `raised`, which is the hardest of the three and was not being checked.
+   */
+  ...["bh-canvas", "bh-surface", "bh-raised"].map((bg) => ({
     fg: "bh-faint",
     bg,
-    min: 3.0,
-    why: "faint text — large/decorative only",
+    min: 4.5,
+    why: "faint text (captions, meta)",
   })),
 
   { fg: "bh-on-accent", bg: "bh-accent", min: 4.5, why: "primary button label" },

@@ -22,7 +22,12 @@ export function CartLines({ slug, cart: initial }: { slug: string; cart: CartVie
   // from a quantity change. The browser never computes a total itself.
   const [cart, setCart] = useState(initial);
   const [code, setCode] = useState("");
-  const [codeMessage, setCodeMessage] = useState<string | null>(null);
+  /*
+   * The message and whether it was a refusal, together. A code that is real but
+   * below its minimum basket comes back ok:true with an explanation — colouring
+   * that as an error would tell the shopper their valid code had failed.
+   */
+  const [codeMessage, setCodeMessage] = useState<{ text: string; ok: boolean } | null>(null);
 
   if (cart.lines.length === 0) {
     return (
@@ -64,12 +69,20 @@ export function CartLines({ slug, cart: initial }: { slug: string; cart: CartVie
     <div style={{ opacity: pending ? 0.6 : 1, transition: "opacity 150ms" }}>
       <ul style={{ listStyle: "none", margin: 0, padding: 0 }}>
         {cart.lines.map((line) => (
+          /*
+           * Wraps rather than squeezes.
+           *
+           * As one unbreakable row this collapsed at phone width: the image,
+           * the quantity stepper, the line total and the remove button are all
+           * fixed-width, so the product name was squashed to nothing and the
+           * stepper was drawn straight over the top of it. Letting the
+           * controls drop to a second line keeps every part of it readable at
+           * 390px and changes nothing at all on a desktop, where it still fits.
+           */
           <li
             key={line.productId}
+            className="flex flex-wrap items-center gap-x-4 gap-y-3"
             style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 16,
               padding: "18px 0",
               borderBottom: "var(--sf-border-width) solid var(--sf-border)",
               fontFamily: "var(--sf-font-body)",
@@ -85,44 +98,46 @@ export function CartLines({ slug, cart: initial }: { slug: string; cart: CartVie
                 borderRadius: "var(--sf-radius)",
               }}
             />
-            <div style={{ minWidth: 0, flex: 1 }}>
+            <div className="min-w-0 flex-1 basis-40">
               <p style={{ margin: 0, fontSize: "0.95rem" }}>{line.name}</p>
               <p style={{ margin: "4px 0 0", color: "var(--sf-muted)", fontSize: "0.85rem" }}>
                 {formatMoney(line.unitPriceMinor, cart.currency)} each
               </p>
             </div>
 
-            <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+            <div className="ml-auto flex items-center gap-4">
+              <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                <QtyButton
+                  label={`Fewer ${line.name}`}
+                  onClick={() => change(line.productId, line.quantity - 1)}
+                  disabled={pending}
+                >
+                  <Minus className="size-3.5" />
+                </QtyButton>
+                <span style={{ minWidth: 28, textAlign: "center", fontSize: "0.9rem" }}>
+                  {line.quantity}
+                </span>
+                <QtyButton
+                  label={`More ${line.name}`}
+                  onClick={() => change(line.productId, line.quantity + 1)}
+                  disabled={pending || (line.available !== null && line.quantity >= line.available)}
+                >
+                  <Plus className="size-3.5" />
+                </QtyButton>
+              </div>
+
+              <p style={{ minWidth: 88, textAlign: "right", margin: 0, fontSize: "0.95rem" }}>
+                {formatMoney(line.unitPriceMinor * line.quantity, cart.currency)}
+              </p>
+
               <QtyButton
-                label={`Fewer ${line.name}`}
-                onClick={() => change(line.productId, line.quantity - 1)}
+                label={`Remove ${line.name}`}
+                onClick={() => change(line.productId, 0)}
                 disabled={pending}
               >
-                <Minus className="size-3.5" />
-              </QtyButton>
-              <span style={{ minWidth: 28, textAlign: "center", fontSize: "0.9rem" }}>
-                {line.quantity}
-              </span>
-              <QtyButton
-                label={`More ${line.name}`}
-                onClick={() => change(line.productId, line.quantity + 1)}
-                disabled={pending || (line.available !== null && line.quantity >= line.available)}
-              >
-                <Plus className="size-3.5" />
+                <X className="size-3.5" />
               </QtyButton>
             </div>
-
-            <p style={{ minWidth: 88, textAlign: "right", margin: 0, fontSize: "0.95rem" }}>
-              {formatMoney(line.unitPriceMinor * line.quantity, cart.currency)}
-            </p>
-
-            <QtyButton
-              label={`Remove ${line.name}`}
-              onClick={() => change(line.productId, 0)}
-              disabled={pending}
-            >
-              <X className="size-3.5" />
-            </QtyButton>
           </li>
         ))}
       </ul>
@@ -158,7 +173,7 @@ export function CartLines({ slug, cart: initial }: { slug: string; cart: CartVie
                 const applied = cart.totals.discountCode;
                 const result = await applyDiscountAction(slug, applied ? null : code);
                 setCart(result.cart);
-                setCodeMessage(result.message ?? null);
+                setCodeMessage(result.message ? { text: result.message, ok: result.ok } : null);
                 if (applied) setCode("");
               })
             }
@@ -178,8 +193,16 @@ export function CartLines({ slug, cart: initial }: { slug: string; cart: CartVie
           </button>
         </div>
         {codeMessage ? (
-          <p style={{ color: "var(--sf-accent)", fontSize: "0.83rem", marginTop: -10, marginBottom: 14 }}>
-            {codeMessage}
+          <p
+            role={codeMessage.ok ? "status" : "alert"}
+            style={{
+              color: codeMessage.ok ? "var(--sf-muted)" : "var(--sf-danger)",
+              fontSize: "0.83rem",
+              marginTop: -10,
+              marginBottom: 14,
+            }}
+          >
+            {codeMessage.text}
           </p>
         ) : null}
 

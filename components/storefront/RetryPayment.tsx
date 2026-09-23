@@ -43,14 +43,14 @@ export function RetryPayment({ slug, orderId }: { slug: string; orderId: string 
             fontFamily: "var(--sf-font-body)",
             color: "var(--sf-text)",
             background: "var(--sf-bg)",
-            border: `max(1px, var(--sf-border-width)) solid ${state.error ? "var(--sf-accent)" : "var(--sf-border)"}`,
+            border: `max(1px, var(--sf-border-width)) solid ${state.error ? "var(--sf-danger)" : "var(--sf-border)"}`,
             borderRadius: "var(--sf-radius)",
           }}
         />
       </label>
 
       {state.error ? (
-        <p role="alert" style={{ color: "var(--sf-accent)", fontSize: "0.85rem", marginTop: 8 }}>
+        <p role="alert" style={{ color: "var(--sf-danger)", fontSize: "0.85rem", marginTop: 8 }}>
           {state.error}
         </p>
       ) : null}

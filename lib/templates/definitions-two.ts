@@ -89,12 +89,12 @@ const bloom: Template = {
   name: "Bloom",
   blurb: "Soft and reassuring, for skincare, soaps and balms.",
   industries: ["beauty", "other"],
-  swatches: ["#fdf7f5", "#3b3238", "#a8736b", "#7d9c8b"],
+  swatches: ["#fdf7f5", "#3b3238", "#a1685f", "#7d9c8b"],
   theme: {
     colors: {
       background: "#fdf7f5", surface: "#ffffff", raised: "#f7ebe8",
-      text: "#3b3238", muted: "#7a6d72", border: "#ecdcd8",
-      primary: "#a8736b", onPrimary: "#ffffff", accent: "#5d7d6c",
+      text: "#3b3238", muted: "#75686d", border: "#ecdcd8",
+      primary: "#a1685f", onPrimary: "#ffffff", accent: "#557263",
     },
     typography: {
       heading: "playfair", body: "dmsans", scale: 1.05,
@@ -155,7 +155,7 @@ const canvas: Template = {
   theme: {
     colors: {
       background: "#ffffff", surface: "#ffffff", raised: "#f3f4f6",
-      text: "#1b2129", muted: "#69727c", border: "#e4e6ea",
+      text: "#1b2129", muted: "#68717b", border: "#e4e6ea",
       primary: "#3d4c5c", onPrimary: "#ffffff", accent: "#8a6a3f",
     },
     typography: {
@@ -266,12 +266,12 @@ const circuit: Template = {
   name: "Circuit",
   blurb: "Technical and dense, for gadgets, accessories and repairs.",
   industries: ["electronics", "other"],
-  swatches: ["#f5f7f8", "#12161f", "#0e6f80", "#b3560f"],
+  swatches: ["#f5f7f8", "#12161f", "#0e6f80", "#ab520e"],
   theme: {
     colors: {
       background: "#f5f7f8", surface: "#ffffff", raised: "#e8eef0",
       text: "#12181c", muted: "#586570", border: "#d9e1e4",
-      primary: "#0e6f80", onPrimary: "#ffffff", accent: "#b3560f",
+      primary: "#0e6f80", onPrimary: "#ffffff", accent: "#ab520e",
     },
     typography: {
       heading: "spacegrotesk", body: "archivo", scale: 0.95,
@@ -326,12 +326,12 @@ const hearth: Template = {
   name: "Hearth",
   blurb: "Earthy and textural, for candles, ceramics and textiles.",
   industries: ["decor", "other"],
-  swatches: ["#f6f2ea", "#33302a", "#7a6a52", "#96634a"],
+  swatches: ["#f6f2ea", "#33302a", "#7a6a52", "#8a5b44"],
   theme: {
     colors: {
       background: "#f6f2ea", surface: "#fffdf9", raised: "#ebe4d7",
-      text: "#33302a", muted: "#6e6656", border: "#ddd4c2",
-      primary: "#7a6a52", onPrimary: "#fffdf9", accent: "#96634a",
+      text: "#33302a", muted: "#6d6555", border: "#ddd4c2",
+      primary: "#7a6a52", onPrimary: "#fffdf9", accent: "#8a5b44",
     },
     typography: {
       heading: "lora", body: "worksans", scale: 1,
@@ -380,12 +380,12 @@ const stitch: Template = {
   name: "Stitch",
   blurb: "Bright and chatty, for makers whose work is full of colour.",
   industries: ["handmade", "crochet", "other"],
-  swatches: ["#fffdf7", "#23202b", "#e0564f", "#2d7d9a"],
+  swatches: ["#fffdf7", "#23202b", "#e0564f", "#2b7792"],
   theme: {
     colors: {
       background: "#fffdf7", surface: "#ffffff", raised: "#fdf0e6",
       text: "#23202b", muted: "#6b6575", border: "#f0e2d4",
-      primary: "#d9453e", onPrimary: "#ffffff", accent: "#2d7d9a",
+      primary: "#d83e37", onPrimary: "#ffffff", accent: "#2b7792",
     },
     typography: {
       heading: "archivo", body: "dmsans", scale: 1.15,

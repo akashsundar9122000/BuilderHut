@@ -1,5 +1,6 @@
-import { expect, test } from "@playwright/test";
-import { readFileSync } from "node:fs";
+import { expect, test, type Page } from "@playwright/test";
+
+import { readVerificationCode, signUpMerchant } from "./support/journey";
 
 /*
  * The journey blueprint section 100 defines, as far as Phase 1 reaches:
@@ -25,37 +26,45 @@ test.describe("merchant journey", () => {
   test.skip(!MAIL_LOG, "set BH_E2E_MAIL_LOG to the server's output file");
   test.describe.configure({ mode: "serial" });
 
+  /*
+   * One page for the whole journey.
+   *
+   * Playwright gives every test its own browser context, which means its own
+   * cookie jar — so a spec that signs in during the first test and relies on
+   * being signed in during the second is signed out before it starts. Serial
+   * mode fixes the ORDER, not the isolation. The journeys here are genuinely
+   * sequential (you cannot add a product to a store you have not created), so
+   * they share one page, opened once.
+   *
+   * Tests that deliberately want a clean visitor — a shopper who is not the
+   * merchant — still take `browser` and open their own context.
+   */
+  let page: Page;
+
+  test.beforeAll(async ({ browser }) => {
+    page = await browser.newPage();
+  });
+
+  test.afterAll(async () => {
+    await page.close();
+  });
+
   const tag = Date.now().toString(36);
   const email = `e2e-${tag}@builderhut.test`;
   const storeName = `Thread Bloom ${tag}`;
   let slug: string;
 
-  test("signs up and receives a verification code", async ({ page }) => {
-    await page.goto("/signup");
-    await page.fill("#name", "Harshini");
-    await page.fill("#email", email);
-    await page.fill("#password", "a-long-enough-password");
-    await page.click('button[type="submit"]');
-
-    await page.waitForURL(/\/verify/);
-    // resend=1 means the send failed; the screen would be waiting for a code
-    // that was never issued.
-    expect(page.url()).not.toContain("resend=1");
+  test("signs up and receives a verification code", async () => {
+    await signUpMerchant(page, { name: "Harshini", email });
     await expect(page.getByLabel("Digit 1")).toBeVisible();
   });
 
-  test("verifies, onboards and lands on a live store", async ({ page }) => {
-    const log = readFileSync(MAIL_LOG!, "utf8");
-    const match = [
-      ...log.matchAll(
-        new RegExp(`To:\\s+${email}[\\s\\S]{0,400}?verification code is (\\d{6})`, "g"),
-      ),
-    ].pop();
-    expect(match, "no verification code was printed for this address").toBeTruthy();
+  test("verifies, onboards and lands on a live store", async () => {
+    const code = await readVerificationCode(MAIL_LOG!, email);
 
     await page.goto(`/verify?email=${encodeURIComponent(email)}`);
     // Typing the whole code into the first box spreads it across the rest.
-    await page.fill('input[aria-label="Digit 1"]', match![1]!);
+    await page.fill('input[aria-label="Digit 1"]', code);
     await page.waitForURL(/\/onboarding/);
 
     await page.click('button:has-text("Crochet & Yarn")');
@@ -72,7 +81,7 @@ test.describe("merchant journey", () => {
     await page.click('button:has-text("India")');
     await page.click('button:has-text("Continue")');
 
-    await expect(page.getByText("Pick a starting point")).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Pick a starting point" })).toBeVisible();
     await page.click('button:has-text("Create my store")');
 
     await page.waitForURL(/\/app/);
@@ -82,7 +91,7 @@ test.describe("merchant journey", () => {
     expect(slug).toBeTruthy();
   });
 
-  test("adds a product and it appears on the public storefront", async ({ page }) => {
+  test("adds a product and it appears on the public storefront", async () => {
     await page.goto("/app/products/new");
     await page.fill("#name", "Crochet daisy posy");
     await page.fill("#price", "499");

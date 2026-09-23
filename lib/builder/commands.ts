@@ -22,7 +22,14 @@ import { defaultPropsFor } from "@/lib/render/registry";
 export type Command =
   | { type: "setSectionProp"; pageId: string; sectionId: string; prop: string; value: unknown }
   | { type: "moveSection"; pageId: string; from: number; to: number }
-  | { type: "addSection"; pageId: string; index: number; sectionType: SectionType }
+  | {
+      type: "addSection";
+      pageId: string;
+      index: number;
+      sectionType: SectionType;
+      /** Chosen by the caller when it needs to select the result. Generated if absent. */
+      sectionId?: string;
+    }
   | { type: "removeSection"; pageId: string; sectionId: string }
   | { type: "duplicateSection"; pageId: string; sectionId: string }
   | { type: "toggleSectionVisible"; pageId: string; sectionId: string }
@@ -68,8 +75,14 @@ function mapPage(doc: SiteDocument, pageId: string, fn: (page: Page) => Page): S
   return { ...doc, pages: doc.pages.map((p) => (p.id === pageId ? fn(p) : p)) };
 }
 
-function newSectionId(type: string, existing: Section[]): string {
-  // Readable and stable: hero-3 rather than a uuid nobody can hold in their head.
+/**
+ * The id a new section of this type would get.
+ *
+ * Exported because adding a section and then selecting it are two steps, and
+ * the second one needs to know what the first produced. Readable and stable:
+ * hero-3 rather than a uuid nobody can hold in their head.
+ */
+export function newSectionId(type: string, existing: Section[]): string {
   let n = 1;
   while (existing.some((s) => s.id === `${type}-${n}`)) n += 1;
   return `${type}-${n}`;
@@ -115,7 +128,7 @@ export function applyCommand(doc: SiteDocument, command: Command): SiteDocument 
         const { min, max } = insertableRange(page);
         const index = Math.min(Math.max(command.index, min), max);
         const section: Section = {
-          id: newSectionId(command.sectionType, page.sections),
+          id: command.sectionId ?? newSectionId(command.sectionType, page.sections),
           type: command.sectionType,
           props: defaultPropsFor(command.sectionType),
           visible: true,

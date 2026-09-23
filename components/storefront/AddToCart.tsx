@@ -86,7 +86,7 @@ export function AddToCart({
           role="alert"
           style={{
             fontFamily: "var(--sf-font-body)",
-            color: "var(--sf-accent)",
+            color: "var(--sf-danger)",
             fontSize: "0.85rem",
             marginTop: 10,
           }}

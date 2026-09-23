@@ -78,7 +78,6 @@ export function Header({
                 fontFamily: "var(--sf-font-body)",
                 fontSize: "0.9rem",
                 color: "inherit",
-                opacity: 0.85,
                 textDecoration: "none",
               }}
             >
@@ -231,8 +230,9 @@ export function Footer({
           style={{
             fontFamily: "var(--sf-font-body)",
             fontSize: "0.78rem",
+            // Not muted-at-80%: the blend against a tinted footer band landed
+            // at 3.3:1, and a copyright line is still text somebody may read.
             color: "var(--sf-muted)",
-            opacity: 0.8,
             marginTop: 40,
           }}
         >

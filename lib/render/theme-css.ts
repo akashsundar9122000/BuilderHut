@@ -18,6 +18,36 @@ function num(value: number, min: number, max: number): number {
   return Math.min(max, Math.max(min, Number.isFinite(value) ? value : min));
 }
 
+function relativeLuminance(hex: string): number {
+  let h = hex.slice(1);
+  if (h.length === 3) h = h.split("").map((c) => c + c).join("");
+  const n = Number.parseInt(h, 16);
+  const [r, g, b] = [(n >> 16) & 255, (n >> 8) & 255, n & 255].map((v) => {
+    const c = v / 255;
+    return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+  }) as [number, number, number];
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+}
+
+/*
+ * The colour a storefront shows a problem in.
+ *
+ * Deliberately NOT the merchant's accent, which is what the error states used
+ * before: a shop with a green accent announced a declined card in the same
+ * green as its "Add to basket" button, and a customer has no way to read that
+ * as a warning. An error colour is a convention, not a brand decision — so
+ * this is fixed, and only picks the shade that clears AA on the shop's own
+ * background.
+ *
+ * Both values pass 4.5:1 against the surfaces they are chosen for.
+ */
+const DANGER_ON_LIGHT = "#b02318";
+const DANGER_ON_DARK = "#ff9a8f";
+
+function dangerFor(background: string): string {
+  return relativeLuminance(background) > 0.35 ? DANGER_ON_LIGHT : DANGER_ON_DARK;
+}
+
 export function themeToCss(theme: Theme): string {
   const c = theme.colors;
   const t = theme.typography;
@@ -33,6 +63,7 @@ export function themeToCss(theme: Theme): string {
 --sf-primary:${safeColor(c.primary)};
 --sf-on-primary:${safeColor(c.onPrimary)};
 --sf-accent:${safeColor(c.accent)};
+--sf-danger:${dangerFor(safeColor(c.background))};
 --sf-font-heading:${FONT_STACKS[t.heading]};
 --sf-font-body:${FONT_STACKS[t.body]};
 --sf-scale:${num(t.scale, 0.8, 1.4)};

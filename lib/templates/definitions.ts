@@ -72,12 +72,12 @@ const thread: Template = {
   name: "Thread",
   blurb: "Warm and unhurried, for things made slowly by hand.",
   industries: ["crochet", "handmade", "decor", "gifts", "other"],
-  swatches: ["#faf6f0", "#2f2a24", "#b0603f", "#5c7a5e"],
+  swatches: ["#faf6f0", "#2f2a24", "#b0603f", "#567258"],
   theme: {
     colors: {
       background: "#faf6f0", surface: "#ffffff", raised: "#f2ebe1",
       text: "#2f2a24", muted: "#6f6559", border: "#e3d9ca",
-      primary: "#b0603f", onPrimary: "#ffffff", accent: "#5c7a5e",
+      primary: "#b0603f", onPrimary: "#ffffff", accent: "#567258",
     },
     typography: {
       heading: "fraunces", body: "worksans", scale: 1,
@@ -138,12 +138,12 @@ const leaflet: Template = {
   name: "Leaflet",
   blurb: "Quiet and typographic, for invitations, prints and commissions.",
   industries: ["invitations", "art", "other"],
-  swatches: ["#ffffff", "#1a1a1a", "#8c7851", "#f4f1ea"],
+  swatches: ["#ffffff", "#1a1a1a", "#7f6d4a", "#f4f1ea"],
   theme: {
     colors: {
       background: "#ffffff", surface: "#ffffff", raised: "#f6f3ec",
       text: "#1a1a1a", muted: "#6d6a63", border: "#e6e1d6",
-      primary: "#1a1a1a", onPrimary: "#ffffff", accent: "#8c7851",
+      primary: "#1a1a1a", onPrimary: "#ffffff", accent: "#7f6d4a",
     },
     typography: {
       heading: "playfair", body: "lora", scale: 1.05,
@@ -318,12 +318,12 @@ const proof: Template = {
   name: "Proof",
   blurb: "Warm and appetising, for bakes, preserves and pre-orders.",
   industries: ["bakery", "gifts", "other"],
-  swatches: ["#fff9ef", "#3d2b1f", "#d2691e", "#7d9d6d"],
+  swatches: ["#fff9ef", "#3d2b1f", "#d2691e", "#5b744e"],
   theme: {
     colors: {
       background: "#fff9ef", surface: "#ffffff", raised: "#fdf0dc",
       text: "#3d2b1f", muted: "#7a6a5c", border: "#efe0c9",
-      primary: "#c25e1a", onPrimary: "#ffffff", accent: "#7d9d6d",
+      primary: "#bb5b19", onPrimary: "#ffffff", accent: "#5b744e",
     },
     typography: {
       heading: "fraunces", body: "dmsans", scale: 1.05,
