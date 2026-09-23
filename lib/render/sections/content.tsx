@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { safeHref } from "@/lib/schema/page";
 import { linkTo, type RenderContext } from "../context";
-import { AlignSchema, Heading, ImageSlot, Lede, SectionShell, StoreButton, ToneSchema, toneStyles } from "./shared";
+import { AlignSchema, EmptySectionHint, Heading, ImageSlot, Lede, SectionShell, StoreButton, ToneSchema, toneStyles } from "./shared";
 
 /* Editorial sections: the parts that carry a brand's voice rather than its catalogue. */
 
@@ -158,7 +158,16 @@ export const FeatureListProps = z.object({
   tone: ToneSchema,
 });
 
-export function FeatureList({ props }: { props: z.infer<typeof FeatureListProps>; ctx: RenderContext }) {
+export function FeatureList({
+  props,
+  ctx,
+}: {
+  props: z.infer<typeof FeatureListProps>;
+  ctx: RenderContext;
+}) {
+  if (props.items.length === 0 && !props.heading) {
+    return <EmptySectionHint label="Add a point in the panel on the right." ctx={ctx} />;
+  }
   return (
     <SectionShell tone={props.tone}>
       {props.heading ? (

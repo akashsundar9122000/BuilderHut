@@ -1,0 +1,194 @@
+"use client";
+
+import { useState } from "react";
+import { Eye, EyeOff, FileText, GripVertical, Layers, Lock, Plus } from "lucide-react";
+
+import { cn } from "@/lib/cn";
+import { insertableRange } from "@/lib/builder/commands";
+import { useBuilder } from "@/lib/builder/store";
+import { REGISTRY } from "@/lib/render/registry";
+import type { SectionType } from "@/lib/schema/page";
+
+/*
+ * The left rail: add sections, see the page's structure, switch pages.
+ *
+ * Three tabs rather than three panels, because the canvas is the product and
+ * anything that narrows it needs to earn the space.
+ */
+
+type Tab = "add" | "layers" | "pages";
+
+const GROUP_LABELS: Record<string, string> = {
+  content: "Content",
+  commerce: "Products",
+  engage: "Trust & contact",
+  structure: "Structure",
+};
+
+export function LeftPanel() {
+  const [tab, setTab] = useState<Tab>("add");
+
+  return (
+    <div className="flex h-full flex-col">
+      <div className="border-border flex border-b" role="tablist">
+        {(
+          [
+            ["add", "Add", Plus],
+            ["layers", "Layers", Layers],
+            ["pages", "Pages", FileText],
+          ] as const
+        ).map(([id, label, Icon]) => (
+          <button
+            key={id}
+            role="tab"
+            aria-selected={tab === id}
+            onClick={() => setTab(id)}
+            className={cn(
+              "flex flex-1 items-center justify-center gap-1.5 py-2.5 text-xs font-medium transition-colors",
+              tab === id
+                ? "text-accent border-accent border-b-2"
+                : "text-muted hover:text-text border-b-2 border-transparent",
+            )}
+          >
+            <Icon className="size-3.5" />
+            {label}
+          </button>
+        ))}
+      </div>
+
+      <div className="flex-1 overflow-y-auto">
+        {tab === "add" && <AddPanel />}
+        {tab === "layers" && <LayerTree />}
+        {tab === "pages" && <PageList />}
+      </div>
+    </div>
+  );
+}
+
+function AddPanel() {
+  const { page, run, select } = useBuilder();
+  const { max } = insertableRange(page);
+
+  // Structural sections cannot be added: a page has exactly one header and one
+  // footer, and they arrive with the template.
+  const addable = (Object.entries(REGISTRY) as [SectionType, (typeof REGISTRY)[SectionType]][])
+    .filter(([, entry]) => entry.group !== "structure");
+
+  const groups = ["content", "commerce", "engage"] as const;
+
+  return (
+    <div className="p-3">
+      {groups.map((group) => {
+        const entries = addable.filter(([, entry]) => entry.group === group);
+        if (entries.length === 0) return null;
+        return (
+          <div key={group} className="mb-5">
+            <p className="text-faint mb-2 px-1 text-[0.65rem] font-medium tracking-[0.14em] uppercase">
+              {GROUP_LABELS[group]}
+            </p>
+            <div className="flex flex-col gap-1">
+              {entries.map(([type, entry]) => (
+                <button
+                  key={type}
+                  onClick={() => {
+                    // New sections land at the end of the editable range, just
+                    // above the footer, which is where people expect them.
+                    run({ type: "addSection", pageId: page.id, index: max, sectionType: type });
+                    select(null);
+                  }}
+                  className="border-border hover:border-accent hover:bg-accent-soft group rounded-md border px-3 py-2.5 text-left transition-all duration-(--bh-duration-fast)"
+                >
+                  <span className="text-text block text-sm font-medium">{entry.label}</span>
+                  <span className="text-muted block text-xs leading-snug">{entry.hint}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function LayerTree() {
+  const { page, selectedId, select, run } = useBuilder();
+
+  return (
+    <ul className="p-2">
+      {page.sections.map((section) => {
+        const entry = REGISTRY[section.type];
+        const fixed = entry.fixed !== undefined;
+        return (
+          <li key={section.id}>
+            <div
+              className={cn(
+                "flex items-center gap-2 rounded-md px-2 py-1.5 text-sm transition-colors",
+                selectedId === section.id
+                  ? "bg-accent-soft text-accent"
+                  : "text-text-secondary hover:bg-raised",
+              )}
+            >
+              <button onClick={() => select(section.id)} className="flex min-w-0 flex-1 items-center gap-2 text-left">
+                {fixed ? (
+                  <Lock className="text-faint size-3 shrink-0" />
+                ) : (
+                  <GripVertical className="text-faint size-3 shrink-0" />
+                )}
+                <span className={cn("truncate", !section.visible && "line-through opacity-60")}>
+                  {entry.label}
+                </span>
+              </button>
+              {!fixed ? (
+                <button
+                  onClick={() =>
+                    run({ type: "toggleSectionVisible", pageId: page.id, sectionId: section.id })
+                  }
+                  aria-label={section.visible ? "Hide" : "Show"}
+                  className="text-muted hover:text-text shrink-0 transition-colors"
+                >
+                  {section.visible ? <Eye className="size-3.5" /> : <EyeOff className="size-3.5" />}
+                </button>
+              ) : null}
+            </div>
+          </li>
+        );
+      })}
+    </ul>
+  );
+}
+
+function PageList() {
+  const { doc, pageId, setPage } = useBuilder();
+
+  return (
+    <div className="p-2">
+      <ul className="flex flex-col gap-0.5">
+        {doc.pages.map((page) => (
+          <li key={page.id}>
+            <button
+              onClick={() => setPage(page.id)}
+              className={cn(
+                "flex w-full items-center gap-2 rounded-md px-2 py-2 text-left text-sm transition-colors",
+                pageId === page.id
+                  ? "bg-accent-soft text-accent"
+                  : "text-text-secondary hover:bg-raised",
+              )}
+            >
+              <FileText className="size-3.5 shrink-0" />
+              <span className="min-w-0 flex-1 truncate">{page.title}</span>
+              {page.system ? (
+                <span className="text-faint shrink-0 text-[0.6rem] tracking-wide uppercase">
+                  System
+                </span>
+              ) : null}
+            </button>
+          </li>
+        ))}
+      </ul>
+      <p className="text-faint mt-4 px-2 text-xs leading-relaxed">
+        Creating and renaming pages arrives with the page manager. System pages can never
+        be deleted — your checkout has to exist.
+      </p>
+    </div>
+  );
+}

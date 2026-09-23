@@ -152,6 +152,36 @@ export function StoreButton({
   );
 }
 
+/*
+ * What a section with no content yet shows IN THE BUILDER.
+ *
+ * On a live storefront an empty FAQ or testimonial band renders nothing — a
+ * customer should not see a heading over blank space. But in the editor,
+ * returning null means adding the section from the library appears to do
+ * nothing at all, and the merchant has no idea where it went or how to fill it.
+ * So the editor gets a prompt and the storefront gets silence.
+ */
+export function EmptySectionHint({ label, ctx }: { label: string; ctx: RenderContext }) {
+  if (!ctx.editing) return null;
+  return (
+    <SectionShell>
+      <div
+        style={{
+          border: "1px dashed var(--sf-border)",
+          borderRadius: "var(--sf-radius)",
+          padding: "40px 24px",
+          textAlign: "center",
+          fontFamily: "var(--sf-font-body)",
+          color: "var(--sf-muted)",
+          fontSize: "0.9rem",
+        }}
+      >
+        {label}
+      </div>
+    </SectionShell>
+  );
+}
+
 /** A placeholder that looks composed rather than broken when no image is set. */
 export function ImageSlot({
   url,

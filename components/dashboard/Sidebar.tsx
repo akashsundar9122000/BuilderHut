@@ -22,7 +22,7 @@ const GROUPS: { label: string; items: { href: string; label: string; icon: typeo
     label: "Store",
     items: [
       { href: "/app", label: "Dashboard", icon: LayoutDashboard },
-      { href: "/app/builder", label: "Store builder", icon: PanelLeft, soon: true },
+      { href: "/app/builder", label: "Store builder", icon: PanelLeft },
       { href: "/app/products", label: "Products", icon: Package },
       { href: "/app/orders", label: "Orders", icon: ShoppingBag, soon: true },
       { href: "/app/customers", label: "Customers", icon: Users, soon: true },

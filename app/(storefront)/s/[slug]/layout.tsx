@@ -1,39 +1,8 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import {
-  Archivo,
-  DM_Sans,
-  Instrument_Serif,
-  Lora,
-  Playfair_Display,
-  Space_Grotesk,
-  Work_Sans,
-} from "next/font/google";
-
+import { STOREFRONT_FONT_VARS } from "@/lib/render/fonts";
 import { themeToCss } from "@/lib/render/theme-css";
 import { loadPublishedSite } from "@/lib/stores/storefront";
-
-/*
- * The storefront shell.
- *
- * Fonts are imported here rather than in the root layout so BuilderHut's own
- * chrome never pays for nine families. next/font subsets and self-hosts them,
- * so a merchant's store makes no request to a third-party font CDN — which
- * matters for speed and for not leaking a customer's IP to Google.
- *
- * Fraunces and Inter come from the root layout; the rest are storefront-only.
- */
-const playfair = Playfair_Display({ subsets: ["latin"], variable: "--font-playfair", display: "swap" });
-const lora = Lora({ subsets: ["latin"], variable: "--font-lora", display: "swap" });
-const instrument = Instrument_Serif({ subsets: ["latin"], weight: "400", variable: "--font-instrument", display: "swap" });
-const dmSans = DM_Sans({ subsets: ["latin"], variable: "--font-dmsans", display: "swap" });
-const workSans = Work_Sans({ subsets: ["latin"], variable: "--font-worksans", display: "swap" });
-const spaceGrotesk = Space_Grotesk({ subsets: ["latin"], variable: "--font-spacegrotesk", display: "swap" });
-const archivo = Archivo({ subsets: ["latin"], variable: "--font-archivo", display: "swap" });
-
-const FONT_VARS = [playfair, lora, instrument, dmSans, workSans, spaceGrotesk, archivo]
-  .map((f) => f.variable)
-  .join(" ");
 
 export async function generateMetadata({
   params,
@@ -73,7 +42,7 @@ export default async function StorefrontLayout({
   return (
     <div
       data-storefront=""
-      className={FONT_VARS}
+      className={STOREFRONT_FONT_VARS}
       style={{
         background: "var(--sf-bg)",
         color: "var(--sf-text)",

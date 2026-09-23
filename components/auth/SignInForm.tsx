@@ -21,15 +21,26 @@ export function SignInForm() {
     setBusy(true);
     setError(null);
 
-    const { error: signInError } = await authClient.signIn.email({
-      email: email.trim().toLowerCase(),
-      password,
-    });
+    try {
+      const { error: signInError } = await authClient.signIn.email({
+        email: email.trim().toLowerCase(),
+        password,
+      });
 
-    if (signInError) {
-      // One message for both "no such account" and "wrong password". Telling
-      // them apart hands an attacker a free way to enumerate who has an account.
-      setError("That email and password don't match an account.");
+      if (signInError) {
+        // One message for both "no such account" and "wrong password". Telling
+        // them apart hands an attacker a free way to enumerate who has an account.
+        setError(
+          signInError.status === 429
+            ? "Too many attempts just now. Wait a moment and try again."
+            : "That email and password don't match an account.",
+        );
+        setBusy(false);
+        return;
+      }
+    } catch {
+      // A thrown error must still release the button, or the form is dead.
+      setError("We couldn't reach the server. Check your connection and try again.");
       setBusy(false);
       return;
     }

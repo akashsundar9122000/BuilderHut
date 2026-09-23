@@ -52,21 +52,32 @@ export function SignUpForm() {
     /*
      * Send the code, then hand over to the verify screen.
      *
-     * A failure here is not fatal — the account exists and /verify offers a
-     * resend — but it must not be silent. Swallowing it once hid a rate-limit
-     * rejection and produced a verify screen waiting for a code that had never
-     * been sent, which is indistinguishable from a broken inbox.
+     * The account already exists at this point, so nothing here may prevent the
+     * redirect. Letting a rejection escape left the button spinning forever on
+     * a page that had already succeeded — the worst possible outcome, because
+     * the only recovery was for the user to guess that signing in would work.
+     *
+     * The failure is still reported rather than swallowed: /verify offers a
+     * resend, and ?resend=1 tells it to say so instead of waiting silently for
+     * a code that was never sent.
      */
-    const sent = await authClient.emailOtp.sendVerificationOtp({
-      email: email.trim().toLowerCase(),
-      type: "email-verification",
-    });
-    if (sent.error) {
-      console.error("[signup] could not send the verification code", sent.error);
+    let sendFailed = false;
+    try {
+      const sent = await authClient.emailOtp.sendVerificationOtp({
+        email: email.trim().toLowerCase(),
+        type: "email-verification",
+      });
+      if (sent.error) {
+        sendFailed = true;
+        console.error("[signup] could not send the verification code", sent.error);
+      }
+    } catch (error) {
+      sendFailed = true;
+      console.error("[signup] sending the verification code threw", error);
     }
 
     const next = `/verify?email=${encodeURIComponent(email.trim().toLowerCase())}`;
-    router.push(sent.error ? `${next}&resend=1` : next);
+    router.push(sendFailed ? `${next}&resend=1` : next);
   }
 
   return (

@@ -357,3 +357,15 @@
     scroll-behavior: auto !important;
   }
 }
+
+/* Used by the builder's publish confirmation. Transform and opacity only. */
+@keyframes bh-rise {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 12px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}

@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { safeHref } from "@/lib/schema/page";
 import type { RenderContext } from "../context";
-import { AlignSchema, Heading, Lede, SectionShell, StoreButton, ToneSchema } from "./shared";
+import { AlignSchema, EmptySectionHint, Heading, Lede, SectionShell, StoreButton, ToneSchema } from "./shared";
 
 /* Trust, questions and contact: the sections that answer "should I buy from you". */
 
@@ -15,8 +15,16 @@ export const TestimonialsProps = z.object({
   tone: ToneSchema,
 });
 
-export function Testimonials({ props }: { props: z.infer<typeof TestimonialsProps>; ctx: RenderContext }) {
-  if (props.items.length === 0) return null;
+export function Testimonials({
+  props,
+  ctx,
+}: {
+  props: z.infer<typeof TestimonialsProps>;
+  ctx: RenderContext;
+}) {
+  if (props.items.length === 0) {
+    return <EmptySectionHint label="Add a quote in the panel on the right." ctx={ctx} />;
+  }
 
   if (props.layout === "single") {
     const first = props.items[0]!;
@@ -74,8 +82,10 @@ export const FaqProps = z.object({
   tone: ToneSchema,
 });
 
-export function Faq({ props }: { props: z.infer<typeof FaqProps>; ctx: RenderContext }) {
-  if (props.items.length === 0) return null;
+export function Faq({ props, ctx }: { props: z.infer<typeof FaqProps>; ctx: RenderContext }) {
+  if (props.items.length === 0) {
+    return <EmptySectionHint label="Add a question in the panel on the right." ctx={ctx} />;
+  }
   return (
     <SectionShell tone={props.tone}>
       <div className="grid gap-10 md:grid-cols-[minmax(0,1fr)_minmax(0,1.6fr)]">

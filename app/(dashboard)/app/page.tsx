@@ -39,7 +39,7 @@ export default async function DashboardPage({
     { done: true, label: "Create your store", hint: "Done when you picked a template." },
     { done: stats.total > 0, label: "Add your first product", hint: "A photo, a name and a price is enough.", href: "/app/products/new" },
     { done: stats.active > 0, label: "Make a product live", hint: "Draft products don't show on your storefront." },
-    { done: false, label: "Add your logo", hint: "Arrives with the builder.", soon: true },
+    { done: false, label: "Customise your storefront", hint: "Change the words, colours and pictures.", href: "/app/builder" },
     { done: false, label: "Set up delivery", hint: "Arrives with commerce.", soon: true },
     { done: false, label: "Connect a domain", hint: "Arrives with hosting.", soon: true },
   ];
@@ -155,12 +155,15 @@ export default async function DashboardPage({
             <CardBody>
               <div className="flex items-center gap-2">
                 <Palette className="text-accent size-4" />
-                <p className="text-text text-sm font-medium">The builder is next</p>
+                <p className="text-text text-sm font-medium">Make it yours</p>
               </div>
               <p className="text-muted mt-2 text-xs leading-relaxed">
-                Drag sections around, change colours and type, and see it live. Coming in
-                the next phase.
+                Drag sections around, change the colours and type, and watch it change as
+                you go.
               </p>
+              <Button asChild size="sm" variant="secondary" className="mt-4 w-full">
+                <Link href="/app/builder">Open the builder</Link>
+              </Button>
             </CardBody>
           </Card>
         </div>
