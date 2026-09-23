@@ -7,7 +7,7 @@ import { Button, Field, Input } from "@/components/ui";
 import { cn } from "@/lib/cn";
 import { INDUSTRIES, SALES_CHANNELS, STORE_GOALS } from "@/lib/industries";
 import { checkSlug, slugify } from "@/lib/slug";
-import { templatesForIndustry } from "@/lib/templates";
+import { templatesForIndustry, templateSummary, type TemplateSummary } from "@/lib/templates";
 import { checkSlugAction, createStoreAction, type CreateStoreState } from "@/app/(onboarding)/onboarding/actions";
 
 /*
@@ -48,8 +48,10 @@ export function Wizard({ suggestedName }: { suggestedName: string }) {
 
   const slug = manualSlug ?? slugify(name);
 
-  const templates = useMemo(
-    () => (industry ? templatesForIndustry(industry) : []),
+  // Summaries only: a Template carries a build function, which cannot be
+  // serialized across the server/client boundary.
+  const templates = useMemo<TemplateSummary[]>(
+    () => (industry ? templatesForIndustry(industry).map(templateSummary) : []),
     [industry],
   );
   // The first recommendation is pre-selected without needing an effect to put
@@ -358,7 +360,7 @@ function TemplateStep({
   value,
   onChange,
 }: {
-  templates: ReturnType<typeof templatesForIndustry>;
+  templates: TemplateSummary[];
   value: string;
   onChange: (v: string) => void;
 }) {

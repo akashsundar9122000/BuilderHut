@@ -1,8 +1,18 @@
 import { SiteDocumentSchema, type SiteDocument } from "@/lib/schema/page";
 import { TEMPLATES } from "./definitions";
-import type { Template, TemplateSeed } from "./types";
+import type { Template, TemplateSeed, TemplateSummary } from "./types";
 
-export type { Template, TemplateSeed } from "./types";
+export type { Template, TemplateSeed, TemplateSummary } from "./types";
+
+/** Strip the build function so a template can be handed to a client component. */
+export function templateSummary(template: Template): TemplateSummary {
+  const { id, name, blurb, industries, theme, swatches } = template;
+  return { id, name, blurb, industries, theme, swatches };
+}
+
+export function templateSummaries(): TemplateSummary[] {
+  return TEMPLATES.map(templateSummary);
+}
 export { TEMPLATES } from "./definitions";
 
 export function getTemplateIds(): string[] {

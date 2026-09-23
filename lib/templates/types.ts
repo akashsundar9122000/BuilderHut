@@ -7,16 +7,24 @@ export interface TemplateSeed {
   industry: string;
 }
 
-export interface Template {
+/*
+ * A template minus its `build` function.
+ *
+ * A Template cannot cross the server/client boundary: React refuses to
+ * serialize the function, and the error names the field rather than the reason.
+ * Anything rendered in a client component takes this instead — which is also
+ * the right shape, because the builder is not something a marketing page needs.
+ */
+export interface TemplateSummary {
   id: string;
   name: string;
-  /** One line, in the merchant's language, not ours. */
   blurb: string;
-  /** Which trades this was designed for. Drives onboarding recommendations. */
   industries: string[];
   theme: Theme;
-  /** Swatches for the template card, so the palette is visible before previewing. */
   swatches: string[];
+}
+
+export interface Template extends TemplateSummary {
   /** Builds the starting document. Called once, at store creation. */
   build: (seed: TemplateSeed) => SiteDocument;
 }
