@@ -99,11 +99,22 @@ export default function TemplatesPage() {
                     ))}
                 </div>
 
-                <Button asChild variant="secondary" size="sm" className="mt-5">
-                  <Link href={`/signup?template=${template.id}`}>
-                    Start with {template.name} <ArrowRight className="size-3.5" />
-                  </Link>
-                </Button>
+                {/*
+                  * Look before you commit. This used to go straight to signup,
+                  * which asks somebody to create an account to find out whether
+                  * the design is any good — and this page's own argument is
+                  * that you have to see one to tell.
+                  */}
+                <div className="mt-5 flex flex-wrap gap-2.5">
+                  <Button asChild variant="secondary" size="sm">
+                    <Link href={`/templates/${template.id}`}>
+                      Preview {template.name} <ArrowRight className="size-3.5" aria-hidden="true" />
+                    </Link>
+                  </Button>
+                  <Button asChild variant="ghost" size="sm">
+                    <Link href={`/signup?template=${template.id}`}>Start with it</Link>
+                  </Button>
+                </div>
               </div>
             </article>
           </Reveal>

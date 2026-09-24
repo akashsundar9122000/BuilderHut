@@ -67,6 +67,19 @@ async function violationsOn(page: Page, url: string, theme: "light" | "dark"): P
 const PUBLIC_PAGES = [
   "/",
   "/templates",
+  /*
+   * One template preview. It renders a whole storefront — the real registry,
+   * the real theme — inside a marketing page, which is a combination nothing
+   * else on the site produces: BuilderHut's chrome and a merchant's palette in
+   * one accessibility tree.
+   */
+  "/templates/thread",
+  /*
+   * Now a real route. This entry has been here since the suite was written and
+   * was quietly sweeping the 404 page, because pricing lived at /#pricing —
+   * so the pricing tables, the one screen with money on it, had never actually
+   * been checked.
+   */
   "/pricing",
   "/login",
   "/signup",

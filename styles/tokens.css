@@ -243,6 +243,84 @@
 }
 
 /*
+ * The theatre: a dark band inside an otherwise light page.
+ *
+ * The marketing hero, the build sequence and the closing call to action are
+ * always dark, whatever the reader's theme, because a bone page cannot make a
+ * shop glow and this product's whole promise is the shop. Everything between
+ * them stays on bone and follows the toggle.
+ *
+ * It is a token override rather than a second palette. `@theme inline` below
+ * emits `var(--bh-*)` rather than a resolved value, so redefining those
+ * variables on a scope re-skins every utility inside it — `bg-canvas`,
+ * `text-muted`, the Button component — with no new class names.
+ *
+ * And the values are the dark theme's, verbatim, not a bespoke dark palette.
+ * That is the point: a hand-tuned "marketing dark" is a palette nobody
+ * validated, and the first thing it does is fail contrast somewhere nobody
+ * looks. These ratios are already proven by the dark half of
+ * scripts/check-contrast.ts, which additionally asserts this block has not
+ * drifted from that one.
+ */
+[data-surface="theatre"] {
+  color-scheme: dark;
+
+  --bh-canvas: #17130f;
+  --bh-surface: #211b16;
+  --bh-raised: #2b231c;
+  --bh-sunken: #100d0a;
+  --bh-overlay: rgb(9 7 5 / 0.62);
+
+  --bh-border: #372e25;
+  --bh-border-strong: #52463a;
+  --bh-border-input: #7d7063;
+  --bh-border-accent: #6d4432;
+
+  --bh-text: #f5efe7;
+  --bh-text-secondary: #ddd2c5;
+  --bh-muted: #a89c8e;
+  --bh-faint: #968a7a;
+  --bh-on-accent: #24120a;
+
+  --bh-accent: #e8845c;
+  --bh-accent-hover: #f39d79;
+  --bh-accent-soft: #3a2419;
+  --bh-accent-border: #6d4432;
+
+  --bh-accent-2: #58c2a2;
+  --bh-accent-2-soft: #16302a;
+
+  --bh-success: #6dc48f;
+  --bh-success-soft: #172d21;
+  --bh-warning: #e0a350;
+  --bh-warning-soft: #33250f;
+  --bh-danger: #f08573;
+  --bh-danger-soft: #371a16;
+  --bh-info: #79b6d6;
+  --bh-info-soft: #162a34;
+
+  --bh-chart-1: #d4703f;
+  --bh-chart-2: #4d8fe0;
+  --bh-chart-3: #1fa077;
+  --bh-chart-4: #b8862a;
+  --bh-chart-5: #8478e0;
+  --bh-chart-6: #c46e90;
+
+  --bh-shadow-xs: 0 1px 2px rgb(0 0 0 / 0.30);
+  --bh-shadow-sm: 0 1px 3px rgb(0 0 0 / 0.36), 0 1px 2px rgb(0 0 0 / 0.24);
+  --bh-shadow-md: 0 4px 12px rgb(0 0 0 / 0.42), 0 1px 3px rgb(0 0 0 / 0.28);
+  --bh-shadow-lg: 0 14px 36px rgb(0 0 0 / 0.52), 0 2px 8px rgb(0 0 0 / 0.32);
+  --bh-shadow-accent: 0 6px 20px rgb(232 132 92 / 0.24);
+
+  /*
+   * Theatre-only, and deliberately not part of the drift check: these are
+   * decoration, not a foreground or a background anything is read against.
+   */
+  --bh-theatre-glow: rgb(232 132 92 / 0.16);
+  --bh-theatre-grid: rgb(245 239 231 / 0.045);
+}
+
+/*
  * Map every token onto a Tailwind utility. `inline` means the utility emits
  * var(--bh-*) rather than a resolved value, so the theme blocks above keep
  * working at runtime without a second build.

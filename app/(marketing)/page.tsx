@@ -1,16 +1,22 @@
 import Link from "next/link";
 import type { Metadata } from "next";
-import { ArrowRight, Check } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 
+import { BuildSequence } from "@/components/marketing/BuildSequence";
+import { BrowserFrame } from "@/components/marketing/BrowserFrame";
 import { Faq } from "@/components/marketing/Faq";
+import { Marquee } from "@/components/marketing/Marquee";
 import { Reveal } from "@/components/marketing/Reveal";
-import { cn } from "@/lib/cn";
-import { formatMoney } from "@/lib/money";
-import { ORDERED_PLANS, type Plan } from "@/lib/plans/catalog";
+import { Backdrop, Section, SectionHead, Shell, Eyebrow } from "@/components/marketing/Shell";
+import { Stagger } from "@/components/marketing/Stagger";
 import { StoreFrame } from "@/components/marketing/StoreFrame";
 import { TemplateCarousel } from "@/components/marketing/TemplateCarousel";
 import { Button } from "@/components/ui";
+import { cn } from "@/lib/cn";
 import { INDUSTRIES } from "@/lib/industries";
+import { FEATURES, GUIDE_DOORS, PRINCIPLES } from "@/lib/marketing/content";
+import { ORDERED_PLANS } from "@/lib/plans/catalog";
+import { formatMoney } from "@/lib/money";
 import { templateSummaries, templateSummary, TEMPLATES } from "@/lib/templates";
 
 export const metadata: Metadata = {
@@ -24,87 +30,50 @@ export const metadata: Metadata = {
  *
  * Blueprint section 0.1 asks for a premium product launch rather than a
  * conventional SaaS homepage, and specifically for the first viewport to
- * demonstrate what the builder can produce. So the hero carries a real
- * storefront drawn from a real template's tokens — not a screenshot, not a
- * mockup. If the templates change, this page changes with them, and it cannot
- * quietly start lying about the product.
+ * demonstrate what the builder can produce.
+ *
+ * ── Two rules this page is built on ───────────────────────────────────────
+ *
+ * 1. Everything shown is rendered by the product. The hero, the build sequence
+ *    and the gallery all go through StoreFrame, which reads the same theme the
+ *    live storefront renderer reads. There is not one screenshot on this page.
+ *    A screenshot is a promise about software that has since changed; this
+ *    cannot drift, because if the templates change, the page changes with them.
+ *
+ * 2. Nothing is invented. No merchant counts, no testimonials, no logo wall —
+ *    there are no merchants yet. The trades come from lib/industries, the
+ *    plans from lib/plans/catalog, the templates from lib/templates.
+ *
+ * ── The theatre ───────────────────────────────────────────────────────────
+ *
+ * The hero, the build sequence and the closing call are always dark, whatever
+ * the reader's theme; everything between them stays on bone and follows the
+ * toggle. That is one attribute, `data-surface="theatre"`, because @theme
+ * inline emits var(--bh-*) rather than resolved values, so overriding those
+ * variables on a scope re-skins every utility inside it. See styles/tokens.css.
  */
-
-/*
- * Three doors, not one link. The three audiences want genuinely different
- * things, and a single "Read the guide" button sends a shop owner into the API
- * reference.
- */
-const GUIDE_DOORS = [
-  {
-    href: "/guide/start/welcome",
-    title: "Using BuilderHut",
-    body: "From signing up to taking your first order. Every screen, in plain words, with pictures of the real thing.",
-    cta: "Start reading",
-  },
-  {
-    href: "/guide/api/overview",
-    title: "API and MCP",
-    body: "A REST API for your shop’s products, orders and customers — and an MCP server so an assistant can use it.",
-    cta: "See the reference",
-  },
-  {
-    href: "/guide/engineering/architecture",
-    title: "How it is built",
-    body: "Tenancy, the document model behind the builder, the render pipeline, and the gates that keep it honest.",
-    cta: "Read the notes",
-  },
-];
-
-const STEPS = [
-  {
-    n: "01",
-    title: "Say what you make",
-    body: "Crochet, cakes, invitations, silver, T-shirts. We show you the designs built for that trade rather than a generic grid.",
-  },
-  {
-    n: "02",
-    title: "Make it yours",
-    body: "Change the words, the colours, the type and the pictures by clicking on them. No settings pages, no code, nothing to install.",
-  },
-  {
-    n: "03",
-    title: "Add what you sell",
-    body: "A photo, a name and a price. Prices are kept exactly — no rounding, no floating point, no surprises at checkout.",
-  },
-  {
-    n: "04",
-    title: "Publish",
-    body: "Your shop goes live at its own address straight away. Connect a domain when you're ready; the old links keep working.",
-  },
-];
 
 export default function LandingPage() {
   const hero = templateSummary(TEMPLATES.find((t) => t.id === "thread")!);
   const second = templateSummary(TEMPLATES.find((t) => t.id === "cutline")!);
+  const trades = INDUSTRIES.filter((i) => i.id !== "other").map((i) => i.label);
+  const cheapestPaid = ORDERED_PLANS.find((p) => p.priceMinor > 0);
 
   return (
     <main>
       {/* ── Hero ─────────────────────────────────────────────────────────── */}
-      <section className="relative overflow-hidden">
-        {/* A single restrained wash, not a purple SaaS gradient across everything. */}
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-x-0 top-0 h-[520px] opacity-70"
-          style={{
-            background:
-              "radial-gradient(60% 70% at 15% 0%, var(--bh-accent-soft) 0%, transparent 70%)",
-          }}
-        />
-        <div className="relative mx-auto grid max-w-6xl items-center gap-12 px-5 pt-16 pb-20 sm:px-8 sm:pt-24 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)] lg:pb-28">
+      <Section surface="theatre" className="border-border border-b">
+        <Backdrop>
+          <div className="bh-mk-grid" />
+          <div className="bh-mk-glow -top-40 -left-32 size-[46rem]" />
+        </Backdrop>
+        <Shell className="relative grid items-center gap-14 pt-20 pb-24 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.08fr)] lg:pt-28 lg:pb-32">
           <div>
             <Reveal>
-              <p className="text-accent text-xs font-medium tracking-[0.18em] uppercase">
-                For people who make things
-              </p>
+              <Eyebrow>For people who make things</Eyebrow>
             </Reveal>
             <Reveal delay={80}>
-              <h1 className="font-display mt-5 text-[clamp(2.6rem,1.6rem+4vw,4.6rem)] leading-[1.02]">
+              <h1 className="font-display mt-5 text-[clamp(2.7rem,1.6rem+4.4vw,5rem)] leading-[1.01]">
                 Sell what you make.
               </h1>
             </Reveal>
@@ -119,7 +88,7 @@ export default function LandingPage() {
               <div className="mt-9 flex flex-wrap items-center gap-3">
                 <Button asChild size="lg">
                   <Link href="/signup">
-                    Create my store <ArrowRight className="size-4" />
+                    Create my store <ArrowRight className="size-4" aria-hidden="true" />
                   </Link>
                 </Button>
                 <Button asChild size="lg" variant="secondary">
@@ -135,95 +104,149 @@ export default function LandingPage() {
           </div>
 
           <Reveal delay={200}>
-            {/* Two frames, offset — the second says "and it also looks like this". */}
-            <div className="relative">
-              <StoreFrame template={hero} className="shadow-lg" />
-              <div className="absolute -right-3 -bottom-10 hidden w-[52%] sm:block lg:-right-8">
-                <StoreFrame
-                  template={second}
-                  productNames={["Tee 01", "Tee 02", "Cap"]}
-                  className="shadow-lg"
-                />
+            <div className="bh-mk-parallax relative">
+              {/*
+               * The window chrome is drawn, not photographed, because what is
+               * inside it is live — a screenshot of a browser around a
+               * component that re-renders itself would be the only stale pixel
+               * on the page.
+               */}
+              <BrowserFrame url="thread.builderhut.app">
+                <StoreFrame template={hero} />
+              </BrowserFrame>
+
+              <div className="absolute -right-3 -bottom-12 hidden w-[52%] sm:block lg:-right-9">
+                <div className="bh-mk-bob">
+                  <StoreFrame
+                    template={second}
+                    productNames={["Tee 01", "Tee 02", "Cap"]}
+                    className="shadow-lg"
+                  />
+                </div>
               </div>
+
+              {/*
+               * Two facts, floating. Both are true of the software rather than
+               * aspirational: twelve is the number of templates in
+               * lib/templates, and the address is what a shop gets on publish.
+               */}
+              <span
+                aria-hidden="true"
+                className="bh-mk-bob bh-mk-bob--slow border-border bg-surface text-text-secondary absolute -top-4 -left-4 hidden rounded-full border px-3.5 py-1.5 text-xs shadow-md lg:block"
+              >
+                {TEMPLATES.length} starting points
+              </span>
             </div>
           </Reveal>
-        </div>
-      </section>
+        </Shell>
+      </Section>
 
       {/* ── Trades ───────────────────────────────────────────────────────── */}
-      <section className="border-border border-y">
-        <div className="mx-auto max-w-6xl px-5 py-10 sm:px-8">
+      <Section className="border-border border-b">
+        <Shell className="py-10">
           <p className="text-faint text-center text-xs tracking-[0.14em] uppercase">
             Built for
           </p>
-          <div className="mt-5 flex flex-wrap justify-center gap-x-7 gap-y-3">
-            {INDUSTRIES.filter((i) => i.id !== "other").map((industry, i) => (
-              <Reveal key={industry.id} delay={i * 35}>
-                <span className="text-text-secondary text-sm">{industry.label}</span>
-              </Reveal>
-            ))}
-          </div>
-        </div>
-      </section>
+          {/*
+           * The trades themselves, moving — not a wall of borrowed logos.
+           * There are no customer logos to show and inventing them is the
+           * oldest lie on a landing page.
+           */}
+          <Marquee className="mt-5" items={trades} label="Trades BuilderHut has designs for" />
+        </Shell>
+      </Section>
+
+      {/* ── The build sequence ───────────────────────────────────────────── */}
+      <Section id="how" surface="theatre" className="border-border border-b">
+        <Backdrop>
+          <div className="bh-mk-glow top-1/3 -right-40 size-[40rem]" />
+        </Backdrop>
+        <BuildSequence template={hero} />
+      </Section>
 
       {/* ── Templates ────────────────────────────────────────────────────── */}
-      <section className="mx-auto max-w-6xl px-5 py-24 sm:px-8" id="templates">
-        <Reveal>
-          <p className="text-accent text-xs font-medium tracking-[0.18em] uppercase">
-            Starting points
-          </p>
-          <h2 className="font-display mt-4 max-w-xl text-[clamp(1.9rem,1.4rem+2vw,3rem)] leading-[1.08]">
-            A bakery should not look like a streetwear label.
-          </h2>
-          <p className="text-muted mt-4 max-w-lg text-balance">
-            Every design here has its own typefaces, spacing and shapes — not one
-            layout in a dozen colours. Switch between them and watch the whole thing
-            change.
-          </p>
-        </Reveal>
-
-        <Reveal delay={120} className="mt-12">
-          <TemplateCarousel templates={templateSummaries()} />
-        </Reveal>
-      </section>
-
-      {/* ── How it works ─────────────────────────────────────────────────── */}
-      <section id="how" className="bg-raised border-border border-y">
-        <div className="mx-auto max-w-6xl px-5 py-24 sm:px-8">
-          <Reveal>
-            <h2 className="font-display max-w-xl text-[clamp(1.9rem,1.4rem+2vw,3rem)] leading-[1.08]">
-              Zero to a live shop, in an afternoon.
-            </h2>
+      <Section id="templates">
+        <Shell className="py-24">
+          <SectionHead
+            eyebrow="Starting points"
+            title="A bakery should not look like a streetwear label."
+            sub="Every design here has its own typefaces, spacing and shapes — not one layout in a dozen colours. Switch between them and watch the whole thing change."
+          />
+          <Reveal delay={120} className="mt-12">
+            <TemplateCarousel templates={templateSummaries()} />
           </Reveal>
-          <div className="mt-14 grid gap-x-10 gap-y-12 sm:grid-cols-2 lg:grid-cols-4">
-            {STEPS.map((step, i) => (
-              <Reveal key={step.n} delay={i * 90}>
-                <p className="text-accent font-mono text-xs">{step.n}</p>
-                <h3 className="font-display mt-3 text-xl leading-snug">{step.title}</h3>
-                <p className="text-muted mt-2.5 text-sm leading-relaxed">{step.body}</p>
-              </Reveal>
+        </Shell>
+      </Section>
+
+      {/* ── What you get ─────────────────────────────────────────────────── */}
+      <Section className="border-border bg-raised border-y">
+        <Shell className="py-24">
+          <SectionHead
+            eyebrow="What you get"
+            title="A shop, not a page about a shop."
+            sub="The unglamorous half — the part that takes the money and tells you what sold — is the half that decides whether this was worth doing."
+          />
+          <Stagger className="mt-12 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+            {FEATURES.map((feature) => (
+              <div
+                key={feature.title}
+                className={cn(
+                  "border-border bg-surface flex flex-col rounded-[var(--bh-radius-lg)] border p-6",
+                  feature.span === 2 && "lg:col-span-2",
+                  feature.span === 3 && "lg:col-span-3",
+                )}
+              >
+                <h3 className="font-display text-xl leading-snug">{feature.title}</h3>
+                <p className="text-muted mt-2.5 text-sm leading-relaxed">{feature.body}</p>
+              </div>
             ))}
-          </div>
-        </div>
-      </section>
+          </Stagger>
+        </Shell>
+      </Section>
+
+      {/* ── Built properly ───────────────────────────────────────────────── */}
+      <Section>
+        <Shell className="py-24">
+          <SectionHead
+            eyebrow="Underneath"
+            title="Boring where it counts."
+            sub="Three decisions you should not have to think about, made carefully so that you do not. Each one is written out in full in the engineering notes."
+          />
+          <Stagger className="mt-12 grid gap-5 md:grid-cols-3">
+            {PRINCIPLES.map((principle) => (
+              <div
+                key={principle.title}
+                className="border-border bg-surface flex flex-col rounded-[var(--bh-radius-lg)] border p-6"
+              >
+                <h3 className="font-display text-xl leading-snug">{principle.title}</h3>
+                <p className="text-muted mt-2.5 flex-1 text-sm leading-relaxed">
+                  {principle.body}
+                </p>
+                <Link
+                  href={principle.href}
+                  className="text-accent hover:text-accent-hover mt-4 inline-flex items-center gap-1 text-sm font-medium"
+                >
+                  {principle.linkLabel}
+                  <ArrowRight className="size-3.5" aria-hidden="true" />
+                </Link>
+              </div>
+            ))}
+          </Stagger>
+        </Shell>
+      </Section>
 
       {/* ── Guide ────────────────────────────────────────────────────────── */}
-      <section id="guide" className="mx-auto max-w-6xl px-5 py-24 sm:px-8">
-        <Reveal>
-          <p className="text-accent text-xs font-medium tracking-[0.18em] uppercase">The guide</p>
-          <h2 className="font-display mt-4 max-w-xl text-[clamp(1.9rem,1.4rem+2vw,3rem)] leading-[1.08]">
-            Every screen, explained in plain words.
-          </h2>
-          <p className="text-muted mt-4 max-w-lg text-balance">
-            Written for the person using it, not a help centre of ticket answers. Free to read,
-            and you do not need an account.
-          </p>
-        </Reveal>
-
-        <div className="mt-12 grid gap-5 md:grid-cols-3">
-          {GUIDE_DOORS.map((door, i) => (
-            <Reveal key={door.href} delay={i * 90}>
+      <Section id="guide" className="border-border bg-raised border-y">
+        <Shell className="py-24">
+          <SectionHead
+            eyebrow="The guide"
+            title="Every screen, explained in plain words."
+            sub="Written for the person using it, not a help centre of ticket answers. Free to read, and you do not need an account."
+          />
+          <Stagger className="mt-12 grid gap-5 md:grid-cols-3">
+            {GUIDE_DOORS.map((door) => (
               <Link
+                key={door.href}
                 href={door.href}
                 className="border-border bg-surface hover:border-accent-border group flex h-full flex-col rounded-[var(--bh-radius-lg)] border p-6 transition-colors"
               >
@@ -231,160 +254,76 @@ export default function LandingPage() {
                 <p className="text-muted mt-2.5 flex-1 text-sm leading-relaxed">{door.body}</p>
                 <span className="text-accent mt-4 inline-flex items-center gap-1 text-sm font-medium">
                   {door.cta}
-                  <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-0.5 motion-reduce:transition-none" />
+                  <ArrowRight
+                    aria-hidden="true"
+                    className="size-3.5 transition-transform group-hover:translate-x-0.5 motion-reduce:transition-none"
+                  />
                 </span>
               </Link>
-            </Reveal>
-          ))}
-        </div>
-      </section>
+            ))}
+          </Stagger>
+        </Shell>
+      </Section>
 
-      {/* ── Pricing ──────────────────────────────────────────────────────── */}
-      <section id="pricing" className="mx-auto max-w-6xl px-5 py-24 sm:px-8">
-        <Reveal>
-          <h2 className="font-display text-center text-[clamp(1.9rem,1.4rem+2vw,3rem)] leading-[1.08]">
-            Start free. Pay when it&rsquo;s earning.
-          </h2>
-          <p className="text-muted mx-auto mt-4 max-w-lg text-center text-balance">
-            A real shop at a BuilderHut address costs nothing. You only pay when you want
-            your own domain, your own staff, or the BuilderHut line out of your footer.
-          </p>
-        </Reveal>
-
-        <div className="mt-12 grid gap-5 md:grid-cols-3">
-          {ORDERED_PLANS.map((plan, index) => (
-            <Reveal key={plan.id} delay={index * 90}>
-              <div
-                className={cn(
-                  "bg-surface flex h-full flex-col rounded-xl border p-7",
-                  // The middle plan is the one most shops want, so it is the
-                  // one the eye lands on — marked once, not shouted about.
-                  plan.id === "standard"
-                    ? "border-accent shadow-md"
-                    : "border-border shadow-sm",
-                )}
-              >
-                <div className="flex items-baseline justify-between gap-2">
-                  <p className="font-display text-xl">{plan.name}</p>
-                  {plan.id === "standard" ? (
-                    <span className="bg-accent-soft text-accent rounded-full px-2.5 py-0.5 text-[0.6875rem] font-medium">
-                      Most shops
-                    </span>
-                  ) : null}
-                </div>
-
-                <p className="font-display mt-4 text-4xl">
-                  {plan.priceMinor === 0 ? "Free" : formatMoney(plan.priceMinor, plan.currency)}
-                  {plan.priceMinor > 0 ? (
-                    <span className="text-muted font-sans text-sm"> /month</span>
-                  ) : null}
-                </p>
-
-                <p className="text-muted mt-3 text-sm leading-relaxed">{plan.blurb}</p>
-
-                <ul className="mt-6 flex flex-1 flex-col gap-2.5">
-                  {planLines(plan).map((line) => (
-                    <li key={line} className="flex items-start gap-2.5 text-sm">
-                      <Check className="text-success mt-0.5 size-4 shrink-0" />
-                      <span className="text-text-secondary">{line}</span>
-                    </li>
-                  ))}
-                </ul>
-
-                <Button
-                  asChild
-                  size="lg"
-                  variant={plan.id === "standard" ? "primary" : "secondary"}
-                  className="mt-7 w-full"
-                >
-                  <Link href="/signup">
-                    {plan.priceMinor === 0 ? "Create my store" : `Start on ${plan.name}`}
-                  </Link>
-                </Button>
-              </div>
-            </Reveal>
-          ))}
-        </div>
-
-        <Reveal>
-          {/*
-           * Said plainly rather than in a footnote. The plans are real and the
-           * limits are enforced, but nothing is being charged yet — and a
-           * merchant who discovers that from a bank statement instead of from
-           * us has been misled, whichever direction the surprise runs in.
-           */}
-          <p className="text-muted mx-auto mt-10 max-w-lg text-center text-sm text-balance">
-            BuilderHut is early, so nothing is being charged yet — you can move between
-            these today at no cost. We will ask before we ever bill you.
-          </p>
-        </Reveal>
-      </section>
+      {/* ── Pricing, in one line ─────────────────────────────────────────── */}
+      <Section id="pricing">
+        <Shell className="py-24">
+          <SectionHead
+            align="center"
+            eyebrow="Pricing"
+            title={<>Start free. Pay when it&rsquo;s earning.</>}
+            sub={
+              cheapestPaid
+                ? `A real shop at a BuilderHut address costs nothing, for as long as you like. Paid plans start at ${formatMoney(cheapestPaid.priceMinor, cheapestPaid.currency)} a month, and nothing is being charged yet.`
+                : "A real shop at a BuilderHut address costs nothing, for as long as you like."
+            }
+          />
+          <Reveal delay={120}>
+            <div className="mt-10 flex flex-wrap justify-center gap-3">
+              <Button asChild size="lg">
+                <Link href="/signup">
+                  Create my store <ArrowRight className="size-4" aria-hidden="true" />
+                </Link>
+              </Button>
+              <Button asChild size="lg" variant="secondary">
+                <Link href="/pricing">See what&rsquo;s included</Link>
+              </Button>
+            </div>
+          </Reveal>
+        </Shell>
+      </Section>
 
       {/* ── FAQ ──────────────────────────────────────────────────────────── */}
-      <section className="border-border bg-raised border-y">
-        <div className="mx-auto max-w-6xl px-5 py-24 sm:px-8">
-          <Reveal>
-            <h2 className="font-display mb-12 text-center text-[clamp(1.9rem,1.4rem+2vw,3rem)] leading-[1.08]">
-              Questions people ask.
-            </h2>
-          </Reveal>
-          <Reveal delay={100}>
+      <Section className="border-border bg-raised border-y">
+        <Shell className="py-24">
+          <SectionHead align="center" title="Questions people ask." />
+          <Reveal delay={100} className="mt-12">
             <Faq />
           </Reveal>
-        </div>
-      </section>
+        </Shell>
+      </Section>
 
       {/* ── Closing ──────────────────────────────────────────────────────── */}
-      <section className="mx-auto max-w-3xl px-5 py-28 text-center sm:px-8">
-        <Reveal>
-          <h2 className="font-display text-[clamp(2.1rem,1.5rem+2.6vw,3.6rem)] leading-[1.05]">
-            Your shop is about twenty minutes away.
-          </h2>
-          <p className="text-muted mx-auto mt-5 max-w-md text-balance">
-            Pick a starting point, add a few photographs, and put it in your bio.
-          </p>
-          <Button asChild size="lg" className="mt-9">
-            <Link href="/signup">
-              Create my store <ArrowRight className="size-4" />
-            </Link>
-          </Button>
-        </Reveal>
-      </section>
+      <Section surface="theatre">
+        <Backdrop>
+          <div className="bh-mk-glow bh-mk-breathe top-0 left-1/2 size-[38rem] -translate-x-1/2" />
+        </Backdrop>
+        <Shell className="relative max-w-3xl! py-28 text-center">
+          <Reveal>
+            <h2 className="font-display text-[clamp(2.1rem,1.5rem+2.6vw,3.6rem)] leading-[1.05]">
+              Your shop is about twenty minutes away.
+            </h2>
+            <p className="text-muted mx-auto mt-5 max-w-md text-balance">
+              Pick a starting point, add a few photographs, and put it in your bio.
+            </p>
+            <Button asChild size="lg" className="mt-9">
+              <Link href="/signup">
+                Create my store <ArrowRight className="size-4" aria-hidden="true" />
+              </Link>
+            </Button>
+          </Reveal>
+        </Shell>
+      </Section>
     </main>
   );
-}
-
-/**
- * A plan's selling points, derived rather than written twice.
- *
- * The catalogue is the only place a limit is recorded, so a change to it moves
- * the pricing page too. A hand-written list beside it disagrees with the
- * software the first time somebody edits one of them.
- */
-function planLines(plan: Plan): string[] {
-  const lines = [
-    plan.limits.products === null
-      ? "As many products as you like"
-      : `${plan.limits.products} products`,
-    plan.limits.customDomains === 0
-      ? "A free BuilderHut address"
-      : plan.limits.customDomains === 1
-        ? "Your own domain"
-        : `${plan.limits.customDomains} of your own domains`,
-    plan.limits.staff === null
-      ? "As many people as you need"
-      : plan.limits.staff === 1
-        ? "Just you"
-        : `${plan.limits.staff} people on the shop`,
-    plan.limits.storageMb === null
-      ? "As many pictures as you like"
-      : `${plan.limits.storageMb >= 1000 ? `${plan.limits.storageMb / 1000} GB` : `${plan.limits.storageMb} MB`} of pictures`,
-  ];
-
-  if (plan.features.removeBranding) lines.push("No BuilderHut line in your footer");
-  if (plan.features.discountCodes) lines.push("Discount codes");
-  if (plan.features.marketingTools) lines.push("Marketing and abandoned baskets");
-  if (plan.features.prioritySupport) lines.push("Priority support");
-
-  return lines;
 }

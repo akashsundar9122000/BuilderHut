@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
+import { ArrowRight } from "lucide-react";
 import { StoreFrame } from "./StoreFrame";
 import { cn } from "@/lib/cn";
 import type { TemplateSummary } from "@/lib/templates";
@@ -86,6 +88,14 @@ export function TemplateCarousel({ templates }: { templates: TemplateSummary[] }
               </dd>
             </div>
           </dl>
+
+          <Link
+            href={`/templates/${current.id}`}
+            className="text-accent hover:text-accent-hover mt-6 inline-flex items-center gap-1 text-sm font-medium"
+          >
+            See {current.name} in full
+            <ArrowRight className="size-3.5" aria-hidden="true" />
+          </Link>
         </div>
       </div>
     </div>

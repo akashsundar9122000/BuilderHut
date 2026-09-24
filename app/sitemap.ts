@@ -2,6 +2,7 @@ import type { MetadataRoute } from "next";
 
 import { appUrl } from "@/lib/app-url";
 import { GUIDE_GROUPS, GUIDE_PAGES } from "@/lib/guide/generated";
+import { TEMPLATES } from "@/lib/templates";
 
 /*
  * The pages worth finding from a search engine.
@@ -24,6 +25,18 @@ export default function sitemap(): MetadataRoute.Sitemap {
   return [
     { url: base, changeFrequency: "weekly", priority: 1 },
     { url: `${base}/templates`, changeFrequency: "weekly", priority: 0.8 },
+    { url: `${base}/pricing`, changeFrequency: "monthly", priority: 0.8 },
+    /*
+     * One page per template. These are real public pages with their own copy
+     * and their own social card, and they are the pages somebody searching for
+     * "bakery shop template" should land on — not the gallery index, where
+     * theirs is one card of twelve.
+     */
+    ...TEMPLATES.map((template) => ({
+      url: `${base}/templates/${template.id}`,
+      changeFrequency: "monthly" as const,
+      priority: 0.6,
+    })),
     { url: `${base}/guide`, changeFrequency: "weekly", priority: 0.7 },
     ...groups.map((group) => ({
       url: `${base}/guide/${group.id}`,

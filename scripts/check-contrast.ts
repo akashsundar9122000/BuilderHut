@@ -172,8 +172,33 @@ for (const key of Object.keys(dark)) {
   }
 }
 
+/*
+ * The marketing theatre is the dark palette applied locally, inside a page that
+ * may itself be light. That is the only reason it needs no contrast pairs of
+ * its own — every ratio it produces was already checked above as `dark`.
+ *
+ * Which is true exactly as long as the two stay the same. A "just this once"
+ * tweak to a theatre colour silently leaves the validated set, and the failure
+ * it eventually causes shows up on a marketing page nobody re-checks. So the
+ * sameness is asserted rather than trusted.
+ *
+ * Extras the dark theme has no opinion about — the glow, the grid — are absent
+ * from `dark` and skipped; they are decoration, never a foreground.
+ */
+const theatre = block('[data-surface="theatre"]');
+for (const key of Object.keys(dark)) {
+  if (theatre[key] !== dark[key]) {
+    console.error(
+      `  DRIFT    --${key}: theatre is ${theatre[key] ?? "(absent)"}, dark is ${dark[key]}`,
+    );
+    failures++;
+  }
+}
+
 if (failures > 0) {
   console.error(`\ncontrast: ${failures} problem(s) across ${checked} checked pairs\n`);
   process.exit(1);
 }
-console.log(`contrast: ${checked} pairs pass in both themes, dark blocks in sync`);
+console.log(
+  `contrast: ${checked} pairs pass in both themes, dark blocks and theatre in sync`,
+);

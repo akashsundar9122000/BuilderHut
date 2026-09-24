@@ -1,42 +1,43 @@
 import Link from "next/link";
 import { Wordmark } from "@/components/brand/Mark";
 import { RevealNoScript } from "@/components/marketing/Reveal";
-import { Button, ThemeToggle } from "@/components/ui";
+import { StaggerNoScript } from "@/components/marketing/Stagger";
+import { MarketingHeader } from "@/components/marketing/MarketingHeader";
+import { STOREFRONT_FONT_VARS } from "@/lib/render/fonts";
 
+import "@/styles/marketing.css";
+
+/*
+ * The marketing shell.
+ *
+ * Two things worth knowing.
+ *
+ * `styles/marketing.css` is imported HERE rather than in the root layout, so
+ * the dashboard, the builder and every published storefront never download a
+ * byte of it. It is a lot of CSS in service of one route group.
+ *
+ * STOREFRONT_FONT_VARS is applied because this surface renders StoreFrame,
+ * which asks for the template's real typeface. Without it those custom
+ * properties are undefined and the whole font stack falls through to Georgia
+ * or system-ui — so ten of the twelve templates were rendering in the wrong
+ * face, on the one page whose entire argument is that they are genuinely
+ * different type pairings and not one layout recoloured. The page was
+ * disproving its own claim.
+ */
 export default function MarketingLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-dvh">
+    <div data-mk className={`min-h-dvh ${STOREFRONT_FONT_VARS}`}>
       <RevealNoScript />
-      <header className="border-border/70 bg-canvas/80 sticky top-0 z-40 border-b backdrop-blur">
-        <div className="mx-auto flex h-16 max-w-6xl items-center gap-6 px-5 sm:px-8">
-          <Link href="/" className="text-text hover:text-accent transition-colors">
-            <Wordmark className="text-lg" />
-          </Link>
-          <nav className="text-text-secondary ml-6 hidden items-center gap-6 text-sm md:flex">
-            <Link href="/templates" className="hover:text-accent transition-colors">
-              Templates
-            </Link>
-            <a href="#how" className="hover:text-accent transition-colors">
-              How it works
-            </a>
-            <a href="#pricing" className="hover:text-accent transition-colors">
-              Pricing
-            </a>
-            <Link href="/guide" className="hover:text-accent transition-colors">
-              Guide
-            </Link>
-          </nav>
-          <div className="ml-auto flex items-center gap-2 sm:gap-3">
-            <ThemeToggle />
-            <Button asChild variant="ghost" size="sm" className="hidden sm:inline-flex">
-              <Link href="/login">Sign in</Link>
-            </Button>
-            <Button asChild size="sm">
-              <Link href="/signup">Create my store</Link>
-            </Button>
-          </div>
-        </div>
-      </header>
+      <StaggerNoScript />
+
+      {/*
+       * How far down the page you are. Scroll-driven, so it is display:none
+       * unless the browser can drive it and the reader has not asked for less
+       * motion — a progress bar that cannot track progress is just a line.
+       */}
+      <div aria-hidden="true" className="bh-mk-progress" />
+
+      <MarketingHeader />
 
       {children}
 
@@ -54,12 +55,12 @@ export default function MarketingLayout({ children }: { children: React.ReactNod
               <Link href="/templates" className="text-muted hover:text-text transition-colors">
                 Templates
               </Link>
-              <a href="#how" className="text-muted hover:text-text transition-colors">
+              <Link href="/#how" className="text-muted hover:text-text transition-colors">
                 How it works
-              </a>
-              <a href="#pricing" className="text-muted hover:text-text transition-colors">
+              </Link>
+              <Link href="/pricing" className="text-muted hover:text-text transition-colors">
                 Pricing
-              </a>
+              </Link>
               <Link href="/guide" className="text-muted hover:text-text transition-colors">
                 Guide
               </Link>

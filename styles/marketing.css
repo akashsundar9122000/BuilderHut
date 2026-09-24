@@ -1,0 +1,333 @@
+/*
+ * The marketing surface's own stylesheet.
+ *
+ * Imported by app/(marketing)/layout.tsx rather than the root layout, so the
+ * dashboard, the builder and — the one that matters — every published
+ * storefront never download a byte of it.
+ *
+ * Everything here is transform, opacity, scale or a scroll timeline. No
+ * animation library: the effects this page wants are ones the browser can
+ * drive on the compositor without React in the loop, and a 40KB dependency on
+ * the critical path of the one route whose job is to render fast on a cold
+ * visit is a poor trade.
+ *
+ * ── The trap that shapes this whole file ──────────────────────────────────
+ *
+ * The global reduced-motion reset in tokens.css sets `animation-duration` to
+ * 0.01ms. That neutralises a time-based animation completely and a
+ * scroll-driven one NOT AT ALL: when `animation-timeline` is set, duration is
+ * ignored outright and progress comes from the scroll position instead. A
+ * scroll-driven effect therefore survives the reset untouched, which is the
+ * opposite of what the reset is for.
+ *
+ * So every scroll-driven rule below sits inside
+ * `@media (prefers-reduced-motion: no-preference)` and is never written as
+ * something to be undone later. tests/unit/marketing.test.ts asserts that,
+ * because it is invisible in review.
+ *
+ * House rule, same as everywhere: no raw hex. Tokens only.
+ */
+
+/* ── Reading progress ──────────────────────────────────────────────────── */
+
+.bh-mk-progress {
+  position: fixed;
+  inset: 0 0 auto;
+  height: 2px;
+  z-index: 50;
+  transform-origin: 0 50%;
+  background: var(--bh-accent);
+  /* Hidden unless it can actually be driven — see the @supports block. */
+  display: none;
+}
+
+/* ── Marquee ───────────────────────────────────────────────────────────── */
+
+.bh-mk-marquee {
+  display: flex;
+  overflow: hidden;
+  /*
+   * Fades the ends into the page instead of slicing the words off at a hard
+   * edge. Two stops of nothing at each end, so the loop seam is never the
+   * thing you notice.
+   */
+  mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent);
+}
+
+.bh-mk-marquee__track {
+  display: flex;
+  flex: none;
+  gap: var(--bh-marquee-gap, 2.75rem);
+  padding-right: var(--bh-marquee-gap, 2.75rem);
+  min-width: max-content;
+}
+
+/* ── The build sequence ────────────────────────────────────────────────── */
+
+/*
+ * Rendered twice: a pinned scene and a plain stacked list. CSS picks, and the
+ * one it does not pick is `display: none`, so its work is never done.
+ *
+ * The stacked list is the default. It is what a phone gets, what a reader who
+ * asked for less motion gets, and what a browser without scroll timelines
+ * gets — which today includes Firefox, so this is a real share of visitors
+ * rather than a theoretical fallback. It is written as a good section in its
+ * own right, not as a degraded one.
+ */
+.bh-mk-seq__pinned {
+  display: none;
+}
+
+.bh-mk-seq__frame {
+  grid-area: 1 / 1;
+}
+
+/* ── Reveal, staggered ─────────────────────────────────────────────────── */
+
+/*
+ * One observer on the container, N delays here. Not one observer per child:
+ * six cards cross the threshold in the same frame, so six observers would
+ * arrive as a single block and the stagger would not exist.
+ */
+.bh-mk-stagger > * {
+  transition:
+    opacity var(--bh-duration-deliberate) var(--bh-ease-out),
+    translate var(--bh-duration-deliberate) var(--bh-ease-out);
+}
+
+.bh-mk-stagger:not([data-shown]) > * {
+  opacity: 0;
+  translate: 0 1.25rem;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .bh-mk-stagger > *:nth-child(1) { transition-delay: 0ms; }
+  .bh-mk-stagger > *:nth-child(2) { transition-delay: 70ms; }
+  .bh-mk-stagger > *:nth-child(3) { transition-delay: 140ms; }
+  .bh-mk-stagger > *:nth-child(4) { transition-delay: 210ms; }
+  .bh-mk-stagger > *:nth-child(5) { transition-delay: 280ms; }
+  .bh-mk-stagger > *:nth-child(6) { transition-delay: 350ms; }
+  .bh-mk-stagger > *:nth-child(7) { transition-delay: 420ms; }
+  /* Capped. Past eight, a stagger stops reading as choreography and starts
+     reading as the page being slow. */
+  .bh-mk-stagger > *:nth-child(n + 8) { transition-delay: 490ms; }
+}
+
+/* ── Decoration ────────────────────────────────────────────────────────── */
+
+.bh-mk-glow {
+  position: absolute;
+  pointer-events: none;
+  background: radial-gradient(closest-side, var(--bh-theatre-glow), transparent);
+}
+
+.bh-mk-grid {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(to right, var(--bh-theatre-grid) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--bh-theatre-grid) 1px, transparent 1px);
+  background-size: 64px 64px;
+  mask-image: radial-gradient(70% 60% at 50% 0%, #000, transparent);
+}
+
+/* ── Motion, only where it was asked for ───────────────────────────────── */
+
+@media (prefers-reduced-motion: no-preference) {
+  @keyframes bh-mk-rise {
+    from { opacity: 0; translate: 0 1.25rem; }
+    to   { opacity: 1; translate: none; }
+  }
+
+  @keyframes bh-mk-drift {
+    to { translate: 0 -26px; }
+  }
+
+  @keyframes bh-mk-progress {
+    from { transform: scaleX(0); }
+    to   { transform: scaleX(1); }
+  }
+
+  @keyframes bh-mk-marquee {
+    to { transform: translateX(-100%); }
+  }
+
+  @keyframes bh-mk-bob {
+    50% { translate: 0 -7px; }
+  }
+
+  @keyframes bh-mk-breathe {
+    50% { opacity: 0.55; scale: 1.06; }
+  }
+
+  /* A stage that is already on screen when the scene begins. */
+  @keyframes bh-mk-stage-first {
+    0%,  72% { opacity: 1; scale: 1; }
+    100%     { opacity: 0; scale: 0.985; }
+  }
+  @keyframes bh-mk-stage {
+    0%        { opacity: 0; scale: 0.985; }
+    22%, 74%  { opacity: 1; scale: 1; }
+    100%      { opacity: 0; scale: 0.985; }
+  }
+  /* The one the scene rests on. It must not fade back out at the end. */
+  @keyframes bh-mk-stage-last {
+    0%        { opacity: 0; scale: 0.985; }
+    26%, 100% { opacity: 1; scale: 1; }
+  }
+
+  @keyframes bh-mk-rail {
+    from { transform: scaleY(0); }
+    to   { transform: scaleY(1); }
+  }
+
+  /*
+   * The inactive step changes COLOUR, between two validated tokens — it does
+   * not fade. Dimming text with opacity is the classic way to invent a
+   * contrast failure that no token check can see, because the tokens are all
+   * still correct and it is the blend that fails. Both ends of this are
+   * `muted` and `text`, which clear AA on every surface by construction.
+   */
+  @keyframes bh-mk-step {
+    0%, 100% { color: var(--bh-muted); }
+    22%, 74% { color: var(--bh-text); }
+  }
+  @keyframes bh-mk-step-first {
+    0%, 72% { color: var(--bh-text); }
+    100%    { color: var(--bh-muted); }
+  }
+  @keyframes bh-mk-step-last {
+    0%        { color: var(--bh-muted); }
+    26%, 100% { color: var(--bh-text); }
+  }
+
+  .bh-mk-marquee__track {
+    animation: bh-mk-marquee 46s linear infinite;
+  }
+  /* Pausing on hover is the difference between decoration and a thing that
+     runs away from someone trying to read it. */
+  .bh-mk-marquee:hover .bh-mk-marquee__track,
+  .bh-mk-marquee:focus-within .bh-mk-marquee__track {
+    animation-play-state: paused;
+  }
+
+  .bh-mk-bob {
+    animation: bh-mk-bob 6s var(--bh-ease-in-out) infinite;
+  }
+  .bh-mk-bob--slow {
+    animation-duration: 7.5s;
+    animation-delay: -2.5s;
+  }
+
+  .bh-mk-breathe {
+    animation: bh-mk-breathe 7s var(--bh-ease-in-out) infinite;
+  }
+}
+
+/* ── Scroll-driven, where the browser can do it ────────────────────────── */
+
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    /*
+     * The same entrance the Reveal component does with an IntersectionObserver,
+     * done by the compositor instead. It keys off the `data-reveal` attribute
+     * that component already emits, so nothing about it changes: where this is
+     * supported the animation simply outranks the transition, and the observer
+     * becomes dead weight that costs one class name.
+     */
+    [data-mk] [data-reveal],
+    [data-mk] .bh-mk-stagger > * {
+      animation: bh-mk-rise both;
+      animation-timeline: view();
+      /*
+       * `cover`, not `entry`. An `entry` range finishes when the element is
+       * fully inside the viewport, which for anything taller than the screen
+       * never happens — so the animation parks partway and the section sits
+       * at a permanent 40% opacity forever.
+       */
+      animation-range: cover 0% cover 26%;
+      transition: none;
+      /* The observer may never fire on a tall element; the animation is
+         authoritative now, so its hidden start state must not linger. */
+      opacity: 1;
+      translate: none;
+    }
+
+    [data-mk] .bh-mk-stagger > *:nth-child(2) { animation-range: cover 3% cover 29%; }
+    [data-mk] .bh-mk-stagger > *:nth-child(3) { animation-range: cover 6% cover 32%; }
+    [data-mk] .bh-mk-stagger > *:nth-child(4) { animation-range: cover 9% cover 35%; }
+    [data-mk] .bh-mk-stagger > *:nth-child(5) { animation-range: cover 12% cover 38%; }
+    [data-mk] .bh-mk-stagger > *:nth-child(6) { animation-range: cover 15% cover 41%; }
+    [data-mk] .bh-mk-stagger > *:nth-child(n + 7) { animation-range: cover 18% cover 44%; }
+
+    .bh-mk-progress {
+      display: block;
+      animation: bh-mk-progress linear both;
+      animation-timeline: scroll(root block);
+    }
+
+    .bh-mk-parallax {
+      animation: bh-mk-drift linear both;
+      animation-timeline: view();
+      animation-range: cover 18% cover 100%;
+    }
+
+    /* ── The pinned scene ──────────────────────────────────────────────── */
+
+    @media (min-width: 60rem) {
+      .bh-mk-seq__stacked { display: none; }
+
+      .bh-mk-seq__pinned {
+        display: block;
+        /* One viewport to read the last stage in, plus travel per stage. The
+           stage count comes from the markup so the two cannot disagree. */
+        height: calc(var(--bh-seq-steps) * 82vh + 100vh);
+        view-timeline-name: --bh-seq;
+      }
+
+      .bh-mk-seq__sticky {
+        position: sticky;
+        top: var(--bh-topbar-h);
+        height: calc(100vh - var(--bh-topbar-h));
+      }
+
+      /*
+       * `contain`, not `cover`: for an element taller than the viewport the
+       * contain range is exactly the span over which it fills the screen —
+       * which is exactly the span over which it is pinned. Every window below
+       * is therefore a fraction of the pinned scroll, not of the page.
+       */
+      .bh-mk-seq__frame,
+      .bh-mk-seq__step {
+        animation-timeline: --bh-seq;
+        animation-fill-mode: both;
+      }
+
+      .bh-mk-seq__frame { animation-name: bh-mk-stage; }
+      .bh-mk-seq__step  { animation-name: bh-mk-step; }
+
+      .bh-mk-seq__frame:first-child { animation-name: bh-mk-stage-first; }
+      .bh-mk-seq__frame:last-child  { animation-name: bh-mk-stage-last; }
+      .bh-mk-seq__step:first-child  { animation-name: bh-mk-step-first; }
+      .bh-mk-seq__step:last-child   { animation-name: bh-mk-step-last; }
+
+      /* Overlapping windows, so one stage is arriving as the last one goes. */
+      .bh-mk-seq__frame:nth-child(1),
+      .bh-mk-seq__step:nth-child(1) { animation-range: contain 0% contain 29%; }
+      .bh-mk-seq__frame:nth-child(2),
+      .bh-mk-seq__step:nth-child(2) { animation-range: contain 21% contain 54%; }
+      .bh-mk-seq__frame:nth-child(3),
+      .bh-mk-seq__step:nth-child(3) { animation-range: contain 46% contain 79%; }
+      .bh-mk-seq__frame:nth-child(4),
+      .bh-mk-seq__step:nth-child(4) { animation-range: contain 71% contain 100%; }
+
+      .bh-mk-seq__rail-fill {
+        transform-origin: top;
+        animation: bh-mk-rail linear both;
+        animation-timeline: --bh-seq;
+        animation-range: contain 0% contain 100%;
+      }
+    }
+  }
+}
