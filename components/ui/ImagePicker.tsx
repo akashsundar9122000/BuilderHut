@@ -6,6 +6,7 @@ import { ImageUp, Loader2, Trash2, X } from "lucide-react";
 import { Button } from "./Button";
 import { Input } from "./Input";
 import { cn } from "@/lib/cn";
+import { uploadForm } from "@/lib/media/downscale";
 import { listMediaAction, uploadMediaAction, type SerialisableAsset } from "@/lib/media/actions";
 
 /*
@@ -16,60 +17,8 @@ import { listMediaAction, uploadMediaAction, type SerialisableAsset } from "@/li
  * URL from somewhere else. The third was previously the only one, with "uploads
  * arrive with the media library" written underneath it.
  *
- * The browser resizes before sending. A photo off a phone is four megabytes and
- * eight times wider than any slot on the page will ever render it — uploading
- * it whole spends the merchant's storage allowance and then makes their
- * customers download it over mobile data. Doing it here rather than on the
- * server also means the slow part happens on a device that is idle anyway.
+ * The browser resizes before sending; see lib/media/downscale.ts for why.
  */
-
-/** Wide enough for a full-bleed hero on a high-density screen, and no wider. */
-const MAX_EDGE = 2000;
-const JPEG_QUALITY = 0.85;
-
-async function downscale(file: File): Promise<{ blob: Blob; width: number; height: number }> {
-  // SVGs are already small and resizing one rasterises it, which is the
-  // opposite of what anyone wants. GIFs would lose their animation.
-  if (file.type === "image/svg+xml" || file.type === "image/gif") {
-    return { blob: file, width: 0, height: 0 };
-  }
-
-  const bitmap = await createImageBitmap(file).catch(() => null);
-  if (!bitmap) return { blob: file, width: 0, height: 0 };
-
-  const scale = Math.min(1, MAX_EDGE / Math.max(bitmap.width, bitmap.height));
-  const width = Math.round(bitmap.width * scale);
-  const height = Math.round(bitmap.height * scale);
-
-  // Already small enough: send the original rather than re-encoding it, which
-  // would only lose quality for no saving.
-  if (scale === 1 && file.size < 900_000) {
-    bitmap.close();
-    return { blob: file, width, height };
-  }
-
-  const canvas = document.createElement("canvas");
-  canvas.width = width;
-  canvas.height = height;
-  const context = canvas.getContext("2d");
-  if (!context) {
-    bitmap.close();
-    return { blob: file, width, height };
-  }
-  context.drawImage(bitmap, 0, 0, width, height);
-  bitmap.close();
-
-  const blob = await new Promise<Blob | null>((resolve) =>
-    // PNG keeps transparency; everything else is smaller as JPEG.
-    canvas.toBlob(
-      resolve,
-      file.type === "image/png" ? "image/png" : "image/jpeg",
-      JPEG_QUALITY,
-    ),
-  );
-
-  return blob ? { blob, width, height } : { blob: file, width, height };
-}
 
 export function ImagePicker({
   value,
@@ -92,13 +41,7 @@ export function ImagePicker({
   function upload(file: File) {
     setError(null);
     start(async () => {
-      const { blob, width, height } = await downscale(file);
-      const form = new FormData();
-      form.append("file", new File([blob], file.name, { type: blob.type || file.type }));
-      if (width) form.append("width", String(width));
-      if (height) form.append("height", String(height));
-
-      const result = await uploadMediaAction(form);
+      const result = await uploadMediaAction(await uploadForm(file));
       if (result.ok) {
         onChange(result.asset.url);
         // The library is stale the moment something is added to it.

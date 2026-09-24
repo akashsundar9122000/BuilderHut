@@ -4,6 +4,7 @@ import { useRef, useState, useTransition } from "react";
 import { ArrowLeft, ArrowRight, ImageUp, Loader2, Star, Trash2 } from "lucide-react";
 
 import { Button } from "@/components/ui";
+import { uploadForm } from "@/lib/media/downscale";
 import { uploadMediaAction } from "@/lib/media/actions";
 
 /*
@@ -19,40 +20,6 @@ import { uploadMediaAction } from "@/lib/media/actions";
  */
 
 const MAX_IMAGES = 8;
-const MAX_EDGE = 2000;
-
-async function downscale(file: File): Promise<{ blob: Blob; width: number; height: number }> {
-  if (file.type === "image/svg+xml" || file.type === "image/gif") {
-    return { blob: file, width: 0, height: 0 };
-  }
-  const bitmap = await createImageBitmap(file).catch(() => null);
-  if (!bitmap) return { blob: file, width: 0, height: 0 };
-
-  const scale = Math.min(1, MAX_EDGE / Math.max(bitmap.width, bitmap.height));
-  const width = Math.round(bitmap.width * scale);
-  const height = Math.round(bitmap.height * scale);
-  if (scale === 1 && file.size < 900_000) {
-    bitmap.close();
-    return { blob: file, width, height };
-  }
-
-  const canvas = document.createElement("canvas");
-  canvas.width = width;
-  canvas.height = height;
-  const context = canvas.getContext("2d");
-  if (!context) {
-    bitmap.close();
-    return { blob: file, width, height };
-  }
-  context.drawImage(bitmap, 0, 0, width, height);
-  bitmap.close();
-
-  const blob = await new Promise<Blob | null>((resolve) =>
-    canvas.toBlob(resolve, file.type === "image/png" ? "image/png" : "image/jpeg", 0.85),
-  );
-  return blob ? { blob, width, height } : { blob: file, width, height };
-}
-
 export function ProductImages({
   value,
   onChange,
@@ -74,13 +41,7 @@ export function ProductImages({
     start(async () => {
       const added: string[] = [];
       for (const file of chosen) {
-        const { blob, width, height } = await downscale(file);
-        const form = new FormData();
-        form.append("file", new File([blob], file.name, { type: blob.type || file.type }));
-        if (width) form.append("width", String(width));
-        if (height) form.append("height", String(height));
-
-        const result = await uploadMediaAction(form);
+        const result = await uploadMediaAction(await uploadForm(file));
         if (result.ok) {
           added.push(result.asset.url);
         } else {

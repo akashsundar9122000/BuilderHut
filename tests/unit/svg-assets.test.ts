@@ -11,13 +11,17 @@ import { DOMParser } from "@xmldom/xmldom";
  * standalone .svg file is parsed as XML, which is not — and a favicon that
  * fails to parse does not appear, with no error in any console.
  *
- * That is exactly what happened: a comment in app/icon.svg described a colour
- * as `--bh-canvas`, and a double hyphen is illegal inside an XML comment. The
- * link tag was emitted, the file served with the right content type, and the
- * tab stayed blank.
+ * That is exactly what happened: a comment in the old app/icon.svg described a
+ * colour as `--bh-canvas`, and a double hyphen is illegal inside an XML
+ * comment. The link tag was emitted, the file served with the right content
+ * type, and the tab stayed blank.
+ *
+ * brand/ is scanned as well as the served directories. Nothing links to the
+ * files there directly — they are the masters the shipped assets are cut from —
+ * but a master that does not parse produces a broken asset just the same.
  */
 
-const SVG_DIRS = ["app", "public"];
+const SVG_DIRS = ["app", "public", "brand"];
 
 function svgFiles(dir: string, found: string[] = []): string[] {
   let entries;
@@ -40,7 +44,7 @@ describe("shipped SVG assets", () => {
   it("finds the ones we know about", () => {
     // A guard on the guard: if the glob breaks, every assertion below passes
     // vacuously and the thing this file exists for stops being checked.
-    expect(files).toContain(path.join("app", "icon.svg"));
+    expect(files).toContain(path.join("brand", "mark.svg"));
   });
 
   it.each(files)("%s parses as XML", (file) => {

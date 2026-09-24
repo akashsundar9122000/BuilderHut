@@ -21,6 +21,7 @@ export type Control =
   | { kind: "number"; prop: string; label: string; min: number; max: number; step?: number }
   | { kind: "link"; prop: string; label: string; hint?: string }
   | { kind: "image"; prop: string; label: string }
+  | { kind: "images"; prop: string; label: string; max: number }
   | {
       kind: "items";
       prop: string;
@@ -285,6 +286,10 @@ export const INSPECTOR: Record<SectionType, InspectorGroup[]> = {
 
   gallery: [
     { label: "Words", controls: [{ kind: "text", prop: "heading", label: "Heading" }] },
+    {
+      label: "Photographs",
+      controls: [{ kind: "images", prop: "images", label: "Pictures", max: 12 }],
+    },
     { label: "Layout", controls: [COLUMNS("Across"), TONE] },
   ],
 

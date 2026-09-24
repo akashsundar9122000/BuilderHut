@@ -29,5 +29,8 @@ coverage
 # os
 .DS_Store
 
+# demo recordings — large binaries, never committed
+demo
+
 # Capture-run scratch: the journey context, the merchant session, generated artwork.
 .guide-shots

@@ -2,7 +2,15 @@
 
 import { Plus, Trash2 } from "lucide-react";
 
-import { Button, Field, ImagePicker, Input, Textarea } from "@/components/ui";
+import {
+  Button,
+  Field,
+  ImagePicker,
+  ImagesPicker,
+  Input,
+  Textarea,
+  type PickedImage,
+} from "@/components/ui";
 import { cn } from "@/lib/cn";
 import { useBuilder, useSelectedSection } from "@/lib/builder/store";
 import { INSPECTOR, type Control } from "@/lib/render/inspector";
@@ -184,6 +192,28 @@ function ControlField({
           label={control.label}
           value={typeof value === "string" && value ? value : null}
           onChange={(url) => onChange(url)}
+        />
+      );
+
+    case "images":
+      return (
+        <ImagesPicker
+          label={control.label}
+          max={control.max}
+          /*
+           * Anything that is not a well-formed list of pictures is treated as
+           * an empty one rather than crashing the panel. Props arrive from a
+           * stored document, and a document written by an older version of
+           * this editor is a normal thing to open.
+           */
+          value={
+            Array.isArray(value)
+              ? (value as PickedImage[]).filter(
+                  (image) => image && typeof image.url === "string" && image.url,
+                ).map((image) => ({ url: image.url, alt: image.alt ?? "" }))
+              : []
+          }
+          onChange={(next) => onChange(next)}
         />
       );
 

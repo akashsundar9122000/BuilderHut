@@ -3,19 +3,21 @@ import { cn } from "@/lib/cn";
 /*
  * The BuilderHut mark: a roof over a B, with a lit window in its counter.
  *
- * The geometry is character-for-character the same as app/icon.svg, with the
+ * The geometry is character-for-character the same as brand/mark.svg, with the
  * viewBox cropped to the artwork instead of the tile. Redrawing it at a
  * different scale — which is what this was first — makes the strokes
- * proportionally heavier, and the header mark stops being the same drawing as
- * the one in the tab.
+ * proportionally heavier, and the two stop being the same drawing.
  *
- * Two deliberate differences from the icon. No tile: the browser tab needs a
- * background because it sits on whatever chrome the browser has, but inside
- * the product the mark sits on our own canvas and a dark tile there is a
- * sticker on the page. And the colours are tokens rather than hex, so the mark
- * inverts with the theme instead of staying a light-mode artefact on a
- * warm-black page. The letterform takes `currentColor` so it matches whatever
- * it is set beside.
+ * Two deliberate differences from that master. No tile: inside the product the
+ * mark sits on our own canvas, and a dark tile there is a sticker on the page.
+ * And the colours are tokens rather than hex, so the mark inverts with the
+ * theme instead of staying a light-mode artefact on a warm-black page. The
+ * letterform takes `currentColor` so it matches whatever it is set beside.
+ *
+ * Note that this is NOT what the browser tab shows any more: the app icon is
+ * the rendered hut in app/icon.png, cut from brand/app-icon.png. The two are
+ * different drawings, which is a decision waiting to be made rather than one
+ * that has been made.
  */
 export function Mark({ className }: { className?: string }) {
   return (

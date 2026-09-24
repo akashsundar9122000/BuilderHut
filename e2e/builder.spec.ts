@@ -261,6 +261,42 @@ test.describe("visual builder", () => {
     await expect(page.getByText("Do you post overseas?").first()).toBeVisible();
   });
 
+  /*
+   * A gallery's photographs.
+   *
+   * The schema has always had an images array and the storefront has always
+   * rendered it — the inspector simply had no control for it, so the only
+   * gallery a merchant could build was a row of grey placeholders. Adding one
+   * was the whole point; this is the assertion that it reaches the canvas.
+   */
+  test("a gallery takes photographs", async () => {
+    await page.goto("/app/builder");
+    await openBuilderPanel(page);
+    await page.click('button[role="tab"]:has-text("Add")');
+    await page.click('button:has-text("Gallery")');
+
+    /*
+     * The address field rather than an upload. A file picker here would put
+     * the media store — a real Cloudflare namespace — on the critical path of
+     * a layout test, and a suite that fails when someone else's service is
+     * slow is a suite people learn to ignore.
+     */
+    const address = page.getByLabel("Add pictures by address");
+    await address.fill("https://example.test/kiln.jpg");
+    await address.press("Enter");
+
+    const alt = page.getByLabel("Describe picture 1");
+    await expect(alt).toBeVisible();
+    await alt.fill("The kiln, mid-firing");
+    await closeBuilderPanel(page);
+
+    const tile = page.locator('[data-storefront] img[src="https://example.test/kiln.jpg"]');
+    await expect(tile).toHaveCount(1);
+    // Alt text is the reason the field is beside the picture rather than
+    // behind a dialog; it has to actually arrive.
+    await expect(tile).toHaveAttribute("alt", "The kiln, mid-firing");
+  });
+
   test("theme controls actually repaint the canvas", async () => {
     await page.goto("/app/builder");
 
