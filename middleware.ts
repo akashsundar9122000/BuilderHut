@@ -1,6 +1,8 @@
 import { neon } from "@neondatabase/serverless";
 import { NextResponse, type NextRequest } from "next/server";
 
+import { appHost } from "@/lib/app-url";
+
 /*
  * Three jobs, all of which must happen before a page renders.
  *
@@ -52,10 +54,9 @@ function randomId(): string {
 
 /** Hosts that serve BuilderHut itself rather than a merchant's shop. */
 function isPlatformHost(host: string): boolean {
-  const appHost = process.env.APP_URL ? new URL(process.env.APP_URL).hostname : "localhost";
   const bare = host.split(":")[0] ?? "";
   return (
-    bare === appHost ||
+    bare === appHost() ||
     bare === "localhost" ||
     bare === "127.0.0.1" ||
     bare.endsWith(".vercel.app") ||

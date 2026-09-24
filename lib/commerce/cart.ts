@@ -1,4 +1,5 @@
 import "server-only";
+import { appIsSecure } from "@/lib/app-url";
 
 import { randomBytes } from "node:crypto";
 import { and, eq, isNull } from "drizzle-orm";
@@ -78,7 +79,7 @@ export async function readCartToken(tenantId: string): Promise<string | null> {
 async function isSecureRequest(): Promise<boolean> {
   const proto = (await headers()).get("x-forwarded-proto");
   if (proto) return proto.split(",")[0]!.trim() === "https";
-  return (process.env.APP_URL ?? "").startsWith("https://");
+  return appIsSecure();
 }
 
 async function writeCartToken(tenantId: string, token: string): Promise<void> {

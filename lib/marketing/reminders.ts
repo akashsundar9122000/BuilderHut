@@ -1,4 +1,5 @@
 import "server-only";
+import { appUrl } from "@/lib/app-url";
 
 import { and, eq, gte, isNull, lte, sql } from "drizzle-orm";
 
@@ -57,7 +58,7 @@ export async function runUnpaidOrderReminders(now = new Date()): Promise<Reminde
 
   const oldest = new Date(now.getTime() - GIVE_UP_HOURS * 3_600_000);
   const newest = new Date(now.getTime() - WAIT_HOURS * 3_600_000);
-  const base = process.env.APP_URL ?? "http://localhost:3000";
+  const base = appUrl();
 
   for (const shop of shops) {
     summary.shopsConsidered += 1;

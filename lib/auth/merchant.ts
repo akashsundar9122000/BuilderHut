@@ -1,4 +1,5 @@
 import "server-only";
+import { appUrl } from "@/lib/app-url";
 
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
@@ -47,7 +48,7 @@ function requireSecret(): string {
 export const auth = betterAuth({
   appName: "BuilderHut",
   secret: requireSecret(),
-  baseURL: process.env.APP_URL ?? "http://localhost:3000",
+  baseURL: appUrl(),
 
   /*
    * Origin checking is CSRF protection and stays on in production, where the
@@ -57,7 +58,7 @@ export const auth = betterAuth({
    * is trusted, and only there.
    */
   trustedOrigins: (request) => {
-    const origins = [process.env.APP_URL ?? "http://localhost:3000"];
+    const origins = [appUrl()];
     if (process.env.NODE_ENV !== "production") {
       const origin = request?.headers.get("origin");
       if (origin && /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin)) {

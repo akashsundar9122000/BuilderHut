@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { appUrl } from "@/lib/app-url";
 import { AlertTriangle, CheckCircle2, CreditCard } from "lucide-react";
 
 import { Badge, Card, CardBody } from "@/components/ui";
@@ -20,7 +21,7 @@ export default async function PaymentsPage() {
 
   const providerId = defaultProviderId();
   const provider = getPaymentProvider(providerId);
-  const base = process.env.APP_URL ?? "http://localhost:3000";
+  const base = appUrl();
 
   return (
     <div className="mx-auto max-w-3xl">

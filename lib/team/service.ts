@@ -1,4 +1,5 @@
 import "server-only";
+import { appUrl } from "@/lib/app-url";
 
 import { randomBytes } from "node:crypto";
 import { and, desc, eq, isNull } from "drizzle-orm";
@@ -166,7 +167,7 @@ export async function inviteMember(
     .where(eq(tenants.id, tenantId))
     .limit(1);
 
-  const base = process.env.APP_URL ?? "http://localhost:3000";
+  const base = appUrl();
   await sendEmail(invitationEmail(address, shop?.name ?? "a shop", `${base}/invite/${token}`));
 
   await writeAudit(db, "team.invited", { email: address, role });
