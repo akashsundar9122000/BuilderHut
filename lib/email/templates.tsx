@@ -1,5 +1,6 @@
 import "server-only";
 import type { EmailMessage } from "./provider";
+import { formatMoney } from "@/lib/money";
 
 /*
  * Table-based HTML, inline styles, no external CSS.
@@ -89,5 +90,38 @@ export function invitationEmail(to: string, shopName: string, url: string): Emai
        <p style="margin:20px 0 0;color:${MUTED};font-size:13px;">This link expires in three days and works once, for this address only. If you weren't expecting it, you can ignore this email — nothing has been created.</p>`,
     ),
     text: `Help run ${shopName}\n\nYou've been invited to help run ${shopName} on BuilderHut.\n\n${url}\n\nThis link expires in three days and works once, for this address only. If you weren't expecting it, ignore this email — nothing has been created.`,
+  };
+}
+
+/**
+ * A nudge about an order somebody never paid for.
+ *
+ * One of these is ever sent. It leads with what they were buying and links
+ * straight to the order, because the likeliest reason it went unpaid is a card
+ * that did not go through — and the useful thing is a way to try again, not a
+ * discount code or a countdown.
+ */
+export function unpaidOrderEmail(
+  to: string,
+  order: {
+    shopName: string;
+    orderNumber: number;
+    totalMinor: number;
+    currency: string;
+    url: string;
+  },
+): EmailMessage {
+  const total = formatMoney(order.totalMinor, order.currency);
+  return {
+    to,
+    subject: `Your ${order.shopName} order is still waiting`,
+    html: shell(
+      "Your order is still waiting",
+      `<p style="margin:0 0 20px;">Order #${order.orderNumber} at <strong>${order.shopName}</strong> hasn't been paid for yet — usually that means a card didn't go through rather than a change of heart.</p>
+       <p style="margin:0 0 20px;color:${MUTED};font-size:14px;">Total: ${total}</p>
+       <a href="${order.url}" style="display:inline-block;background:${CLAY};color:#ffffff;text-decoration:none;font:500 15px/1 -apple-system,Segoe UI,Roboto,sans-serif;padding:14px 22px;border-radius:8px;">Finish paying</a>
+       <p style="margin:20px 0 0;color:${MUTED};font-size:13px;">If you've changed your mind, you can ignore this — nothing has been charged and we won't email you about it again.</p>`,
+    ),
+    text: `Your order is still waiting\n\nOrder #${order.orderNumber} at ${order.shopName} hasn't been paid for yet. Total: ${total}\n\n${order.url}\n\nIf you've changed your mind, ignore this — nothing has been charged and we won't email you about it again.`,
   };
 }

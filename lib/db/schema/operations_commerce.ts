@@ -121,6 +121,14 @@ export const storeSettings = pgTable(
     requireTermsAcceptance: boolean("require_terms_acceptance").notNull().default(false),
     /** "dummy" until a real gateway is connected. */
     paymentProvider: varchar("payment_provider", { length: 32 }).notNull().default("dummy"),
+    /*
+     * Whether to remind somebody about an order they never paid for.
+     *
+     * On by default, because an unpaid order is a customer who meant to buy
+     * and hit something — and off is one toggle away for a merchant who would
+     * rather not. Sending is also gated by the plan.
+     */
+    remindUnpaidOrders: boolean("remind_unpaid_orders").notNull().default(true),
     /** India: the merchant's GST registration number, shown on invoices. */
     gstin: varchar("gstin", { length: 20 }),
     ...timestamps(),

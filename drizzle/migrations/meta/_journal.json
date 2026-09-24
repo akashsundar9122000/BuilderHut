@@ -127,6 +127,13 @@
       "when": 1790191594351,
       "tag": "0017_nasty_wiccan",
       "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1790211849244,
+      "tag": "0018_whole_liz_osborn",
+      "breakpoints": true
     }
   ]
 }

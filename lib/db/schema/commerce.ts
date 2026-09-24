@@ -142,6 +142,15 @@ export const orders = pgTable(
     shippedAt: nullableTimestamp("shipped_at"),
     deliveredAt: nullableTimestamp("delivered_at"),
     cancelledAt: nullableTimestamp("cancelled_at"),
+    /*
+     * When we nudged them about an order they never paid for.
+     *
+     * Set rather than counted, because exactly one reminder is ever sent: the
+     * difference between a helpful nudge and being a nuisance is the second
+     * email, and a null column makes sending two impossible rather than
+     * unlikely.
+     */
+    remindedAt: nullableTimestamp("reminded_at"),
     ...timestamps(),
   },
   (t) => [

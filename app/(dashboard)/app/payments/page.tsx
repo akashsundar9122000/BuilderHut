@@ -108,7 +108,7 @@ export default async function PaymentsPage() {
               <p className="text-muted text-sm leading-relaxed">
                 Then add a webhook in Settings → Webhooks pointing at:
               </p>
-              <code className="bg-sunken text-text overflow-x-auto rounded-md px-3 py-2 font-mono text-xs">
+              <code className="bg-sunken text-text rounded-md px-3 py-2 font-mono text-xs break-all">
                 {base}/api/webhooks/razorpay
               </code>
               <p className="text-faint text-xs leading-relaxed">
@@ -131,7 +131,7 @@ export default async function PaymentsPage() {
               Razorpay should be sending events to this address. If orders are not being marked
               paid, this is the first thing to check.
             </p>
-            <code className="bg-sunken text-text overflow-x-auto rounded-md px-3 py-2 font-mono text-xs">
+            <code className="bg-sunken text-text rounded-md px-3 py-2 font-mono text-xs break-all">
               {base}/api/webhooks/razorpay
             </code>
           </CardBody>

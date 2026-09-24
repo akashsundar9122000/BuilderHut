@@ -98,6 +98,10 @@ const MERCHANT_PAGES = [
   "/app/analytics",
   "/app/discounts",
   "/app/domains",
+  "/app/marketing",
+  "/app/payments",
+  "/app/team",
+  "/app/plan",
   "/app/settings",
 ];
 

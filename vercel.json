@@ -1,11 +1,17 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": "nextjs",
-  "regions": ["bom1"],
+  "regions": [
+    "bom1"
+  ],
   "crons": [
     {
       "path": "/api/cron/rollup",
       "schedule": "20 19 * * *"
+    },
+    {
+      "path": "/api/cron/reminders",
+      "schedule": "0 9 * * *"
     }
   ]
 }
