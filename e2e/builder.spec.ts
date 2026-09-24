@@ -132,6 +132,54 @@ test.describe("visual builder", () => {
     await expect(page.getByText("Warm things for cold rooms").first()).toBeVisible();
   });
 
+  /*
+   * Typing does not stop for the network.
+   *
+   * With a real round trip in the way — Mumbai to Singapore, or any phone on
+   * mobile data — a merchant types straight through a save. Everything typed
+   * during one used to be dropped: the reply marked the draft clean, so those
+   * keystrokes were never sent, and the badge said "Saved" over a document
+   * that was not. Worse, the save that followed went out with a revision one
+   * behind and came back a conflict, which the editor resolved by replacing
+   * what was on screen with the older copy it had just sent — so the words
+   * disappeared from the canvas too, and it looked as though the editor had
+   * simply ignored them.
+   *
+   * The delay is what makes this deterministic: against a local server the
+   * window is a few milliseconds wide and the bug hides.
+   */
+  test("words typed during a save are not lost", async () => {
+    await page.goto("/app/builder");
+    await page.route("**/app/builder", async (route) => {
+      if (route.request().method() === "POST") {
+        await new Promise((resolve) => setTimeout(resolve, 1500));
+      }
+      await route.continue();
+    });
+
+    const heading = page.locator("[data-storefront] h1").first();
+    try {
+      await openBuilderPanel(page);
+      await page.click('button[role="tab"]:has-text("Layers")');
+      await page.click('button:has-text("Hero")');
+
+      await page.fill("#ctrl-heading", "First half");
+      // Long enough for the debounce to fire and the request to still be open.
+      await page.waitForTimeout(1600);
+      await page.fill("#ctrl-heading", "First half and second half");
+      await closeBuilderPanel(page);
+
+      await expect(heading).toHaveText("First half and second half");
+      await expect(SAVED(page)).toBeVisible({ timeout: 20_000 });
+    } finally {
+      await page.unroute("**/app/builder");
+    }
+
+    // And that is what was stored, not merely what stayed on screen.
+    await page.reload();
+    await expect(heading).toHaveText("First half and second half");
+  });
+
   test("a new section lands below the selection, and the canvas goes to it", async () => {
     await page.goto("/app/builder");
 

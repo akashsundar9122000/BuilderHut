@@ -243,6 +243,18 @@ export function BuilderProvider({
    */
   const queue = useRef<Promise<void>>(Promise.resolve());
 
+  /*
+   * What the server has, and the revision it has it at.
+   *
+   * Refs rather than reducer state because the save loop below needs both the
+   * instant a reply arrives, and reducer state does not reach a ref until
+   * React has rendered. Reading the revision a render too early is what made
+   * the editor send a save that conflicted with the save it had just made
+   * itself — and then "resolve" that conflict by throwing away the newer text.
+   */
+  const savedDoc = useRef<SiteDocument>(initialDoc);
+  const savedRevision = useRef(initialRevision);
+
   const persist = useCallback((): Promise<void> => {
     const next = queue.current.then(async () => {
       /*
@@ -254,38 +266,38 @@ export function BuilderProvider({
        * said "Saved" over a document that was not. Over a connection with a
        * couple of hundred milliseconds in it, that is most of a sentence.
        *
-       * The revision is carried in this loop rather than re-read from the ref
-       * between passes, because a dispatch does not reach the ref until React
-       * has rendered. A second pass that re-read it would send the revision it
-       * started with and the server would reject it as a conflict against the
-       * save this very loop had just made — and the editor would then "resolve"
-       * that conflict by replacing the merchant's newer text with the older
-       * copy it had just sent. That is a good deal worse than not saving.
+       * The condition compares the document on screen with the one the server
+       * acknowledged rather than consulting the dirty flag, because that flag
+       * is reducer state and lags a render behind. A pass that consulted it
+       * would sometimes run against a draft already saved, send a stale
+       * revision with it, and be rejected as a conflict with the save this
+       * very loop had just made — after which the editor would "resolve" that
+       * conflict by replacing the merchant's newer text with the older copy it
+       * had just sent. That is a good deal worse than not saving.
        */
-      let revision = latest.current.revision;
-      let sent: SiteDocument | null = null;
-
-      while (latest.current.dirty && latest.current.doc !== sent) {
+      while (latest.current.doc !== savedDoc.current) {
         const doc: SiteDocument = latest.current.doc;
-        sent = doc;
         setSaveState("saving");
 
         let result: SaveResult;
         try {
-          result = await save(doc, revision);
+          result = await save(doc, savedRevision.current);
         } catch {
           setSaveState("error");
           return;
         }
 
         if (result.ok && result.revision !== undefined) {
-          revision = result.revision;
-          dispatch({ type: "saved", doc, revision });
+          savedDoc.current = doc;
+          savedRevision.current = result.revision;
+          dispatch({ type: "saved", doc, revision: result.revision });
           setSaveState("saved");
         } else if (result.conflict && result.serverDoc) {
           // A real one: someone else saved first. Their version is
           // authoritative; the editor reloads onto it rather than overwriting
           // work it never saw.
+          savedDoc.current = result.serverDoc;
+          savedRevision.current = result.revision ?? 0;
           dispatch({ type: "replace", doc: result.serverDoc, revision: result.revision ?? 0 });
           setSaveState("conflict");
           return;
