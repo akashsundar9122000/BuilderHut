@@ -13,6 +13,7 @@ import {
   tenants,
 } from "@/lib/db/schema";
 import { parseMoney } from "@/lib/money";
+import { EntitlementError, requireFeature } from "@/lib/plans/entitlements";
 import { getRootDb } from "@/lib/db/client";
 
 /*
@@ -289,4 +290,80 @@ export async function saveStoreSettings(input: {
     }
   });
   return { ok: true };
+}
+
+/*
+ * How this store signs its customers in.
+ *
+ * Three separate decisions, because merchants genuinely differ: a bakery taking
+ * orders over WhatsApp wants a mobile number and a code, and a seller of digital
+ * downloads needs an email address to deliver to and nothing else.
+ *
+ * The cross-field rules below exist because two of these settings can be
+ * combined into a shop nobody can get into, and the merchant would only find out
+ * from a customer. Each refusal is a sentence they can act on.
+ */
+export async function saveCustomerAccountSettings(input: {
+  identifier: "email_only" | "phone_only" | "either" | "both";
+  credential: "password" | "code" | "both";
+  verification: "at_signup" | "before_checkout" | "off";
+}): Promise<SaveResult> {
+  const wantsPhone = input.identifier !== "email_only";
+
+  return runForTenant(async (db) => {
+    const [existing] = await db.select(storeSettings).limit(1);
+
+    if (wantsPhone) {
+      /*
+       * The plan gate, enforced where the write happens rather than by greying
+       * out an option. lib/plans/entitlements.ts makes the argument: a limit
+       * enforced only by hiding a control is not a limit.
+       */
+      try {
+        await requireFeature(db.ctx.tenantId, "customerPhoneAuth");
+      } catch (error) {
+        if (error instanceof EntitlementError) {
+          return { ok: false as const, field: "identifier", message: error.message };
+        }
+        throw error;
+      }
+    }
+
+    if (input.credential === "code" && input.verification === "off") {
+      return {
+        ok: false as const,
+        field: "verification",
+        message:
+          "A one-time code IS the confirmation. Either allow passwords too, or leave confirming on.",
+      };
+    }
+
+    if (input.identifier === "phone_only" && input.credential === "password") {
+      return {
+        ok: false as const,
+        field: "credential",
+        message:
+          "A password and no email address means nobody can reset one. Allow codes as well, or ask for an email too.",
+      };
+    }
+
+    const mode = existing?.checkoutMode ?? "guest";
+    if (mode === "account_required" && input.identifier === "phone_only" && !wantsPhone) {
+      // Unreachable while wantsPhone is derived from identifier; kept as the
+      // explicit statement of the rule readiness also checks.
+      return { ok: false as const, field: "identifier", message: "Nobody would be able to check out." };
+    }
+
+    const values = {
+      customerIdentifier: input.identifier,
+      customerCredential: input.credential,
+      customerVerification: input.verification,
+    };
+    if (existing) {
+      await db.update(storeSettings, values, eq(storeSettings.id, existing.id));
+    } else {
+      await db.insert(storeSettings, { id: uuidv7(), ...values });
+    }
+    return { ok: true as const };
+  });
 }

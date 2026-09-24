@@ -229,6 +229,13 @@ function SectionShell({
   const { doc, page, selectedId, select, run } = useBuilder();
   const selected = selectedId === section.id;
   const entry = REGISTRY[section.type];
+  /*
+   * A section that is the reason its page exists: no hiding, no duplicating, no
+   * deleting. It keeps its grip, though — an essential section's POSITION is
+   * still the merchant's, which is what lets them put a hero above their sign-in
+   * form.
+   */
+  const essential = entry.essential === true;
 
   return (
     <div
@@ -283,7 +290,7 @@ function SectionShell({
           </span>
         ) : null}
 
-        {!fixed ? (
+        {!fixed && !essential ? (
           <>
             <IconAction
               label={section.visible ? "Hide section" : "Show section"}

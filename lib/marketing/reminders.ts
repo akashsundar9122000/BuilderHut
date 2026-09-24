@@ -102,6 +102,13 @@ export async function runUnpaidOrderReminders(now = new Date()): Promise<Reminde
 
     for (const order of due) {
       /*
+       * A phone-only store may take an order with no email address on it. There
+       * is nothing to send to, so it is not a failure and not a skip worth
+       * counting — an SMS reminder is a different feature.
+       */
+      if (!order.email) continue;
+
+      /*
        * Marked before sending, not after.
        *
        * If the send throws after the mark, one customer misses one reminder.

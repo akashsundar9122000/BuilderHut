@@ -10,6 +10,7 @@ import {
   createDiscount,
   createShippingMethod,
   createTaxRule,
+  saveCustomerAccountSettings,
   saveStoreSettings,
   setTaxRuleActive,
   toggleDiscount,
@@ -114,6 +115,38 @@ export async function toggleTaxAction(formData: FormData): Promise<void> {
   await requireActor();
   await setTaxRuleActive(String(formData.get("id") ?? ""), formData.get("active") === "true");
   revalidatePath("/app/taxes");
+}
+
+/**
+ * How customers sign in to this shop.
+ *
+ * Every value is whitelisted against its own literals rather than cast: these
+ * arrive as form strings, and a value the enum does not have would be a database
+ * error at best and a policy nobody chose at worst.
+ */
+export async function saveCustomerAccountsAction(
+  _previous: SettingsState,
+  formData: FormData,
+): Promise<SettingsState> {
+  await requireActor();
+
+  const identifier = String(formData.get("identifier") ?? "email_only");
+  const credential = String(formData.get("credential") ?? "both");
+  const verification = String(formData.get("verification") ?? "before_checkout");
+
+  const result = await saveCustomerAccountSettings({
+    identifier:
+      identifier === "phone_only" || identifier === "either" || identifier === "both"
+        ? identifier
+        : "email_only",
+    credential: credential === "password" || credential === "code" ? credential : "both",
+    verification:
+      verification === "at_signup" || verification === "off" ? verification : "before_checkout",
+  });
+
+  if (!result.ok) return { error: result.message, field: result.field };
+  revalidatePath("/app/settings");
+  return { ok: true };
 }
 
 export async function saveSettingsAction(

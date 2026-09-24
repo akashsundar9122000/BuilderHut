@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 
 import { RenderPage } from "@/lib/render/render";
 import { homePage } from "@/lib/schema/page";
-import { loadStorefront } from "@/lib/stores/storefront";
+import { loadStorefront, renderContextFor } from "@/lib/stores/storefront";
 import { after } from "next/server";
 import { track, trackContext } from "@/lib/analytics/track";
 
@@ -20,10 +20,5 @@ export default async function StorefrontHome({
   const measured = await trackContext();
   after(() => track(store.tenantId, "page_view", measured, { path: "/" }));
 
-  return (
-    <RenderPage
-      page={homePage(store.doc)}
-      ctx={{ doc: store.doc, base: `/s/${store.slug}`, products: store.products, editing: false }}
-    />
-  );
+  return <RenderPage page={homePage(store.doc)} ctx={renderContextFor(store)} />;
 }

@@ -107,6 +107,35 @@ export const taxRules = pgTable(
  */
 export const checkoutMode = pgEnum("checkout_mode", ["guest", "optional_account", "account_required"]);
 
+/*
+ * How a customer proves who they are at this store — three separate decisions,
+ * because merchants genuinely differ. A bakery taking pre-orders over WhatsApp
+ * wants a mobile number and a code; a seller of digital downloads needs an email
+ * address to deliver to and nothing else.
+ */
+
+/** What a customer signs in WITH. Phone modes need the plan's customerPhoneAuth. */
+export const customerIdentifierMode = pgEnum("customer_identifier_mode", [
+  "email_only",
+  "phone_only",
+  "either",
+  "both",
+]);
+
+/** Whether they may hold a password, must use a one-time code, or either. */
+export const customerCredentialMode = pgEnum("customer_credential_mode", [
+  "password",
+  "code",
+  "both",
+]);
+
+/** When the store insists the identifier is proven to belong to them. */
+export const customerVerificationMode = pgEnum("customer_verification_mode", [
+  "at_signup",
+  "before_checkout",
+  "off",
+]);
+
 export const storeSettings = pgTable(
   "store_settings",
   {
@@ -115,6 +144,26 @@ export const storeSettings = pgTable(
       .notNull()
       .references(() => tenants.id, { onDelete: "cascade" }),
     checkoutMode: checkoutMode("checkout_mode").notNull().default("guest"),
+    /*
+     * Email by default, not "either".
+     *
+     * Signing customers in by SMS is plan-gated, so a phone-bearing default
+     * would give every store on the free plan a sign-in screen that refuses
+     * itself the first time somebody uses it.
+     */
+    customerIdentifier: customerIdentifierMode("customer_identifier_mode")
+      .notNull()
+      .default("email_only"),
+    customerCredential: customerCredentialMode("customer_credential_mode").notNull().default("both"),
+    /*
+     * Before their first checkout, not at sign-up. Somebody browsing can make an
+     * account and fill a basket straight away, and the code is only asked for
+     * when it starts to matter — an order with a mistyped address is a support
+     * ticket, a code demanded at the top of the funnel is an abandoned one.
+     */
+    customerVerification: customerVerificationMode("customer_verification_mode")
+      .notNull()
+      .default("before_checkout"),
     requirePhone: boolean("require_phone").notNull().default(true),
     allowOrderNotes: boolean("allow_order_notes").notNull().default(true),
     showMarketingConsent: boolean("show_marketing_consent").notNull().default(true),

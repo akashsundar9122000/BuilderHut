@@ -63,11 +63,20 @@ function findSection(page: Page, text: string): Section | null {
   return best?.section ?? null;
 }
 
-/** The section type the instruction asks to add. */
-function findType(text: string): SectionType | null {
+/**
+ * The section type the instruction asks to add.
+ *
+ * `page` so a section tied to one system page is not matched anywhere else:
+ * "add a sign in" on the home page would otherwise compile a command that
+ * applyCommand then refuses, and the assistant would report having done it.
+ */
+function findType(text: string, page?: Page): SectionType | null {
   let best: { type: SectionType; score: number } | null = null;
   for (const type of Object.keys(REGISTRY) as SectionType[]) {
     if (type === "header" || type === "footer") continue; // never added, never removed
+    const entry = REGISTRY[type];
+    if (entry.onlyOn && page?.system !== entry.onlyOn) continue;
+    if (entry.essential && page?.sections.some((section) => section.type === type)) continue;
     for (const word of labelWords(type)) {
       if (!text.includes(word)) continue;
       if (!best || word.length > best.score) best = { type, score: word.length };
@@ -206,7 +215,7 @@ export function offlinePlan(doc: SiteDocument, pageId: string, instruction: stri
 
   // ── structure ───────────────────────────────────────────────────────────
   if (/\b(add|insert|include|put in|create)\b/.test(text)) {
-    const type = findType(text);
+    const type = findType(text, page);
     if (type) {
       const last = [...page.sections].reverse().find((s) => !s.locked);
       ops.push({ op: "addSection", sectionType: type, afterSectionId: last?.id ?? null });

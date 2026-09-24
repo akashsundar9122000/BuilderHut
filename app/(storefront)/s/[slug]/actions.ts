@@ -18,6 +18,9 @@ import { recordPayment } from "@/lib/commerce/orders";
 import { razorpayConfig, razorpayProvider, verifyCheckoutSignature } from "@/lib/payments/razorpay";
 import { getPaymentProvider, settleSimulatedPayment } from "@/lib/payments/dummy";
 import { outcomeForCard } from "@/lib/payments/test-cards";
+import { sendCode } from "@/lib/customers/auth";
+import { readSessionToken } from "@/lib/customers/session";
+import { saveOrderAddressToAccount } from "@/lib/customers/addresses";
 import { loadPublishedSite } from "@/lib/stores/storefront";
 import { track, trackContext } from "@/lib/analytics/track";
 import { loadOrderForPayment } from "@/lib/commerce/orders";
@@ -90,7 +93,17 @@ export async function applyDiscountAction(slug: string, code: string | null) {
 }
 
 const CheckoutSchema = z.object({
-  email: z.string().trim().toLowerCase().email("That doesn't look like an email address."),
+  /*
+   * Optional, because a shop that signs its customers in by mobile number may
+   * never ask for an email address. placeOrder() refuses an order with neither.
+   */
+  email: z
+    .string()
+    .trim()
+    .toLowerCase()
+    .email("That doesn't look like an email address.")
+    .optional()
+    .or(z.literal("")),
   name: z.string().trim().min(2, "We need a name for the parcel."),
   phone: z.string().trim().max(32).optional(),
   line1: z.string().trim().max(200).optional(),
@@ -109,6 +122,10 @@ const CheckoutSchema = z.object({
    */
   cardNumber: z.string().trim().optional(),
   idempotencyKey: z.string().trim().min(8),
+  /** Checkboxes: present when ticked, absent otherwise. */
+  saveAddress: z.string().optional(),
+  createAccount: z.string().optional(),
+  addressId: z.string().trim().max(64).optional(),
 });
 
 export type CheckoutState = {
@@ -157,8 +174,14 @@ export async function checkoutAction(
     tenantId: site.tenantId,
     currency: site.currency,
     cartToken,
-    email: input.email,
+    email: input.email || null,
     phone: input.phone || null,
+    /*
+     * The cookie, not a customer id from the form. placeOrder resolves it inside
+     * its own transaction — a customer id arriving from a browser is a request to
+     * be somebody else, the same reason the tenant id is never read from here.
+     */
+    sessionToken: await readSessionToken(site.tenantId),
     shippingMethodId: input.shippingMethodId,
     customerNote: input.customerNote || null,
     address: needsAddress
@@ -178,6 +201,45 @@ export async function checkoutAction(
   if (!order.ok) return { error: order.message };
 
   /*
+   * Saving the address happens after the order, not before: if the order is
+   * refused there is nothing to save it for, and a failed checkout should not
+   * leave a new address behind as its only trace.
+   */
+  /*
+   * "Keep my details for next time", which the checkbox promises will send a
+   * code. Doing it after the order, not before: the guest record recordPayment()
+   * writes is what the code then lets them claim, and a code sent before an order
+   * that fails would be a code for nothing.
+   *
+   * after(), so nobody waits on an email to see their confirmation — the same
+   * reasoning addToCartAction gives for its analytics write.
+   */
+  if (input.createAccount && input.email) {
+    const shopName = site.storeName;
+    const identifier = input.email;
+    after(async () => {
+      const sent = await sendCode({ tenantId: site.tenantId, shopName, identifier });
+      if (!sent.ok) {
+        // Nothing the customer can act on — their order is placed either way.
+        console.error("[checkout] could not send an account code:", sent.message);
+      }
+    });
+  }
+
+  if (input.saveAddress && needsAddress) {
+    await saveOrderAddressToAccount(site.tenantId, {
+      name: input.name,
+      phone: input.phone || null,
+      line1: input.line1!,
+      line2: input.line2 || null,
+      city: input.city ?? "",
+      region: input.region || null,
+      postalCode: input.postalCode || null,
+      country: (input.country ?? "IN").toUpperCase(),
+    });
+  }
+
+  /*
    * Payment.
    *
    * With a real gateway the order now exists and is unpaid, and the customer
@@ -191,7 +253,7 @@ export async function checkoutAction(
     orderId: order.orderId,
     amountMinor: order.totalMinor,
     currency: site.currency,
-    customerEmail: input.email,
+    customerEmail: input.email || undefined,
     idempotencyKey: `${input.idempotencyKey}:pay`,
     returnUrl: `/s/${slug}/order/${order.orderId}`,
   });
@@ -213,7 +275,7 @@ export async function checkoutAction(
         keyId: String(intent.metadata?.keyId ?? ""),
         amountMinor: order.totalMinor,
         currency: site.currency,
-        email: input.email,
+        email: input.email ?? "",
         name: input.name,
         phone: input.phone ?? "",
       },
@@ -276,7 +338,8 @@ export async function retryPaymentAction(
     orderId,
     amountMinor: Number(order.totalMinor),
     currency: order.currency,
-    customerEmail: order.email,
+    // Absent on a phone-only order. The gateway prefills it when it has one.
+    customerEmail: order.email ?? undefined,
     // A retry is deliberately a NEW attempt, not a replay of the failed one.
     idempotencyKey: `${orderId}:retry:${Date.now()}`,
     returnUrl: `/s/${slug}/order/${orderId}`,

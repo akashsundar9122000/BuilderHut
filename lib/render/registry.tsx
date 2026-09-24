@@ -1,6 +1,6 @@
 import type { z } from "zod";
 
-import type { SectionType } from "@/lib/schema/page";
+import type { SectionType, SystemPage } from "@/lib/schema/page";
 import type { RenderContext } from "./context";
 import { Footer, FooterProps, Header, HeaderProps } from "./sections/structure";
 import {
@@ -16,6 +16,14 @@ import {
   RichTextProps,
 } from "./sections/content";
 import { ProductGrid, ProductGridProps } from "./sections/commerce";
+import {
+  AccountArea,
+  AccountAreaProps,
+  AccountLogin,
+  AccountLoginProps,
+  AccountSignup,
+  AccountSignupProps,
+} from "./sections/account";
 import {
   Contact,
   ContactProps,
@@ -43,13 +51,34 @@ export interface RegistryEntry {
   /** Shown in the builder's Add panel and the layer tree. */
   label: string;
   /** Grouping in the Add panel. */
-  group: "structure" | "content" | "commerce" | "engage";
+  group: "structure" | "content" | "commerce" | "engage" | "account";
   schema: z.ZodType;
   component: (args: { props: never; ctx: RenderContext }) => React.ReactNode;
   /** Structural sections cannot be deleted or reordered out of place. */
   fixed?: "top" | "bottom";
+  /**
+   * Offered, and accepted, only on the page playing this system role.
+   *
+   * A sign-in form on /about is not something a merchant means to build, and a
+   * sign-in form rendered outside its own route has no session or policy to work
+   * with — so the rule is enforced in the Add panel, in applyCommand and in the
+   * assistant, rather than trusted to the UI.
+   */
+  onlyOn?: SystemPage;
+  /**
+   * The page's reason for existing: no delete, no duplicate, no hide, one per
+   * page. Unlike `fixed`, its POSITION is still the merchant's to choose — which
+   * is what lets them put a hero above their sign-in form.
+   */
+  essential?: boolean;
   /** A one-line description for the Add panel. */
   hint: string;
+}
+
+/** Sections a merchant may delete, duplicate or hide. */
+export function isMutableSection(type: SectionType): boolean {
+  const entry = REGISTRY[type];
+  return entry.fixed === undefined && entry.essential !== true;
 }
 
 export const REGISTRY: Record<SectionType, RegistryEntry> = {
@@ -130,6 +159,33 @@ export const REGISTRY: Record<SectionType, RegistryEntry> = {
     schema: ContactProps,
     component: Contact as RegistryEntry["component"],
     hint: "WhatsApp, Instagram and email buttons",
+  },
+  accountLogin: {
+    label: "Sign in form",
+    group: "account",
+    schema: AccountLoginProps,
+    component: AccountLogin as RegistryEntry["component"],
+    onlyOn: "login",
+    essential: true,
+    hint: "Where returning customers sign in",
+  },
+  accountSignup: {
+    label: "Create account form",
+    group: "account",
+    schema: AccountSignupProps,
+    component: AccountSignup as RegistryEntry["component"],
+    onlyOn: "signup",
+    essential: true,
+    hint: "Where a new customer makes an account",
+  },
+  accountArea: {
+    label: "Customer account",
+    group: "account",
+    schema: AccountAreaProps,
+    component: AccountArea as RegistryEntry["component"],
+    onlyOn: "account",
+    essential: true,
+    hint: "Orders, addresses, saved items and details",
   },
   footer: {
     label: "Footer",

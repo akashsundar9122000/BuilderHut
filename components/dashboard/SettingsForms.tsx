@@ -8,6 +8,7 @@ import {
   createDiscountAction,
   createShippingAction,
   createTaxAction,
+  saveCustomerAccountsAction,
   saveSettingsAction,
   type SettingsState,
 } from "@/app/(dashboard)/app/settings-actions";
@@ -272,6 +273,135 @@ export function NewTaxForm() {
         </form>
       )}
     </Disclosure>
+  );
+}
+
+/*
+ * How customers sign in to this shop — blueprint sections 10 and 23.
+ *
+ * The phone options are disabled AND named with the plan that would allow them,
+ * so the ceiling is legible in the list rather than discovered on submit. The
+ * service refuses them anyway: a greyed control is not a limit.
+ *
+ * The two contradictory pairs are disabled as they arise for the same reason —
+ * being told why up front beats being refused afterwards.
+ */
+export function CustomerAccountsForm({
+  initial,
+  phoneAllowed,
+  planName,
+  neededPlanName,
+}: {
+  initial: { identifier: string; credential: string; verification: string };
+  phoneAllowed: boolean;
+  planName: string;
+  neededPlanName: string | null;
+}) {
+  const [state, submit, pending] = useActionState<SettingsState, FormData>(
+    saveCustomerAccountsAction,
+    {},
+  );
+  const [identifier, setIdentifier] = useState(initial.identifier);
+  const [credential, setCredential] = useState(initial.credential);
+
+  const phoneSuffix = phoneAllowed ? "" : ` — ${neededPlanName ?? "a paid plan"}`;
+
+  return (
+    <form action={submit} className="flex max-w-lg flex-col gap-5">
+      <h2 className="font-display text-lg">Customer accounts</h2>
+
+      <Field
+        label="How customers sign in"
+        htmlFor="customer-identifier-mode"
+        hint={
+          phoneAllowed
+            ? "Signing in by mobile sends a text message for each code."
+            : `Mobile sign-in is part of ${neededPlanName ?? "a paid plan"}. You're on ${planName}.`
+        }
+        error={state.field === "identifier" ? state.error : undefined}
+      >
+        <select
+          id="customer-identifier-mode"
+          name="identifier"
+          value={identifier}
+          onChange={(event) => setIdentifier(event.target.value)}
+          className={selectClass}
+        >
+          <option value="email_only">With an email address</option>
+          <option value="phone_only" disabled={!phoneAllowed}>
+            With a mobile number{phoneSuffix}
+          </option>
+          <option value="either" disabled={!phoneAllowed}>
+            Either — their choice{phoneSuffix}
+          </option>
+          <option value="both" disabled={!phoneAllowed}>
+            Both, and confirm both{phoneSuffix}
+          </option>
+        </select>
+      </Field>
+
+      <Field
+        label="What they sign in with"
+        htmlFor="customer-credential-mode"
+        hint="A code is sent each time. A password is not, so it costs nothing to send."
+        error={state.field === "credential" ? state.error : undefined}
+      >
+        <select
+          id="customer-credential-mode"
+          name="credential"
+          value={credential}
+          onChange={(event) => setCredential(event.target.value)}
+          className={selectClass}
+        >
+          <option value="both">A password, or a code if they&rsquo;d rather</option>
+          <option value="password" disabled={identifier === "phone_only"}>
+            A password
+            {identifier === "phone_only" ? " — needs an email address for resets" : ""}
+          </option>
+          <option value="code">A code we send them</option>
+        </select>
+      </Field>
+
+      <Field
+        label="When we confirm their details"
+        htmlFor="customer-verification-mode"
+        hint="Confirming before the first order keeps a mistyped address from losing it."
+        error={state.field === "verification" ? state.error : undefined}
+      >
+        <select
+          id="customer-verification-mode"
+          name="verification"
+          defaultValue={initial.verification}
+          className={selectClass}
+        >
+          <option value="before_checkout">Before their first order</option>
+          <option value="at_signup">As soon as they sign up</option>
+          <option value="off" disabled={credential === "code"}>
+            Don&rsquo;t confirm
+            {credential === "code" ? " — a code already confirms it" : ""}
+          </option>
+        </select>
+      </Field>
+
+      <p className="text-muted text-xs leading-relaxed">
+        Claiming an account that has already ordered here always needs a code, whatever this
+        is set to — otherwise anyone typing that address would see those orders.
+      </p>
+
+      {state.error && !state.field ? (
+        <p role="alert" className="text-danger text-sm">
+          {state.error}
+        </p>
+      ) : null}
+
+      <div className="flex items-center gap-3">
+        <Button type="submit" disabled={pending}>
+          {pending ? <Loader2 className="size-4 animate-spin" /> : null}
+          {pending ? "Saving" : "Save"}
+        </Button>
+        {state.ok ? <span className="text-success text-sm">Saved.</span> : null}
+      </div>
+    </form>
   );
 }
 

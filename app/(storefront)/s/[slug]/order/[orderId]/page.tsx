@@ -10,7 +10,7 @@ import { orderAddresses, orderItems, orders } from "@/lib/db/schema";
 import { LABELS, type OrderStatus } from "@/lib/commerce/order-state";
 import { formatMoney } from "@/lib/money";
 import { homePage } from "@/lib/schema/page";
-import { loadStorefront } from "@/lib/stores/storefront";
+import { loadStorefront, renderContextFor } from "@/lib/stores/storefront";
 
 export const metadata: Metadata = { title: "Your order", robots: { index: false } };
 
@@ -48,7 +48,7 @@ export default async function OrderPage({
   const { order, items, address } = data;
   const paid = order.status !== "pending_payment";
 
-  const ctx = { doc: store.doc, base: `/s/${store.slug}`, products: store.products, editing: false };
+  const ctx = renderContextFor(store);
   const home = homePage(store.doc);
 
   return (

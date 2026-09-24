@@ -1,21 +1,28 @@
 import type { Metadata } from "next";
 
 import { Card, CardBody } from "@/components/ui";
-import { StoreSettingsForm } from "@/components/dashboard/SettingsForms";
+import { CustomerAccountsForm, StoreSettingsForm } from "@/components/dashboard/SettingsForms";
 import { requireActor } from "@/lib/auth/session";
 import { loadStoreSettings } from "@/lib/commerce/settings";
+import { cheapestPlanWith } from "@/lib/plans/catalog";
+import { hasFeature, planFor } from "@/lib/plans/entitlements";
 
 export const metadata: Metadata = { title: "Store settings" };
 
 export default async function SettingsPage() {
   const actor = await requireActor();
   const { settings, tenant } = await loadStoreSettings(actor.tenantId!);
+  const [phoneAllowed, plan] = await Promise.all([
+    hasFeature(actor.tenantId!, "customerPhoneAuth"),
+    planFor(actor.tenantId!),
+  ]);
+  const neededPlan = cheapestPlanWith("customerPhoneAuth");
 
   return (
     <div className="mx-auto max-w-4xl">
       <header className="mb-7">
         <h1 className="font-display text-3xl leading-tight">Store settings</h1>
-        <p className="text-muted mt-1.5 text-sm">How your checkout behaves.</p>
+        <p className="text-muted mt-1.5 text-sm">How your checkout behaves, and how customers sign in.</p>
       </header>
 
       <div className="grid gap-5 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
@@ -29,6 +36,21 @@ export default async function SettingsPage() {
                 showMarketingConsent: settings?.showMarketingConsent ?? true,
                 gstin: settings?.gstin ?? "",
               }}
+            />
+          </CardBody>
+        </Card>
+
+        <Card>
+          <CardBody>
+            <CustomerAccountsForm
+              initial={{
+                identifier: settings?.customerIdentifier ?? "email_only",
+                credential: settings?.customerCredential ?? "both",
+                verification: settings?.customerVerification ?? "before_checkout",
+              }}
+              phoneAllowed={phoneAllowed}
+              planName={plan.name}
+              neededPlanName={neededPlan?.name ?? null}
             />
           </CardBody>
         </Card>

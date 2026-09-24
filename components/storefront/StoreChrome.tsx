@@ -1,6 +1,6 @@
 import { RenderSection } from "@/lib/render/render";
 import type { RenderContext } from "@/lib/render/context";
-import type { Page } from "@/lib/schema/page";
+import { homePage, systemPage, type Page, type SiteDocument, type SystemPage } from "@/lib/schema/page";
 
 /*
  * Header and footer for the pages the builder does not lay out — cart,
@@ -11,6 +11,19 @@ import type { Page } from "@/lib/schema/page";
  * owns that page's body. Anything else would make the checkout look like it
  * belonged to a different shop, which is exactly where trust matters most.
  */
+
+/**
+ * The page to borrow chrome from.
+ *
+ * Prefers the system page being shown, so a merchant who styled their account
+ * page's header gets that one; falls back to the home page, which is where the
+ * chrome has always come from.
+ */
+export function chromePage(doc: SiteDocument, prefer?: SystemPage): Page {
+  const preferred = prefer ? systemPage(doc, prefer) : undefined;
+  if (preferred?.sections.some((section) => section.type === "header")) return preferred;
+  return homePage(doc);
+}
 
 function chromeFrom(page: Page, type: "header" | "footer") {
   return page.sections.find((section) => section.type === type) ?? null;

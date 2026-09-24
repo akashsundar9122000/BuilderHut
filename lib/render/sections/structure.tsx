@@ -91,7 +91,22 @@ export function Header({
             <IconGlyph label="Search" d="M11 19a8 8 0 1 1 0-16 8 8 0 0 1 0 16Zm10 2-4.35-4.35" />
           ) : null}
           {props.showAccount ? (
-            <IconGlyph label="Account" d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z" />
+            /*
+             * Always /account, never a session-dependent /login.
+             *
+             * This icon sits in the header of every page of the shop. Making its
+             * target depend on the cookie would make every page vary by session,
+             * throwing away the cached document read and putting a session lookup
+             * in the hot path of the home page. /account redirects a signed-out
+             * visitor onward, which costs one redirect and keeps the whole
+             * catalogue side of the shop session-free — the same reasoning as the
+             * basket icon linking to /cart rather than rendering a count.
+             */
+            <IconGlyph
+              label="Account"
+              d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z"
+              href={ctx.editing ? undefined : linkTo(ctx, "/account")}
+            />
           ) : null}
           {props.showCart ? (
             // The one icon that has to work. In the builder it is inert, so

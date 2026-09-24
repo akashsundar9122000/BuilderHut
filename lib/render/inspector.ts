@@ -376,6 +376,73 @@ export const INSPECTOR: Record<SectionType, InspectorGroup[]> = {
     { label: "Layout", controls: [ALIGN, TONE] },
   ],
 
+  accountLogin: [
+    {
+      label: "Words",
+      controls: [
+        { kind: "text", prop: "heading", label: "Heading", placeholder: "Welcome back" },
+        {
+          kind: "textarea",
+          prop: "body",
+          label: "Intro",
+          rows: 2,
+          hint: "Optional. A line above the form.",
+        },
+        { kind: "text", prop: "buttonLabel", label: "Button", placeholder: "Sign in" },
+      ],
+    },
+    {
+      label: "Show",
+      controls: [
+        {
+          kind: "toggle",
+          prop: "showSignupLink",
+          label: "Link to create an account",
+          hint: "Turn this off if you only want people you have already invited.",
+        },
+        { kind: "text", prop: "signupLabel", label: "Link text" },
+      ],
+    },
+    { label: "Layout", controls: [ALIGN, TONE] },
+  ],
+  accountSignup: [
+    {
+      label: "Words",
+      controls: [
+        { kind: "text", prop: "heading", label: "Heading", placeholder: "Create an account" },
+        { kind: "textarea", prop: "body", label: "Intro", rows: 2 },
+        { kind: "text", prop: "buttonLabel", label: "Button", placeholder: "Create account" },
+      ],
+    },
+    {
+      label: "Ask for",
+      controls: [
+        {
+          kind: "toggle",
+          prop: "askName",
+          label: "Their name",
+          hint: "Whether they sign in by email or mobile is in Store settings.",
+        },
+        { kind: "toggle", prop: "showSigninLink", label: "Link to sign in" },
+      ],
+    },
+    { label: "Layout", controls: [ALIGN, TONE] },
+  ],
+  accountArea: [
+    {
+      label: "Words",
+      controls: [{ kind: "text", prop: "heading", label: "Heading", placeholder: "Your account" }],
+    },
+    {
+      label: "Show",
+      controls: [
+        { kind: "number", prop: "recentOrders", label: "Recent orders", min: 1, max: 10 },
+        { kind: "toggle", prop: "showAddresses", label: "Saved addresses" },
+        { kind: "toggle", prop: "showWishlist", label: "Saved items" },
+      ],
+    },
+    { label: "Layout", controls: [TONE] },
+  ],
   footer: [
     {
       label: "Words",

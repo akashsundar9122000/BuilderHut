@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 import { RenderPage } from "@/lib/render/render";
-import { findPage } from "@/lib/schema/page";
-import { loadStorefront } from "@/lib/stores/storefront";
+import { findPage, ROUTED_SYSTEM_PAGES } from "@/lib/schema/page";
+import { loadStorefront, renderContextFor } from "@/lib/stores/storefront";
 import { after } from "next/server";
 import { track, trackContext } from "@/lib/analytics/track";
 
@@ -44,15 +44,20 @@ export default async function StorefrontPage({
   const page = findPage(store.doc, path.join("/"));
   if (!page || page.hidden) notFound();
 
+  /*
+   * A system page with a route of its own is never served from here. Static
+   * segments beat the catch-all so this should be unreachable, but if it ever were
+   * reached — a slug collision, a route removed later — it would render a sign-in
+   * form with no session, policy or action behind it: a dead form on a live shop.
+   */
+  if (page.system && (ROUTED_SYSTEM_PAGES as readonly string[]).includes(page.system)) {
+    notFound();
+  }
+
   const measured = await trackContext();
   after(() =>
     track(store.tenantId, "page_view", measured, { path: `/${path.join("/")}` }),
   );
 
-  return (
-    <RenderPage
-      page={page}
-      ctx={{ doc: store.doc, base: `/s/${store.slug}`, products: store.products, editing: false }}
-    />
-  );
+  return <RenderPage page={page} ctx={renderContextFor(store)} />;
 }

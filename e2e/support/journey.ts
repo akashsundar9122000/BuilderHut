@@ -1,5 +1,6 @@
 import { expect, test, type Page } from "@playwright/test";
 import { readFileSync } from "node:fs";
+import { readVerificationCodeFrom } from "./read-code";
 
 /*
  * The bits of the merchant journey that every spec needs before it can test
@@ -54,26 +55,21 @@ export async function signUpMerchant(
 /**
  * Read a verification code back out of the server's output.
  *
- * With no SMTP configured the email provider prints the code, by design — it
- * is what makes the whole signup journey testable with no mail account. The
- * match is scoped to one address so a parallel spec's code is never picked up,
- * and the LAST match wins because a resend issues a new one.
+ * With no SMTP and no SMS provider configured, both print the code by design —
+ * it is what makes the whole signup journey testable with no mail account and no
+ * phone bill. The identifier may therefore be an email address or an E.164
+ * mobile number; the match is scoped to it so a parallel spec's code is never
+ * picked up, and the LAST match wins because a resend issues a new one.
  */
-export async function readVerificationCode(mailLog: string, email: string): Promise<string> {
-  // Up to 20s: the mail is printed from an after() callback, and the server
+export async function readVerificationCode(mailLog: string, identifier: string): Promise<string> {
+  // Up to 20s: the code is printed from an after() callback, and the server
   // pipes its output through pnpm, so it can lag the browser noticeably.
   for (let attempt = 0; attempt < 80; attempt += 1) {
-    const match = [
-      ...readFileSync(mailLog, "utf8").matchAll(
-        new RegExp(`To:\\s+${email}[\\s\\S]{0,400}?verification code is (\\d{6})`, "g"),
-      ),
-    ].pop();
-    if (match) return match[1]!;
-    // The email is printed from an after() callback, so it can land a moment
-    // after the browser has already been sent to the verify screen.
+    const code = readVerificationCodeFrom(readFileSync(mailLog, "utf8"), identifier);
+    if (code) return code;
     await new Promise((resolve) => setTimeout(resolve, 250));
   }
-  throw new Error(`no verification code was printed for ${email}`);
+  throw new Error(`no verification code was printed for ${identifier}`);
 }
 
 /**

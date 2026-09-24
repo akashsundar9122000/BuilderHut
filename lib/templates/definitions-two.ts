@@ -1,6 +1,6 @@
 import type { Page } from "@/lib/schema/page";
 import { SCHEMA_VERSION } from "@/lib/schema/page";
-import { nav, POLICY_PAGES } from "./helpers";
+import { accountPages, nav, POLICY_PAGES } from "./helpers";
 import type { Template, TemplateSeed } from "./types";
 
 /*
@@ -138,6 +138,7 @@ const bloom: Template = {
       aboutPage("Ingredients", "List what you use and why.\n\nThis trade is bought on trust, and the fastest way to earn it is to be specific where competitors are vague."),
       contactPage(),
       ...policyPages(),
+      ...accountPages(),
     ],
   }),
 };
@@ -192,6 +193,7 @@ const canvas: Template = {
       aboutPage("About", "Who you are and how you work.\n\nCollectors buy the artist as much as the piece. A photograph of the studio is worth a paragraph of adjectives."),
       contactPage(),
       ...policyPages(),
+      ...accountPages(),
     ],
   }),
 };
@@ -253,6 +255,7 @@ const hamper: Template = {
       aboutPage("Corporate gifting", "Volumes, lead times, branding options and what you need from a client to quote.\n\nThis is where the money is in gifting. Make it easy to ask."),
       contactPage(),
       ...policyPages(),
+      ...accountPages(),
     ],
   }),
 };
@@ -313,6 +316,7 @@ const circuit: Template = {
       aboutPage("Support", "Warranty terms, repair turnaround, and how to reach a person.\n\nThis audience reads specifications before poetry. Be precise."),
       contactPage(),
       ...policyPages(),
+      ...accountPages(),
     ],
   }),
 };
@@ -367,6 +371,7 @@ const hearth: Template = {
       aboutPage("Our making", "Materials, process and who does it.\n\nDecor is bought by imagining it in a room. Photographs of the making earn that imagination."),
       contactPage(),
       ...policyPages(),
+      ...accountPages(),
     ],
   }),
 };
@@ -424,6 +429,7 @@ const stitch: Template = {
       aboutPage("About me", "Who you are, where you make things, and why you started.\n\nThis template sells on personality. Write it the way you'd say it out loud."),
       contactPage(),
       ...policyPages(),
+      ...accountPages(),
     ],
   }),
 };

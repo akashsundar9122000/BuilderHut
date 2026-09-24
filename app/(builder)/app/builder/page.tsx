@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 
 import { Builder } from "@/components/builder/Builder";
 import { requireActor } from "@/lib/auth/session";
-import { loadDraft } from "@/lib/builder/service";
+import { ensureAccountPages, loadDraft } from "@/lib/builder/service";
 import { loadStorefrontProducts } from "@/lib/stores/storefront";
 
 export const metadata: Metadata = { title: "Store builder" };
@@ -11,6 +11,13 @@ export const metadata: Metadata = { title: "Store builder" };
 export default async function BuilderPage() {
   const actor = await requireActor();
   if (!actor.tenantId) redirect("/onboarding");
+
+  /*
+   * Before loadDraft(), which is memoised per request: a store made before
+   * customer accounts shipped gets its login, signup and account pages added to
+   * the draft here, once. A no-op every time after that.
+   */
+  await ensureAccountPages();
 
   const draft = await loadDraft();
   if (!draft) redirect("/app");

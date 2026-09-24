@@ -43,6 +43,14 @@ function shell(heading: string, body: string, footer?: string): string {
 </body></html>`;
 }
 
+/*
+ * The merchant's own verification code.
+ *
+ * The phrase "verification code is" in the text body is load-bearing:
+ * e2e/support/journey.ts greps the console provider's output for it. The same
+ * phrase appears in customerCodeEmail below and in lib/sms/templates.ts, so one
+ * helper can read a code out of any of the three.
+ */
 export function verificationCodeEmail(to: string, code: string, minutes: number): EmailMessage {
   const spaced = code.split("").join("&nbsp;&nbsp;");
   return {
@@ -55,6 +63,39 @@ export function verificationCodeEmail(to: string, code: string, minutes: number)
        <p style="margin:20px 0 0;color:${MUTED};font-size:13px;">The code expires in ${minutes} minutes. If you didn't ask for it, you can ignore this email — nothing has been created.</p>`,
     ),
     text: `Confirm your email\n\nYour BuilderHut verification code is ${code}\n\nIt expires in ${minutes} minutes. If you didn't request it, ignore this email — nothing has been created.`,
+  };
+}
+
+/**
+ * A code for somebody signing in to a merchant's shop.
+ *
+ * The shop's name is in the subject and BuilderHut is not, because the recipient
+ * is that shop's customer: they asked a bakery for a code, and an email headed
+ * with a platform they have never heard of reads as a phishing attempt. Same
+ * reasoning as invitationEmail.
+ *
+ * The code is in the subject line for the same reason the merchant's is — it is
+ * visible in a notification without opening anything — which is exactly why
+ * sendEmail() does not log subjects.
+ */
+export function customerCodeEmail(
+  to: string,
+  code: string,
+  minutes: number,
+  shopName: string,
+): EmailMessage {
+  const spaced = code.split("").join("&nbsp;&nbsp;");
+  return {
+    to,
+    subject: `${code} is your ${shopName} verification code`,
+    html: shell(
+      "Your sign-in code",
+      `<p style="margin:0 0 20px;">Enter this code to sign in to ${shopName}.</p>
+       <div style="font:600 30px/1 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.12em;color:${INK};background:${CANVAS};border:1px solid ${BORDER};border-radius:8px;padding:18px;text-align:center;">${spaced}</div>
+       <p style="margin:20px 0 0;color:${MUTED};font-size:13px;">The code expires in ${minutes} minutes. If you didn't ask for it, you can ignore this email — nobody has been signed in.</p>`,
+      `You received this because someone used this address to sign in to ${shopName}.`,
+    ),
+    text: `Your ${shopName} sign-in code\n\nYour ${shopName} verification code is ${code}\n\nIt expires in ${minutes} minutes. If you didn't request it, ignore this email — nobody has been signed in.`,
   };
 }
 

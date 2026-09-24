@@ -95,7 +95,9 @@ test.describe("a merchant's storefront", () => {
     const found: string[] = [];
     // Scanned once rather than per BuilderHut theme: a storefront carries the
     // merchant's palette and ignores ours entirely.
-    for (const path of ["", "/shop", "/cart"]) {
+    // The two public account pages are scanned too: a sign-in form is the one
+    // place on a shop where a mislabelled field stops somebody buying anything.
+    for (const path of ["", "/shop", "/cart", "/login", "/signup"]) {
       found.push(...(await violationsOn(page, `/s/${STORE!}${path}`, "light")));
     }
     expect(found.join("\n  "), found.join("\n  ")).toBe("");

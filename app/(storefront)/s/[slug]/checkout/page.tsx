@@ -1,17 +1,19 @@
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import { randomUUID } from "node:crypto";
-import { eq } from "drizzle-orm";
+import { desc, eq } from "drizzle-orm";
 
 import { CheckoutForm, type ShippingChoice } from "@/components/storefront/CheckoutForm";
 import { StoreFooter, StoreHeader, StorePageShell } from "@/components/storefront/StoreChrome";
 import { getCart } from "@/lib/commerce/cart";
 import { getPaymentProvider } from "@/lib/payments/dummy";
 import { withTenant } from "@/lib/db/tenant";
-import { shippingMethods, storeSettings } from "@/lib/db/schema";
+import { getCustomer } from "@/lib/customers/session";
+import { checkoutGate, loadPolicy } from "@/lib/customers/policy";
+import { customerAddresses, shippingMethods, storeSettings } from "@/lib/db/schema";
 import { formatMoney } from "@/lib/money";
 import { homePage } from "@/lib/schema/page";
-import { loadStorefront } from "@/lib/stores/storefront";
+import { loadStorefront, renderContextFor } from "@/lib/stores/storefront";
 import { after } from "next/server";
 import { track, trackContext } from "@/lib/analytics/track";
 
@@ -35,7 +37,25 @@ export default async function CheckoutPage({ params }: { params: Promise<{ slug:
     }),
   );
 
-  const { methods, settings } = await withTenant(
+  /*
+   * Resolved BEFORE the transaction below, never inside it: getCustomer() opens
+   * its own, and withTenant() throws when nested — in production the pool holds
+   * one connection and the inner call would wait on the outer one forever.
+   */
+  const customer = await getCustomer(store.tenantId);
+  const policy = await loadPolicy(store.tenantId);
+
+  /*
+   * The courtesy half of the checkout gate. placeOrder() enforces the same rule
+   * and refuses, because a redirect is only as good as the page it is on.
+   */
+  const gate = checkoutGate(policy, customer);
+  if (!gate.ok) {
+    const next = encodeURIComponent("/checkout");
+    redirect(gate.reason === "needs_account" ? `/s/${slug}/login?next=${next}` : `/s/${slug}/account/profile`);
+  }
+
+  const { methods, settings, savedAddresses } = await withTenant(
     { tenantId: store.tenantId, actorId: store.tenantId, role: "staff" },
     async (db) => ({
       methods: await db
@@ -43,6 +63,14 @@ export default async function CheckoutPage({ params }: { params: Promise<{ slug:
         .where(eq(shippingMethods.active, true))
         .orderBy(shippingMethods.position),
       settings: (await db.select(storeSettings).limit(1))[0] ?? null,
+      // Their own saved addresses, so checkout can prefill instead of asking
+      // again for something they have already told this shop.
+      savedAddresses: customer
+        ? await db
+            .select(customerAddresses)
+            .where(eq(customerAddresses.customerId, customer.customerId))
+            .orderBy(desc(customerAddresses.isDefault))
+        : [],
     }),
   );
 
@@ -59,7 +87,8 @@ export default async function CheckoutPage({ params }: { params: Promise<{ slug:
     isPickup: method.isPickup,
   }));
 
-  const ctx = { doc: store.doc, base: `/s/${store.slug}`, products: store.products, editing: false };
+  const preferred = savedAddresses[0] ?? null;
+  const ctx = renderContextFor(store);
   const home = homePage(store.doc);
 
   return (
@@ -85,6 +114,33 @@ export default async function CheckoutPage({ params }: { params: Promise<{ slug:
            */
           simulated={getPaymentProvider().isSimulated}
           shopName={store.doc.settings.storeName}
+          signedIn={customer !== null}
+          prefill={
+            customer
+              ? {
+                  name: preferred?.name ?? customer.name ?? "",
+                  email: customer.email ?? "",
+                  phone: customer.phone ?? preferred?.phone ?? "",
+                  line1: preferred?.line1 ?? "",
+                  line2: preferred?.line2 ?? "",
+                  city: preferred?.city ?? "",
+                  region: preferred?.region ?? "",
+                  postalCode: preferred?.postalCode ?? "",
+                  country: preferred?.country ?? "",
+                }
+              : undefined
+          }
+          addresses={savedAddresses.map((address) => ({
+            id: address.id,
+            label: address.name,
+            lines: [
+              address.line1,
+              address.line2,
+              [address.city, address.region, address.postalCode].filter(Boolean).join(" "),
+            ].filter((line): line is string => Boolean(line)),
+          }))}
+          // Offered when the shop allows an account and they have not got one.
+          offerAccount={!customer && policy.checkout === "optional_account"}
         />
       </StorePageShell>
       <StoreFooter page={home} ctx={ctx} />

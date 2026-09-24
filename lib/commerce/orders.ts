@@ -1,8 +1,11 @@
 import "server-only";
 
-import { and, desc, eq, isNull } from "drizzle-orm";
+import { and, desc, eq, isNull, sql } from "drizzle-orm";
 import { uuidv7 } from "uuidv7";
 
+import { normalizePhone } from "@/lib/customers/phone";
+import { checkoutGate, readPolicy } from "@/lib/customers/policy";
+import { loadSession } from "@/lib/customers/session";
 import { withTenant, type TenantDb } from "@/lib/db/tenant";
 import {
   analyticsEvents,
@@ -44,9 +47,18 @@ export interface PlaceOrderInput {
   tenantId: string;
   currency: string;
   cartToken: string;
-  email: string;
+  /** Absent at a shop that signs its customers in by mobile number alone. */
+  email?: string | null;
   phone?: string | null;
   customerId?: string | null;
+  /**
+   * The customer session cookie, resolved to an id INSIDE this transaction.
+   *
+   * Never a customerId out of a form: a customer id from a browser is a request
+   * to be somebody else, and the same rule that applies to the tenant id applies
+   * here. See the header comment in the storefront actions file.
+   */
+  sessionToken?: string | null;
   shippingMethodId?: string | null;
   address?: {
     name: string;
@@ -89,6 +101,31 @@ export async function placeOrder(input: PlaceOrderInput): Promise<PlaceOrderResu
       if (seen?.result) {
         const cached = seen.result as { orderId: string; orderNumber: number; totalMinor: number };
         return { ok: true, ...cached, reused: true };
+      }
+
+      /*
+       * Whether this shop lets this person order at all.
+       *
+       * The checkout page checks the same thing and redirects, which is the
+       * courtesy; this is the rule. A hidden button is not a limit — the same
+       * argument lib/plans/entitlements.ts makes in its own header — and
+       * checkoutMode sat in the database unread until this line existed.
+       */
+      const policy = await readPolicy(db);
+      const session = input.sessionToken ? await loadSession(db, input.sessionToken) : null;
+      const gate = checkoutGate(policy, session);
+      if (!gate.ok) return { ok: false, message: gate.message };
+
+      /*
+       * A signed-in customer's contact details come from their record, not from
+       * the form. Otherwise somebody signed in as one person could type another
+       * person's address and have the order — and its receipts — attached to them.
+       */
+      const customerId = session?.customerId ?? input.customerId ?? null;
+      const email = session ? session.email : (input.email ?? null);
+      const phone = session ? (session.phone ?? input.phone ?? null) : (input.phone ?? null);
+      if (!email && !phone) {
+        return { ok: false, message: "We need an email address or a mobile number to reach you." };
       }
 
       const [cart] = await db.select(carts).where(eq(carts.token, input.cartToken)).limit(1);
@@ -210,9 +247,9 @@ export async function placeOrder(input: PlaceOrderInput): Promise<PlaceOrderResu
       await db.insert(orders, {
         id: orderId,
         number: orderNumber,
-        customerId: input.customerId ?? null,
-        email: input.email.trim().toLowerCase(),
-        phone: input.phone ?? null,
+        customerId,
+        email: email ? email.trim().toLowerCase() : null,
+        phone,
         status: "pending_payment",
         currency: input.currency,
         subtotalMinor: BigInt(totals.subtotalMinor),
@@ -255,7 +292,7 @@ export async function placeOrder(input: PlaceOrderInput): Promise<PlaceOrderResu
           orderId,
           kind: "shipping",
           name: input.address.name,
-          phone: input.phone ?? null,
+          phone,
           line1: input.address.line1,
           line2: input.address.line2 ?? null,
           city: input.address.city,
@@ -296,7 +333,7 @@ export async function placeOrder(input: PlaceOrderInput): Promise<PlaceOrderResu
           id: uuidv7(),
           discountId: discountRow.id,
           orderId,
-          customerId: input.customerId ?? null,
+          customerId,
           amountMinor: BigInt(totals.discountMinor),
         });
       }
@@ -391,15 +428,45 @@ export async function recordPayment(
       assertTransition(order.status as OrderStatus, "paid");
       await db.update(orders, { status: "paid", paidAt: new Date() }, eq(orders.id, orderId));
 
-      // Attach the order to a customer record, creating one if this is a guest.
+      /*
+       * Attach the order to a customer record, creating one if this is a guest.
+       *
+       * This is the shadow ledger a returning shopper later claims: they sign in
+       * with the address they checked out with, prove it with a code, and their
+       * past orders are there. Matching is on whichever identifier the order
+       * actually carries — a phone-only store has no email to match on.
+       *
+       * Nothing here sets emailVerified or phoneVerified. Checking out proves a
+       * card, not an address, and treating it as proof would hand the history to
+       * whoever typed the address next.
+       */
       if (!order.customerId) {
-        const [customer] = await db
-          .select(customers)
-          .where(eq(customers.email, order.email))
-          .limit(1);
-        const customerId = customer?.id ?? uuidv7();
-        if (!customer) {
-          await db.insert(customers, { id: customerId, email: order.email, phone: order.phone });
+        const email = order.email?.trim().toLowerCase() || null;
+        // Already normalised on the way in, but a row written before that was
+        // true may not be; a number that will not normalise is left off rather
+        // than stored in a shape the column no longer allows. No default country
+        // here on purpose: guessing one for an existing row would invent digits.
+        const typed = order.phone ? normalizePhone(order.phone, "") : null;
+        const phone = typed?.ok ? typed.e164 : null;
+
+        // One lookup per identifier the order carries. Email wins where both
+        // match different rows: it is the one the confirmation went to.
+        const [byEmail] = email
+          ? await db
+              .select(customers)
+              .where(sql`lower(${customers.email}) = ${email}`)
+              .limit(1)
+          : [];
+        const [byPhone] = phone
+          ? await db.select(customers).where(eq(customers.phone, phone)).limit(1)
+          : [];
+
+        let customerId = byEmail?.id ?? byPhone?.id;
+        if (!customerId) {
+          // Neither matched, so the number belongs to nobody here yet and the
+          // new row can hold it. One number is one account per shop.
+          customerId = uuidv7();
+          await db.insert(customers, { id: customerId, email, phone });
         }
         await db.update(orders, { customerId }, eq(orders.id, orderId));
       }

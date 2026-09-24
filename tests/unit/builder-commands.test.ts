@@ -146,3 +146,99 @@ describe("coalescing", () => {
     expect(coalesceKey({ type: "removeSection", pageId: "home", sectionId: "x" })).toBeNull();
   });
 });
+
+/*
+ * The customer-account sections, which belong to one page each and are the
+ * reason that page exists.
+ *
+ * The Add panel filters on both rules, but a command is a command: it can arrive
+ * from the assistant, from a replayed undo, or from a document written by an
+ * older build. The guard lives in applyCommand for that reason, and these are the
+ * tests that keep it there.
+ */
+describe("sections that belong to one page", () => {
+  const loginOf = (doc: SiteDocument) => doc.pages.find((p) => p.system === "login")!;
+
+  it("refuses to add a sign-in form to the home page", () => {
+    const doc = base();
+    const home = homeOf(doc).id;
+    const next = applyCommand(doc, {
+      type: "addSection",
+      pageId: home,
+      index: 2,
+      sectionType: "accountLogin",
+    });
+    expect(homeOf(next).sections.some((s) => s.type === "accountLogin")).toBe(false);
+    expect(next).toEqual(doc);
+  });
+
+  it("refuses a second sign-in form on the page that has one", () => {
+    const doc = base();
+    const login = loginOf(doc);
+    expect(login.sections.filter((s) => s.type === "accountLogin")).toHaveLength(1);
+
+    const next = applyCommand(doc, {
+      type: "addSection",
+      pageId: login.id,
+      index: 1,
+      sectionType: "accountLogin",
+    });
+    expect(loginOf(next).sections.filter((s) => s.type === "accountLogin")).toHaveLength(1);
+  });
+
+  it("refuses to delete, duplicate or hide the form its page is for", () => {
+    const doc = base();
+    const login = loginOf(doc);
+    const form = login.sections.find((s) => s.type === "accountLogin")!;
+
+    for (const type of ["removeSection", "duplicateSection", "toggleSectionVisible"] as const) {
+      const next = applyCommand(doc, { type, pageId: login.id, sectionId: form.id });
+      expect(next, type).toEqual(doc);
+    }
+  });
+
+  /*
+   * Moving IS allowed, and that is the difference between "essential" and
+   * "fixed": putting a hero above the sign-in form is exactly what a merchant
+   * should be able to do.
+   */
+  it("still lets the form be moved within its page", () => {
+    let doc = base();
+    const login = loginOf(doc);
+    doc = applyCommand(doc, {
+      type: "addSection",
+      pageId: login.id,
+      index: 1,
+      sectionType: "richText",
+    });
+
+    const before = loginOf(doc).sections.map((s) => s.type);
+    expect(before).toEqual(["header", "richText", "accountLogin", "footer"]);
+
+    const from = loginOf(doc).sections.findIndex((s) => s.type === "accountLogin");
+    const moved = applyCommand(doc, { type: "moveSection", pageId: login.id, from, to: 1 });
+    expect(loginOf(moved).sections.map((s) => s.type)).toEqual([
+      "header",
+      "accountLogin",
+      "richText",
+      "footer",
+    ]);
+  });
+
+  /*
+   * This one is an old bug closed in passing: toggleSectionVisible had no guard
+   * at all, so a command could hide the header even though the layer tree offers
+   * no eye for it.
+   */
+  it("refuses to hide the header, which nothing used to stop", () => {
+    const doc = base();
+    const home = homeOf(doc);
+    const header = home.sections.find((s) => s.type === "header")!;
+    const next = applyCommand(doc, {
+      type: "toggleSectionVisible",
+      pageId: home.id,
+      sectionId: header.id,
+    });
+    expect(homeOf(next).sections.find((s) => s.type === "header")!.visible).toBe(true);
+  });
+});

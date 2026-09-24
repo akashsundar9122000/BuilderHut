@@ -3,7 +3,7 @@ import Link from "next/link";
 
 import { StoreFooter, StoreHeader, StorePageShell } from "@/components/storefront/StoreChrome";
 import { homePage } from "@/lib/schema/page";
-import { loadStorefront } from "@/lib/stores/storefront";
+import { loadStorefront, renderContextFor } from "@/lib/stores/storefront";
 
 /*
  * A page that does not exist, in the shop's own clothes.
@@ -32,12 +32,7 @@ export default async function StorefrontNotFound() {
     );
   }
 
-  const ctx = {
-    doc: store.doc,
-    base: `/s/${store.slug}`,
-    products: store.products,
-    editing: false,
-  };
+  const ctx = renderContextFor(store);
   const home = homePage(store.doc);
 
   return (

@@ -4,6 +4,7 @@ import { and, eq, isNull } from "drizzle-orm";
 
 import { runForTenant } from "@/lib/auth/session";
 import { domains, products, shippingMethods, storeSettings, websites } from "@/lib/db/schema";
+import { hasFeature } from "@/lib/plans/entitlements";
 import { SiteDocumentSchema } from "@/lib/schema/page";
 
 /*
@@ -69,6 +70,30 @@ export async function checkReadiness(): Promise<Readiness> {
         label: "No home page",
         detail: "Your shop needs somewhere for people to land.",
         href: "/app/builder",
+      });
+    }
+
+    /*
+     * The one way these settings can combine into a shop nobody can order from.
+     *
+     * The settings form refuses this pair, so it can only arise the other way
+     * round: a merchant chose mobile sign-in on a plan that includes it, then
+     * moved to one that does not, and their checkout requires an account. Nothing
+     * on the settings screen would say so, and the first sign would be a customer
+     * who could not get in.
+     */
+    if (
+      settings?.checkoutMode === "account_required" &&
+      settings.customerIdentifier === "phone_only" &&
+      !(await hasFeature(db.ctx.tenantId, "customerPhoneAuth"))
+    ) {
+      items.push({
+        id: "customer-signin",
+        severity: "blocker",
+        label: "Customers can't sign in",
+        detail:
+          "Your checkout needs an account, and sign-in is set to mobile only — which your plan doesn't include. Change either one.",
+        href: "/app/settings",
       });
     }
 

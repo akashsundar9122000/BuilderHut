@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { Loader2, ShieldAlert } from "lucide-react";
 
 import { checkoutAction, type CheckoutState } from "@/app/(storefront)/s/[slug]/actions";
@@ -29,6 +29,12 @@ export interface ShippingChoice {
  * otherwise, even in a demo, is the kind of thing that ends up taking a real
  * card number from someone who did not read carefully.
  */
+export interface SavedAddressChoice {
+  id: string;
+  label: string;
+  lines: string[];
+}
+
 export function CheckoutForm({
   slug,
   cart,
@@ -38,6 +44,10 @@ export function CheckoutForm({
   allowNotes,
   simulated,
   shopName,
+  signedIn = false,
+  prefill,
+  addresses = [],
+  offerAccount = false,
 }: {
   slug: string;
   cart: CartView;
@@ -48,9 +58,30 @@ export function CheckoutForm({
   /** True when the shop has no real gateway connected yet. */
   simulated: boolean;
   shopName: string;
+  signedIn?: boolean;
+  /** Their details, so a returning customer is not asked for them again. */
+  prefill?: {
+    name?: string;
+    email?: string;
+    phone?: string;
+    line1?: string;
+    line2?: string;
+    city?: string;
+    region?: string;
+    postalCode?: string;
+    country?: string;
+  };
+  addresses?: SavedAddressChoice[];
+  /** The shop takes guests but offers an account. Nothing is created without asking. */
+  offerAccount?: boolean;
 }) {
   const action = checkoutAction.bind(null, slug);
   const [state, submit, pending] = useActionState<CheckoutState, FormData>(action, {});
+  /*
+   * A picker only where there is a choice to make. A radio group of one is
+   * furniture, and the single address is prefilled anyway.
+   */
+  const [chosenAddress, setChosenAddress] = useState<string>(addresses[0]?.id ?? "");
 
   const needsAddress = cart.lines.some((line) => line.requiresShipping);
 
@@ -60,24 +91,102 @@ export function CheckoutForm({
 
       <div style={{ fontFamily: "var(--sf-font-body)" }}>
         <Fieldset legend="Where to send it">
-          <Field label="Your name" name="name" autoComplete="name" required />
-          <Field label="Email" name="email" type="email" autoComplete="email" required
-                 hint="We'll send your order confirmation here." />
-          <Field label="Phone" name="phone" type="tel" autoComplete="tel" required={requirePhone} />
+          {/*
+            * defaultValue rather than value: prefilling must not stop somebody
+            * typing over it — a different name on the parcel is a normal thing to
+            * want.
+            */}
+          <Field label="Your name" name="name" autoComplete="name" required defaultValue={prefill?.name} />
+          <Field
+            label="Email"
+            name="email"
+            type="email"
+            autoComplete="email"
+            // Not required where the shop signs people in by mobile and has not
+            // asked for one; the order still has a way to reach them.
+            required={!signedIn || Boolean(prefill?.email)}
+            hint="We'll send your order confirmation here."
+            defaultValue={prefill?.email}
+          />
+          <Field
+            label="Phone"
+            name="phone"
+            type="tel"
+            autoComplete="tel"
+            required={requirePhone}
+            defaultValue={prefill?.phone}
+          />
+
+          {addresses.length > 1 ? (
+            <div role="radiogroup" aria-label="Deliver to" className="flex flex-col gap-2">
+              {addresses.map((address) => (
+                <label
+                  key={address.id}
+                  style={{
+                    display: "flex",
+                    gap: 10,
+                    alignItems: "flex-start",
+                    padding: "10px 12px",
+                    border: "max(1px, var(--sf-border-width)) solid var(--sf-border)",
+                    borderRadius: "var(--sf-radius)",
+                    fontSize: "0.88rem",
+                  }}
+                >
+                  <input
+                    type="radio"
+                    name="addressId"
+                    value={address.id}
+                    checked={chosenAddress === address.id}
+                    onChange={() => setChosenAddress(address.id)}
+                    style={{ marginTop: 3 }}
+                  />
+                  <span>
+                    <strong style={{ fontWeight: 600 }}>{address.label}</strong>
+                    <br />
+                    {address.lines.join(", ")}
+                  </span>
+                </label>
+              ))}
+            </div>
+          ) : null}
 
           {needsAddress ? (
             <>
-              <Field label="Address" name="line1" autoComplete="address-line1" required />
-              <Field label="Address line 2" name="line2" autoComplete="address-line2" />
+              <Field label="Address" name="line1" autoComplete="address-line1" required defaultValue={prefill?.line1} />
+              <Field label="Address line 2" name="line2" autoComplete="address-line2" defaultValue={prefill?.line2} />
               <div className="grid gap-4 sm:grid-cols-2">
-                <Field label="Town or city" name="city" autoComplete="address-level2" required />
-                <Field label="State" name="region" autoComplete="address-level1" />
+                <Field label="Town or city" name="city" autoComplete="address-level2" required defaultValue={prefill?.city} />
+                <Field label="State" name="region" autoComplete="address-level1" defaultValue={prefill?.region} />
               </div>
               <div className="grid gap-4 sm:grid-cols-2">
-                <Field label="Postcode" name="postalCode" autoComplete="postal-code" />
-                <Field label="Country" name="country" autoComplete="country" defaultValue="IN" />
+                <Field label="Postcode" name="postalCode" autoComplete="postal-code" defaultValue={prefill?.postalCode} />
+                <Field label="Country" name="country" autoComplete="country" defaultValue={prefill?.country || "IN"} />
               </div>
             </>
+          ) : null}
+
+          {signedIn && needsAddress ? (
+            <label style={consentRow}>
+              {/* Unticked by default, like the marketing consent: saving somebody's
+                  address is a thing to be asked for, not assumed. */}
+              <input type="checkbox" name="saveAddress" style={{ marginTop: 3 }} />
+              Save this address to my account
+            </label>
+          ) : null}
+
+          {offerAccount ? (
+            <label style={consentRow}>
+              <input type="checkbox" name="createAccount" style={{ marginTop: 3 }} />
+              <span>
+                Keep my details for next time
+                <span style={{ display: "block", color: "var(--sf-muted)", fontSize: "0.8rem" }}>
+                  {/* No password field here. Adding a credential step to the form
+                      people abandon most is the wrong trade; the code does it later. */}
+                  We&rsquo;ll send a code to that address so you can sign in and see this
+                  order again.
+                </span>
+              </span>
+            </label>
           ) : null}
         </Fieldset>
 
@@ -310,6 +419,14 @@ const inputStyle: React.CSSProperties = {
   background: "var(--sf-bg)",
   border: "max(1px, var(--sf-border-width)) solid var(--sf-border)",
   borderRadius: "var(--sf-radius)",
+};
+
+const consentRow: React.CSSProperties = {
+  display: "flex",
+  gap: 10,
+  alignItems: "flex-start",
+  fontSize: "0.88rem",
+  color: "var(--sf-text)",
 };
 
 function Fieldset({ legend, children }: { legend: string; children: React.ReactNode }) {

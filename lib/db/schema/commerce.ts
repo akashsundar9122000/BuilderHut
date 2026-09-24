@@ -117,8 +117,14 @@ export const orders = pgTable(
     /** Short, per-tenant, human-quotable. "#1043", not a uuid. */
     number: integer("number").notNull(),
     customerId: uuid("customer_id").references(() => customers.id, { onDelete: "set null" }),
-    /** Kept even for a guest, because it is how they are contacted. */
-    email: text("email").notNull(),
+    /*
+     * Kept even for a guest, because it is how they are contacted — but
+     * nullable, because a store that signs its customers in by mobile number may
+     * never ask for an email address at all. A CHECK constraint in the
+     * accompanying migration guarantees an order always has one way to reach the
+     * buyer, whether that is the email or the phone.
+     */
+    email: text("email"),
     phone: varchar("phone", { length: 32 }),
     status: orderStatus("status").notNull().default("pending_payment"),
     currency: varchar("currency", { length: 3 }).notNull(),

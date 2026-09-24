@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 import { applyCommand, insertableRange, type Command } from "@/lib/builder/commands";
-import { REGISTRY } from "@/lib/render/registry";
+import { isMutableSection, REGISTRY } from "@/lib/render/registry";
 import {
   SECTION_TYPES,
   SectionTypeSchema,
@@ -167,6 +167,19 @@ function compileOne(doc: SiteDocument, page: Page, op: AiOp): CompiledChange | s
       if (!SECTION_TYPES.includes(op.sectionType)) {
         return `${op.sectionType} is not a section BuilderHut can render.`;
       }
+      const entry = REGISTRY[op.sectionType];
+      /*
+       * The same two rules applyCommand enforces. Without them the command would
+       * be compiled, refused silently on apply, and reported back as done — an
+       * assistant claiming it added a sign-in form to the home page.
+       */
+      if (entry.onlyOn && page.system !== entry.onlyOn) {
+        return `A ${entry.label} only belongs on the ${entry.onlyOn} page.`;
+      }
+      if (entry.essential && page.sections.some((s) => s.type === op.sectionType)) {
+        return `This page already has a ${entry.label}.`;
+      }
+
       const range = insertableRange(page);
       let index = range.max;
       if (op.afterSectionId) {
@@ -186,6 +199,10 @@ function compileOne(doc: SiteDocument, page: Page, op: AiOp): CompiledChange | s
       // The header and footer are locked for the same reason a page cannot
       // delete its own navigation. An assistant does not get an exception.
       if (section.locked) return `The ${REGISTRY[section.type].label} is locked and cannot be removed.`;
+      // And a sign-in form is the reason its page exists at all.
+      if (!isMutableSection(section.type)) {
+        return `The ${REGISTRY[section.type].label} is what this page is for, so it can't be removed.`;
+      }
       return {
         command: { type: "removeSection", pageId: page.id, sectionId: op.sectionId },
         label: `Delete the ${REGISTRY[section.type].label} section`,

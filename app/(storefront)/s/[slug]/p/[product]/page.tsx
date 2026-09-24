@@ -10,7 +10,7 @@ import { productImages, products } from "@/lib/db/schema";
 import { imageUrlFor } from "@/lib/products/service";
 import { discountPercent, formatMoney } from "@/lib/money";
 import { homePage } from "@/lib/schema/page";
-import { loadStorefront } from "@/lib/stores/storefront";
+import { loadStorefront, renderContextFor } from "@/lib/stores/storefront";
 import { after } from "next/server";
 import { track, trackContext } from "@/lib/analytics/track";
 
@@ -69,12 +69,7 @@ export default async function ProductPage({
     }),
   );
 
-  const ctx = {
-    doc: store.doc,
-    base: `/s/${store.slug}`,
-    products: store.products,
-    editing: false,
-  };
+  const ctx = renderContextFor(store);
   const home = homePage(store.doc);
   const off = discountPercent(product.priceMinor, product.compareAtMinor);
   const soldOut = product.trackStock && product.stock <= 0;

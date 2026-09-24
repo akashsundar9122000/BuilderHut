@@ -4,9 +4,10 @@ import { appUrl } from "@/lib/app-url";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { emailOTP } from "better-auth/plugins";
-import { hash, verify } from "@node-rs/argon2";
 import { uuidv7 } from "uuidv7";
 
+import { appSecret } from "@/lib/auth/app-secret";
+import { hashPassword, verifyPassword } from "@/lib/auth/argon2";
 import { getRootDb } from "@/lib/db/client";
 import * as schema from "@/lib/db/schema";
 import { sendEmail } from "@/lib/email/provider";
@@ -20,34 +21,16 @@ import { passwordResetEmail, verificationCodeEmail } from "@/lib/email/templates
  * lib/auth/session.ts. See the note in lib/db/schema/identity.ts for why the
  * organization plugin was left out.
  *
- * Storefront customers are a separate realm entirely (Phase 3).
+ * Storefront customers are a separate realm entirely — lib/customers/, with
+ * its own tables, its own sessions and email that is unique per store rather
+ * than globally. See the note at the top of lib/db/schema/customers.ts.
  */
 
 const OTP_MINUTES = 10;
 
-/*
- * Argon2id with explicit parameters rather than the library defaults.
- *
- * Pinned because a future version bumping its defaults would silently make every
- * existing hash unverifiable, and because these are values that should be
- * reviewed deliberately rather than inherited. 19 MiB / 2 passes is the OWASP
- * baseline and comfortably within a serverless memory budget.
- */
-const ARGON2 = { memoryCost: 19456, timeCost: 2, parallelism: 1 } as const;
-
-function requireSecret(): string {
-  const secret = process.env.BETTER_AUTH_SECRET;
-  if (secret && secret.length >= 32) return secret;
-  if (process.env.NODE_ENV === "production") {
-    throw new Error("BETTER_AUTH_SECRET must be set to at least 32 characters in production.");
-  }
-  // Development only. Stable so sessions survive a dev-server restart.
-  return "builderhut-development-secret-not-for-production-use";
-}
-
 export const auth = betterAuth({
   appName: "BuilderHut",
-  secret: requireSecret(),
+  secret: appSecret(),
   baseURL: appUrl(),
 
   /*
@@ -125,8 +108,8 @@ export const auth = betterAuth({
     // which on a phone is most of the time.
     requireEmailVerification: false,
     password: {
-      hash: (password) => hash(password, ARGON2),
-      verify: ({ hash: stored, password }) => verify(stored, password, ARGON2),
+      hash: hashPassword,
+      verify: ({ hash: stored, password }) => verifyPassword(stored, password),
     },
     sendResetPassword: async ({ user, url }) => {
       await sendEmail(passwordResetEmail(user.email, url));

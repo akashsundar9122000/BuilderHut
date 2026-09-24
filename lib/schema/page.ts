@@ -37,6 +37,11 @@ export const SECTION_TYPES = [
   "newsletter",
   "contact",
   "footer",
+  // Customer accounts. Each belongs to exactly one system page — see `onlyOn`
+  // in lib/render/registry.tsx.
+  "accountLogin",
+  "accountSignup",
+  "accountArea",
 ] as const;
 
 export const SectionTypeSchema = z.enum(SECTION_TYPES);
@@ -82,7 +87,27 @@ export const SeoSchema = z.object({
  * System pages cannot be deleted or have their slug changed: the storefront
  * routes to them by name, and a checkout that 404s is not a recoverable state.
  */
-export const SYSTEM_PAGES = ["home", "shop", "product", "cart", "checkout", "account"] as const;
+export const SYSTEM_PAGES = [
+  "home",
+  "shop",
+  "product",
+  "cart",
+  "checkout",
+  "account",
+  "login",
+  "signup",
+] as const;
+
+export type SystemPage = (typeof SYSTEM_PAGES)[number];
+
+/**
+ * System pages served by a route file of their own.
+ *
+ * The catch-all must never answer for one of these: it would render the page
+ * without the session, policy and data that its own route supplies, which for a
+ * sign-in page means a form that cannot sign anybody in.
+ */
+export const ROUTED_SYSTEM_PAGES = ["cart", "checkout", "account", "login", "signup"] as const;
 
 export const PageSchema = z.object({
   id: z.string().min(1).max(64),
@@ -138,6 +163,51 @@ export function safeHref(value: unknown): string {
   } catch {
     return "#";
   }
+}
+
+/*
+ * Drop sections whose type this build does not know, before validation.
+ *
+ * A published snapshot is immutable and may have been written by a NEWER deploy
+ * than the one reading it — a rollback, or a canary serving alongside. Without
+ * this, one unrecognised section type fails SiteDocumentSchema, which makes
+ * loadPublishedDoc return null and takes the merchant's ENTIRE shop to a 404
+ * over a section that could simply have been left out. parseSectionProps already
+ * takes that view for bad props; this takes it for unknown types.
+ *
+ * Deliberately not used on the draft path: there, a type the build cannot render
+ * is a bug to see, not to hide.
+ */
+export function dropUnknownSections(snapshot: unknown): unknown {
+  if (typeof snapshot !== "object" || snapshot === null) return snapshot;
+  const doc = snapshot as { pages?: unknown };
+  if (!Array.isArray(doc.pages)) return snapshot;
+
+  const known = new Set<string>(SECTION_TYPES);
+  let dropped = 0;
+
+  const pages = doc.pages.map((page) => {
+    if (typeof page !== "object" || page === null) return page;
+    const sections = (page as { sections?: unknown }).sections;
+    if (!Array.isArray(sections)) return page;
+
+    const kept = sections.filter((section) => {
+      const type = (section as { type?: unknown } | null)?.type;
+      if (typeof type === "string" && known.has(type)) return true;
+      dropped += 1;
+      return false;
+    });
+    return kept.length === sections.length ? page : { ...page, sections: kept };
+  });
+
+  if (dropped === 0) return snapshot;
+  console.warn(`[render] dropping ${dropped} section(s) of a type this build does not know`);
+  return { ...doc, pages };
+}
+
+/** The page playing this system role, if the document has one. */
+export function systemPage(doc: SiteDocument, system: SystemPage): Page | undefined {
+  return doc.pages.find((p) => p.system === system);
 }
 
 export function findPage(doc: SiteDocument, slug: string): Page | undefined {

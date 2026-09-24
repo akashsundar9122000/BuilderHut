@@ -39,6 +39,8 @@ export const TENANT_SCOPED = new Set<string>([
   "customer_sessions",
   "customer_addresses",
   "wishlist_items",
+  "customer_verifications",
+  "customer_rate_limits",
   // commerce
   "carts",
   "cart_items",

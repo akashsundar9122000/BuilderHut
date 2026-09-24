@@ -35,6 +35,13 @@ export interface PlanFeatures {
   marketingTools: boolean;
   /** The structured-ops assistant in the builder. */
   aiAssistant: boolean;
+  /**
+   * Letting customers sign in with a mobile number.
+   *
+   * Gated because every code is an SMS we pay for, unlike an email. Email
+   * sign-in is on every plan.
+   */
+  customerPhoneAuth: boolean;
   prioritySupport: boolean;
 }
 
@@ -74,6 +81,7 @@ export const PLANS: Record<PlanId, Plan> = {
       discountCodes: false,
       marketingTools: false,
       aiAssistant: true,
+      customerPhoneAuth: false,
       prioritySupport: false,
     },
   },
@@ -97,6 +105,7 @@ export const PLANS: Record<PlanId, Plan> = {
       discountCodes: true,
       marketingTools: false,
       aiAssistant: true,
+      customerPhoneAuth: true,
       prioritySupport: false,
     },
   },
@@ -120,6 +129,7 @@ export const PLANS: Record<PlanId, Plan> = {
       discountCodes: true,
       marketingTools: true,
       aiAssistant: true,
+      customerPhoneAuth: true,
       prioritySupport: true,
     },
   },

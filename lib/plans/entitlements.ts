@@ -142,6 +142,7 @@ const FEATURE_LABELS: Record<FeatureKey, string> = {
   discountCodes: "Discount codes",
   marketingTools: "Marketing tools",
   aiAssistant: "The builder assistant",
+  customerPhoneAuth: "Signing customers in with a mobile number",
   prioritySupport: "Priority support",
 };
 

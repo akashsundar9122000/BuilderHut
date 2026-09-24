@@ -23,8 +23,17 @@ const GROUP_LABELS: Record<string, string> = {
   content: "Content",
   commerce: "Products",
   engage: "Trust & contact",
+  account: "Customer account",
   structure: "Structure",
 };
+
+/*
+ * The order the Add panel shows its groups in. "account" is last because it only
+ * ever appears on three of a shop's pages — and a group with nothing addable in it
+ * renders nothing at all, so no merchant standing anywhere else sees a new
+ * heading.
+ */
+const GROUP_ORDER = ["content", "commerce", "engage", "account"] as const;
 
 export function LeftPanel() {
   const [tab, setTab] = useState<Tab>("add");
@@ -94,13 +103,18 @@ function AddPanel() {
   // Structural sections cannot be added: a page has exactly one header and one
   // footer, and they arrive with the template.
   const addable = (Object.entries(REGISTRY) as [SectionType, (typeof REGISTRY)[SectionType]][])
-    .filter(([, entry]) => entry.group !== "structure");
-
-  const groups = ["content", "commerce", "engage"] as const;
+    .filter(
+      ([type, entry]) =>
+        entry.group !== "structure" &&
+        // A sign-in form is offered on the sign-in page and nowhere else…
+        (entry.onlyOn === undefined || entry.onlyOn === page.system) &&
+        // …and never a second time on the page that already has one.
+        !(entry.essential && page.sections.some((section) => section.type === type)),
+    );
 
   return (
     <div className="p-3">
-      {groups.map((group) => {
+      {GROUP_ORDER.map((group) => {
         const entries = addable.filter(([, entry]) => entry.group === group);
         if (entries.length === 0) return null;
         return (
@@ -148,6 +162,12 @@ function LayerTree() {
       {page.sections.map((section) => {
         const entry = REGISTRY[section.type];
         const fixed = entry.fixed !== undefined;
+        /*
+         * Fixed or essential: both resist hiding. An essential section still
+         * shows a grip, because it CAN be moved — putting a hero above the
+         * sign-in form is the whole point of the page being editable.
+         */
+        const guarded = fixed || entry.essential === true;
         return (
           <li key={section.id}>
             <div
@@ -168,7 +188,7 @@ function LayerTree() {
                   {entry.label}
                 </span>
               </button>
-              {!fixed ? (
+              {!guarded ? (
                 <button
                   onClick={() =>
                     run({ type: "toggleSectionVisible", pageId: page.id, sectionId: section.id })
@@ -197,6 +217,13 @@ function PageList() {
           <li key={page.id}>
             <button
               onClick={() => setPage(page.id)}
+              /*
+               * Named as well as labelled: the visible text is the page title,
+               * which on its own is ambiguous against the canvas (a section
+               * toolbar says "Move Sign in form" a few pixels away). Contains the
+               * visible text, so it still satisfies label-in-name.
+               */
+              aria-label={`Open ${page.title}`}
               className={cn(
                 "flex w-full items-center gap-2 rounded-md px-2 py-2 text-left text-sm transition-colors",
                 pageId === page.id
@@ -217,7 +244,8 @@ function PageList() {
       </ul>
       <p className="text-faint mt-4 px-2 text-xs leading-relaxed">
         Creating and renaming pages arrives with the page manager. System pages can never
-        be deleted — your checkout has to exist.
+        be deleted — your checkout, your sign-in page and your customers&rsquo; account
+        page have to exist.
       </p>
     </div>
   );

@@ -1,12 +1,12 @@
 import "server-only";
-import { appIsSecure } from "@/lib/app-url";
 
 import { randomBytes } from "node:crypto";
-import { and, eq, isNull } from "drizzle-orm";
-import { cookies, headers } from "next/headers";
+import { and, desc, eq, isNull } from "drizzle-orm";
+import { cookies } from "next/headers";
 import { uuidv7 } from "uuidv7";
 
 import { withTenant, type TenantDb } from "@/lib/db/tenant";
+import { isSecureRequest } from "@/lib/http/secure-request";
 import {
   cartItems,
   carts,
@@ -65,24 +65,13 @@ export async function readCartToken(tenantId: string): Promise<string | null> {
 }
 
 /*
- * Secure follows the transport, not the build.
+ * Exported because signing in can move the basket.
  *
- * Safari refuses a Secure cookie over plain http, including on localhost — so
- * keying this off NODE_ENV meant a production build served over http had a
- * basket that silently never filled: the row was written, the cookie was
- * dropped, and the next page found no cart. It cost an afternoon to find,
- * because everything reported success.
- *
- * The proxy header is what Vercel sets, and it is what middleware already uses
- * for the analytics cookies, so the two now agree.
+ * attachCartToCustomer() may hand back a different cart's token — the one they
+ * filled on another device — and the cookie has to follow, or getCart() looks up
+ * the old token and reports an empty basket over a row that is right there.
  */
-async function isSecureRequest(): Promise<boolean> {
-  const proto = (await headers()).get("x-forwarded-proto");
-  if (proto) return proto.split(",")[0]!.trim() === "https";
-  return appIsSecure();
-}
-
-async function writeCartToken(tenantId: string, token: string): Promise<void> {
+export async function writeCartToken(tenantId: string, token: string): Promise<void> {
   const jar = await cookies();
   jar.set(cookieName(tenantId), token, {
     httpOnly: true,
@@ -326,6 +315,98 @@ export async function setCartQuantity(
   });
 
   return { ok: true, cart: await getCart(tenantId, currency) };
+}
+
+/*
+ * Signing in, and the basket that was already there.
+ *
+ * A cart belongs either to a signed-in customer or to an anonymous visitor
+ * holding a cookie token, and the schema keeps both because somebody who fills a
+ * basket and then signs in must not lose it.
+ *
+ * Returns the token the caller has to put in the cookie, or null to leave it
+ * alone. That return value is load-bearing: getCart() finds a cart by its token
+ * and by nothing else, so a customer cart adopted at sign-in is invisible until
+ * the cookie points at it — the row is right there and the basket looks empty.
+ */
+export async function attachCartToCustomer(
+  db: TenantDb,
+  customerId: string,
+  guestToken: string | null,
+): Promise<string | null> {
+  const [guest] = guestToken
+    ? await db
+        .select(carts)
+        .where(and(eq(carts.token, guestToken), isNull(carts.convertedOrderId)))
+        .limit(1)
+    : [];
+
+  const [mine] = await db
+    .select(carts)
+    .where(and(eq(carts.customerId, customerId), isNull(carts.convertedOrderId)))
+    .orderBy(desc(carts.updatedAt))
+    .limit(1);
+
+  // Nothing to reconcile.
+  if (!guest && !mine) return null;
+
+  // Only what they were carrying: claim it and keep the cookie as it is.
+  if (guest && !mine) {
+    await db.update(carts, { customerId }, eq(carts.id, guest.id));
+    return null;
+  }
+
+  // Only what they left behind last time — on another device, probably. Point
+  // the cookie at it.
+  if (!guest && mine) return mine.token;
+
+  if (!guest || !mine) return null;
+  // Both. The customer's own cart survives, because it is the one with history.
+  const guestLines = await db.select(cartItems).where(eq(cartItems.cartId, guest.id));
+  const mineLines = await db.select(cartItems).where(eq(cartItems.cartId, mine.id));
+  const byProduct = new Map(mineLines.map((line) => [line.productId, line]));
+
+  const stock = await db.select(products).where(isNull(products.deletedAt));
+  const ceilingFor = (productId: string): number => {
+    const product = stock.find((p) => p.id === productId);
+    if (!product || product.status !== "active") return 0;
+    return product.trackStock ? Math.min(99, product.stock) : 99;
+  };
+
+  for (const line of guestLines) {
+    const existing = byProduct.get(line.productId);
+    /*
+     * The larger of the two, never the sum.
+     *
+     * Two added on a phone and two on a laptop is two, not four. Summing is the
+     * failure nobody forgives: it silently doubles what somebody pays, and they
+     * find out from the invoice.
+     */
+    const wanted = Math.max(line.quantity, existing?.quantity ?? 0);
+    const quantity = Math.max(0, Math.min(wanted, ceilingFor(line.productId)));
+    if (quantity === 0) continue;
+
+    if (existing) {
+      if (quantity !== existing.quantity) {
+        await db.update(cartItems, { quantity }, eq(cartItems.id, existing.id));
+      }
+    } else {
+      await db.insert(cartItems, { cartId: mine.id, productId: line.productId, quantity });
+    }
+  }
+
+  // A discount the visitor had typed carries over only into an empty slot.
+  // placeOrder re-validates it under lock anyway, so this cannot grant anything.
+  if (guest.discountCode && !mine.discountCode) {
+    await db.update(carts, { discountCode: guest.discountCode }, eq(carts.id, mine.id));
+  }
+
+  // The guest cart never became an order, so leaving it would squat on
+  // carts_token_key and be found again by the next visitor holding that cookie.
+  await db.delete(cartItems, eq(cartItems.cartId, guest.id));
+  await db.delete(carts, eq(carts.id, guest.id));
+
+  return mine.token;
 }
 
 /** Marks a cart as converted so it can never be checked out twice. */

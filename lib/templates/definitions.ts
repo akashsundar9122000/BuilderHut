@@ -1,6 +1,6 @@
 import type { Page } from "@/lib/schema/page";
 import { SCHEMA_VERSION } from "@/lib/schema/page";
-import { nav, POLICY_PAGES } from "./helpers";
+import { accountPages, nav, POLICY_PAGES } from "./helpers";
 import type { Template, TemplateSeed } from "./types";
 
 /*
@@ -125,6 +125,7 @@ const thread: Template = {
       aboutPage("Our story", "We started with one pattern and a lot of leftover yarn.\n\nTell your own version here: how you began, what you care about, why someone should buy from a person rather than a factory."),
       contactPage(),
       ...policyPages(),
+      ...accountPages(),
     ],
   }),
 };
@@ -188,6 +189,7 @@ const leaflet: Template = {
       aboutPage("Process", "Describe how you work — what a client can expect, how long it takes, what you need from them.\n\nThis trade sells on trust and taste. Show both."),
       contactPage(),
       ...policyPages(),
+      ...accountPages(),
     ],
   }),
 };
@@ -247,6 +249,7 @@ const cutline: Template = {
       aboutPage("Lookbook", "Put the sizing chart, the fabric details and the shoot here.\n\nThis audience reads specifications before it reads poetry."),
       contactPage(),
       ...policyPages(),
+      ...accountPages(),
     ],
   }),
 };
@@ -305,6 +308,7 @@ const facet: Template = {
       aboutPage("The house", "Who makes this, where, and how long they have been doing it.\n\nProvenance is most of the value in this trade. Say it plainly."),
       contactPage(),
       ...policyPages(),
+      ...accountPages(),
     ],
   }),
 };
@@ -367,6 +371,7 @@ const proof: Template = {
       aboutPage("About", "Who bakes, where, and since when.\n\nFood is bought on trust. A photograph of the actual kitchen does more than any adjective."),
       contactPage(),
       ...policyPages(),
+      ...accountPages(),
     ],
   }),
 };
@@ -429,6 +434,7 @@ const parcel: Template = {
       aboutPage("FAQ", "Licensing, formats, updates and support.\n\nThe more precisely you answer these, the fewer refunds you process."),
       contactPage(),
       ...policyPages(),
+      ...accountPages(),
     ],
   }),
 };

@@ -1,5 +1,5 @@
 import { SECTION_TYPES, type Page, type Section, type SiteDocument, type SectionType } from "@/lib/schema/page";
-import { defaultPropsFor } from "@/lib/render/registry";
+import { defaultPropsFor, isMutableSection, REGISTRY } from "@/lib/render/registry";
 
 /*
  * Every edit the builder can make, as data.
@@ -125,6 +125,17 @@ export function applyCommand(doc: SiteDocument, command: Command): SiteDocument 
     case "addSection":
       return mapPage(doc, command.pageId, (page) => {
         if (!SECTION_TYPES.includes(command.sectionType)) return page;
+        const entry = REGISTRY[command.sectionType];
+        /*
+         * A sign-in form belongs on the sign-in page, and only one of it. The
+         * Add panel already filters on both, but a command is a command: it can
+         * arrive from the assistant, from an undo of an older document, or from
+         * anything else that learns the shape.
+         */
+        if (entry.onlyOn && page.system !== entry.onlyOn) return page;
+        if (entry.essential && page.sections.some((s) => s.type === command.sectionType)) {
+          return page;
+        }
         const { min, max } = insertableRange(page);
         const index = Math.min(Math.max(command.index, min), max);
         const section: Section = {
@@ -142,8 +153,13 @@ export function applyCommand(doc: SiteDocument, command: Command): SiteDocument 
     case "removeSection":
       return mapPage(doc, command.pageId, (page) => {
         const target = page.sections.find((s) => s.id === command.sectionId);
-        // The header and footer are part of the page's structure, not content.
-        if (!target || target.type === "header" || target.type === "footer") return page;
+        /*
+         * The header and footer are structure rather than content, and a sign-in
+         * form is the reason its page exists. Asked of the registry rather than
+         * listed here, so a new section of either kind is covered by declaring it
+         * and not by remembering to edit three switch cases.
+         */
+        if (!target || !isMutableSection(target.type)) return page;
         return { ...page, sections: page.sections.filter((s) => s.id !== command.sectionId) };
       });
 
@@ -151,7 +167,7 @@ export function applyCommand(doc: SiteDocument, command: Command): SiteDocument 
       return mapPage(doc, command.pageId, (page) => {
         const index = page.sections.findIndex((s) => s.id === command.sectionId);
         const target = page.sections[index];
-        if (!target || target.type === "header" || target.type === "footer") return page;
+        if (!target || !isMutableSection(target.type)) return page;
         const copy: Section = {
           ...target,
           id: newSectionId(target.type, page.sections),
@@ -163,12 +179,22 @@ export function applyCommand(doc: SiteDocument, command: Command): SiteDocument 
       });
 
     case "toggleSectionVisible":
-      return mapPage(doc, command.pageId, (page) => ({
-        ...page,
-        sections: page.sections.map((s) =>
-          s.id === command.sectionId ? { ...s, visible: !s.visible } : s,
-        ),
-      }));
+      return mapPage(doc, command.pageId, (page) => {
+        /*
+         * This had no guard at all, so a command could hide the header even
+         * though the layer tree offers no eye for it. Hiding a sign-in form would
+         * be the same class of mistake with a worse outcome: a sign-in page with
+         * no way to sign in.
+         */
+        const target = page.sections.find((s) => s.id === command.sectionId);
+        if (!target || !isMutableSection(target.type)) return page;
+        return {
+          ...page,
+          sections: page.sections.map((s) =>
+            s.id === command.sectionId ? { ...s, visible: !s.visible } : s,
+          ),
+        };
+      });
 
     case "toggleSectionLocked":
       return mapPage(doc, command.pageId, (page) => ({

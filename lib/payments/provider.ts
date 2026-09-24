@@ -48,7 +48,13 @@ export interface CreateIntentInput {
   orderId: string;
   amountMinor: number;
   currency: string;
-  customerEmail: string;
+  /**
+   * Absent on an order from a store that signs its customers in by mobile
+   * number and never asks for an email address. A gateway uses it to prefill
+   * its own form and to send its own receipt; neither is load-bearing here,
+   * because the order confirmation is ours to send.
+   */
+  customerEmail?: string;
   /** Deduplicates a retried request at the provider as well as in our database. */
   idempotencyKey: string;
   returnUrl: string;

@@ -5,8 +5,8 @@ import { unstable_cache } from "next/cache";
 
 import { getRootDb } from "@/lib/db/client";
 import { productImages, products, siteVersions, tenants, websites } from "@/lib/db/schema";
-import { SiteDocumentSchema, type SiteDocument } from "@/lib/schema/page";
-import type { ProductCard } from "@/lib/render/context";
+import { dropUnknownSections, SiteDocumentSchema, type SiteDocument } from "@/lib/schema/page";
+import type { ProductCard, RenderContext } from "@/lib/render/context";
 import { withTenant } from "@/lib/db/tenant";
 import { imageUrlFor } from "@/lib/products/service";
 
@@ -82,11 +82,17 @@ const loadPublishedDoc = unstable_cache(
       const snapshot = versions[0]?.snapshot;
       if (!snapshot) return null;
 
-      const parsed = SiteDocumentSchema.safeParse(snapshot);
+      /*
+       * Unknown section types are dropped before validation rather than failing
+       * it. A snapshot is immutable and may have been written by a newer deploy
+       * than the one reading it, and losing a section beats losing the shop.
+       */
+      const parsed = SiteDocumentSchema.safeParse(dropUnknownSections(snapshot));
       if (!parsed.success) {
         // A published snapshot that no longer validates means the schema moved
-        // under it. Better a 404 than a half-rendered store — the version is
-        // immutable, so the fix is a migration, not a repair in place.
+        // under it in some way a dropped section cannot account for. Better a
+        // 404 than a half-rendered store — the version is immutable, so the fix
+        // is a migration, not a repair in place.
         console.error(
           `[storefront] published snapshot for tenant ${tenantId} failed validation:`,
           parsed.error.issues[0],
@@ -173,4 +179,24 @@ export async function loadStorefront(slug: string): Promise<StorefrontData | nul
   if (!site) return null;
   const catalogue = await loadStorefrontProducts(site.tenantId, site.currency);
   return { ...site, products: catalogue };
+}
+
+/*
+ * The render context for a published store.
+ *
+ * One place, so a field added to RenderContext lands on every storefront route
+ * at once instead of on the six somebody remembered. The builder canvas and the
+ * draft preview build their own: a different base, and editing: true.
+ */
+export function renderContextFor(
+  store: Omit<StorefrontData, "products"> & { products?: ProductCard[] },
+  extra?: Partial<RenderContext>,
+): RenderContext {
+  return {
+    doc: store.doc,
+    base: `/s/${store.slug}`,
+    products: store.products ?? [],
+    editing: false,
+    ...extra,
+  };
 }

@@ -8,6 +8,7 @@ import { uuidv7 } from "uuidv7";
 import { runForTenant } from "@/lib/auth/session";
 import { auditLogs, siteVersions, websites } from "@/lib/db/schema";
 import { SCHEMA_VERSION, SiteDocumentSchema, type SiteDocument } from "@/lib/schema/page";
+import { withAccountPages } from "./system-pages";
 import { buildDocument } from "@/lib/templates";
 
 /*
@@ -67,13 +68,52 @@ export const loadDraft = cache(async function loadDraft(): Promise<DraftState | 
 
     return {
       websiteId: site.id,
-      doc,
+      /*
+       * Belt to ensureAccountPages()'s braces: applied in memory so the draft
+       * preview shows the account pages even on the request that arrives before
+       * the write lands. No revision bump here — this is what gets rendered, not
+       * what gets stored.
+       */
+      doc: withAccountPages(doc).doc,
       revision: site.draftRevision,
       publishedVersionId: site.publishedVersionId,
       publishedAt: site.publishedAt,
     };
   });
 });
+
+/**
+ * Add the customer-account pages to an existing draft. Called on builder open.
+ *
+ * A write rather than an in-memory fix-up, and that matters: the editor's autosave
+ * compares what is on screen with the document it started from, so a draft that
+ * arrived already corrected is never dirty and would never be saved — and a
+ * merchant who published without editing would publish a document with no account
+ * pages in it, which is the one state this is meant to prevent.
+ *
+ * A no-op after the first time, so it costs one read per builder open.
+ */
+export async function ensureAccountPages(): Promise<void> {
+  await runForTenant(async (db) => {
+    const rows = await db.select(websites).limit(1);
+    const site = rows[0];
+    if (!site) return;
+
+    const parsed = SiteDocumentSchema.safeParse(site.draftState);
+    // A draft that does not parse is rebuilt by loadDraft from its template, and
+    // that rebuild already contains the account pages.
+    if (!parsed.success) return;
+
+    const result = withAccountPages(parsed.data);
+    if (result.added.length === 0 && result.adopted.length === 0) return;
+
+    await db.update(
+      websites,
+      { draftState: result.doc, draftRevision: site.draftRevision + 1 },
+      eq(websites.id, site.id),
+    );
+  });
+}
 
 export type SaveDraftResult =
   | { ok: true; revision: number }

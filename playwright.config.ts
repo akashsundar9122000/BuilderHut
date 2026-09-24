@@ -62,6 +62,17 @@ export default defineConfig({
       SMTP_HOST: "",
       SMTP_USER: "",
       SMTP_PASS: "",
+      /*
+       * And the same for SMS, with more at stake: a developer with real MSG91 or
+       * Twilio credentials in .env.local would otherwise have this suite texting
+       * made-up Indian mobile numbers, at their own expense, on every run.
+       */
+      SMS_PROVIDER: "console",
+      MSG91_AUTH_KEY: "",
+      MSG91_OTP_TEMPLATE_ID: "",
+      TWILIO_ACCOUNT_SID: "",
+      TWILIO_AUTH_TOKEN: "",
+      TWILIO_FROM: "",
     },
   },
 });
