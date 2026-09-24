@@ -69,7 +69,7 @@ file.
 | `BETTER_AUTH_SECRET` | always | 32+ random characters. `openssl rand -base64 32`. |
 | `APP_URL` | on a custom domain | Omit on a `.vercel.app` host: `lib/app-url.ts` derives it from Vercel's own variables. Wrong here means every sign-in fails as a CSRF rejection. |
 | `CRON_SECRET` | production | Without it the cron routes close in production rather than opening. Vercel sends it automatically as a bearer token. |
-| `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `SMTP_FROM` | for real email | Unset, codes and links are printed to the log instead. Fine for a preview, not for people. |
+| `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `MAIL_FROM` | for real email | Unset, codes and links are printed to the log instead. Fine for a preview, not for people. See **Deliverability** below — a working relay is not the same as a delivered email. |
 | `MEDIA_STORE` | production | `kv` or `r2`. The default, `local`, writes to disk — and a serverless function's disk does not survive the request. |
 | `CF_ACCOUNT_ID`, `CF_KV_NAMESPACE_ID`, `CF_KV_API_TOKEN` | with `MEDIA_STORE=kv` | |
 | `R2_*` | with `MEDIA_STORE=r2` | |
@@ -132,3 +132,45 @@ content-addressed and immutable, so they survive a database restore; the rows
 in `media_assets` that point at them do not, and a restored database may
 reference objects that were uploaded after the restore point. Those show as
 missing images, not as errors.
+
+## Deliverability
+
+A relay accepting a message and a person receiving it are different things, and
+the gap between them is silent.
+
+**`MAIL_FROM` must be on a domain whose SPF authorises whoever is relaying.**
+Sending as `you@gmail.com` through Brevo, Resend or any other relay fails SPF,
+because `gmail.com`'s SPF record authorises only Google's own servers:
+
+```
+$ dig +short TXT gmail.com
+"v=spf1 redirect=_spf.google.com"
+```
+
+`gmail.com`'s DMARC is `p=none`, so Gmail will not bounce it — it accepts the
+message, distrusts it, and files it in spam or drops it. The relay reports
+`250 OK: queued`, the application logs a successful send, and nobody gets the
+email. That is exactly what happened on 2026-09-24: signup codes were sent and
+accepted and never arrived.
+
+Three ways out, cheapest first:
+
+1. **Send through the mailbox provider that owns the address.** For a Gmail
+   sender, `smtp.gmail.com:587` with an app password. SPF aligns because Google
+   really is sending it. Caps out around 500/day, which is plenty until there
+   are merchants.
+2. **Use a domain you own.** Add it to the relay, publish its SPF and DKIM
+   records, and send from `hello@yourdomain`. This is the real answer and is
+   needed for custom storefront domains anyway.
+3. **Use a relay's own verified sending domain** where one is offered.
+
+Whichever it is, check the relay's own delivery log — Brevo's is under
+**Transactional → Logs** — which distinguishes delivered, soft-bounced, blocked
+and spam-reported. The application cannot see any of that; it only knows the
+relay said yes.
+
+One more thing worth knowing: hard bounces poison a sending reputation, and a
+relay will start blocking an account that produces them. Sending to addresses
+at a domain that does not exist — `@builderhut.test`, say, which the test suite
+used to do — is the easiest way to cause that. Check the relay's blocked-contact
+list if delivery degrades.

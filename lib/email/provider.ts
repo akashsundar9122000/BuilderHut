@@ -70,6 +70,15 @@ export async function sendEmail(message: EmailMessage): Promise<void> {
   const provider = getEmailProvider();
   try {
     await provider.send(message);
+    /*
+     * Logged on success, not only on failure.
+     *
+     * "Did it send?" was unanswerable from the logs the first time a code did
+     * not arrive: a successful SMTP handoff and a silent misconfiguration
+     * looked identical. The recipient and the subject are enough to tell those
+     * apart, and the body — which carries the code — is deliberately not here.
+     */
+    if (provider.name === "smtp") console.log(`[email] sent via smtp to ${message.to}: ${message.subject}`);
   } catch (error) {
     // Never let a mail outage take down signup. The caller decides what to tell
     // the user; what must not happen is an unhandled rejection in a route.
