@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { Metadata } from "next";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Check } from "lucide-react";
 
 import { BuildSequence } from "@/components/marketing/BuildSequence";
 import { BrowserFrame } from "@/components/marketing/BrowserFrame";
@@ -14,7 +14,13 @@ import { TemplateCarousel } from "@/components/marketing/TemplateCarousel";
 import { Button } from "@/components/ui";
 import { cn } from "@/lib/cn";
 import { INDUSTRIES } from "@/lib/industries";
-import { FEATURES, GUIDE_DOORS, PRINCIPLES } from "@/lib/marketing/content";
+import {
+  ENTERPRISE_CONTACT,
+  ENTERPRISE_TIER,
+  FEATURES,
+  GUIDE_DOORS,
+  PRINCIPLES,
+} from "@/lib/marketing/content";
 import { ORDERED_PLANS } from "@/lib/plans/catalog";
 import { formatMoney } from "@/lib/money";
 import { templateSummaries, templateSummary, TEMPLATES } from "@/lib/templates";
@@ -58,6 +64,17 @@ export default function LandingPage() {
   const second = templateSummary(TEMPLATES.find((t) => t.id === "cutline")!);
   const trades = INDUSTRIES.filter((i) => i.id !== "other").map((i) => i.label);
   const cheapestPaid = ORDERED_PLANS.find((p) => p.priceMinor > 0);
+
+  /*
+   * Plan prices are whole rupees, so formatMoney's paise are noise on a card:
+   * "₹499.00 a month" reads as a rounding artefact rather than a price. The
+   * decimals stay everywhere money is actually counted — this is the only
+   * place a price is being advertised rather than charged.
+   */
+  const planPrice = (minor: number, currency: string) =>
+    minor % 100 === 0
+      ? formatMoney(minor, currency).replace(/[.,]00$/, "")
+      : formatMoney(minor, currency);
 
   return (
     <main>
@@ -274,21 +291,100 @@ export default function LandingPage() {
             title={<>Start free. Pay when it&rsquo;s earning.</>}
             sub={
               cheapestPaid
-                ? `A real shop at a BuilderHut address costs nothing, for as long as you like. Paid plans start at ${formatMoney(cheapestPaid.priceMinor, cheapestPaid.currency)} a month, and nothing is being charged yet.`
+                ? `A real shop at a BuilderHut address costs nothing, for as long as you like. Paid plans start at ${planPrice(cheapestPaid.priceMinor, cheapestPaid.currency)} a month, and nothing is being charged yet.`
                 : "A real shop at a BuilderHut address costs nothing, for as long as you like."
             }
           />
-          <Reveal delay={120}>
-            <div className="mt-10 flex flex-wrap justify-center gap-3">
-              <Button asChild size="lg">
-                <Link href="/signup">
-                  Create my store <ArrowRight className="size-4" aria-hidden="true" />
-                </Link>
-              </Button>
-              <Button asChild size="lg" variant="secondary">
-                <Link href="/pricing">See what&rsquo;s included</Link>
+          <Stagger className="mt-12 grid items-stretch gap-5 md:grid-cols-2 xl:grid-cols-4">
+            {ORDERED_PLANS.map((plan) => {
+              /* Standard is the one most shops end up on: it is the step that
+                 buys your own address and takes our name out of your footer. */
+              const featured = plan.id === "standard";
+              return (
+                <div
+                  key={plan.id}
+                  className={cn(
+                    "flex h-full flex-col rounded-[var(--bh-radius-lg)] border p-6 text-left",
+                    featured
+                      ? "border-accent-border bg-surface shadow-sm"
+                      : "border-border bg-surface",
+                  )}
+                >
+                  <div className="flex items-baseline justify-between gap-2">
+                    <h3 className="font-display text-xl">{plan.name}</h3>
+                    {featured ? (
+                      <span className="bg-accent-soft text-accent rounded-full px-2 py-0.5 text-xs font-medium">
+                        Most shops
+                      </span>
+                    ) : null}
+                  </div>
+
+                  <p className="mt-3 flex items-baseline gap-1">
+                    <span className="font-display text-3xl">
+                      {plan.priceMinor === 0 ? "Free" : planPrice(plan.priceMinor, plan.currency)}
+                    </span>
+                    {plan.priceMinor > 0 ? (
+                      <span className="text-muted text-sm">a month</span>
+                    ) : null}
+                  </p>
+
+                  <p className="text-muted mt-3 text-sm leading-relaxed">{plan.blurb}</p>
+                  <p className="text-text mt-4 text-sm font-medium">{plan.headline}</p>
+
+                  <ul className="text-muted mt-4 flex flex-1 flex-col gap-2 text-sm">
+                    {[
+                      plan.limits.products === null
+                        ? "Unlimited products"
+                        : `Up to ${plan.limits.products} products`,
+                      plan.limits.staff === null
+                        ? "Unlimited staff"
+                        : `${plan.limits.staff} ${plan.limits.staff === 1 ? "person" : "people"}`,
+                      plan.limits.customDomains === 0
+                        ? "A BuilderHut address"
+                        : `${plan.limits.customDomains} custom ${plan.limits.customDomains === 1 ? "domain" : "domains"}`,
+                      `${plan.limits.analyticsDays} days of history`,
+                    ].map((line) => (
+                      <li key={line} className="flex items-start gap-2">
+                        <Check className="text-accent mt-0.5 size-3.5 shrink-0" aria-hidden="true" />
+                        {line}
+                      </li>
+                    ))}
+                  </ul>
+
+                  <Button asChild className="mt-6 w-full" variant={featured ? "primary" : "secondary"}>
+                    <Link href="/signup">
+                      {plan.priceMinor === 0 ? "Start free" : `Choose ${plan.name}`}
+                    </Link>
+                  </Button>
+                </div>
+              );
+            })}
+
+            {/* The fourth tier is a conversation, not something you can buy here. */}
+            <div className="border-border bg-raised flex h-full flex-col rounded-[var(--bh-radius-lg)] border border-dashed p-6 text-left">
+              <h3 className="font-display text-xl">{ENTERPRISE_TIER.name}</h3>
+              <p className="font-display mt-3 text-3xl">Talk to us</p>
+              <p className="text-muted mt-3 text-sm leading-relaxed">{ENTERPRISE_TIER.blurb}</p>
+              <p className="text-text mt-4 text-sm font-medium">{ENTERPRISE_TIER.headline}</p>
+              <ul className="text-muted mt-4 flex flex-1 flex-col gap-2 text-sm">
+                {ENTERPRISE_TIER.points.map((point) => (
+                  <li key={point} className="flex items-start gap-2">
+                    <Check className="text-accent mt-0.5 size-3.5 shrink-0" aria-hidden="true" />
+                    {point}
+                  </li>
+                ))}
+              </ul>
+              <Button asChild className="mt-6 w-full" variant="secondary">
+                <Link href={ENTERPRISE_CONTACT}>Talk to us</Link>
               </Button>
             </div>
+          </Stagger>
+
+          <Reveal delay={120}>
+            <p className="text-faint mt-8 text-center text-sm">
+              Every plan includes the builder, the templates and a working checkout. Nothing is
+              being charged yet, and you can change plan whenever you like.
+            </p>
           </Reveal>
         </Shell>
       </Section>

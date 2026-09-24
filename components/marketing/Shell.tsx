@@ -94,9 +94,20 @@ export function Backdrop({ children }: { children: React.ReactNode }) {
   );
 }
 
-export function Eyebrow({ children }: { children: React.ReactNode }) {
+export function Eyebrow({
+  children,
+  className,
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) {
   return (
-    <p className="text-accent text-xs font-medium tracking-[0.18em] uppercase">
+    <p
+      className={cn(
+        "text-accent text-xs font-medium tracking-[0.18em] uppercase",
+        className,
+      )}
+    >
       {children}
     </p>
   );
@@ -118,7 +129,7 @@ export function SectionHead({
   const centred = align === "center";
   return (
     <Reveal className={className}>
-      {eyebrow ? <Eyebrow>{eyebrow}</Eyebrow> : null}
+      {eyebrow ? <Eyebrow className={cn(centred && "text-center")}>{eyebrow}</Eyebrow> : null}
       <h2
         className={cn(
           "font-display text-[clamp(1.9rem,1.4rem+2vw,3rem)] leading-[1.08]",

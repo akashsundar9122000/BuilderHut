@@ -162,3 +162,32 @@ export const QUESTIONS: readonly Question[] = [
     a: "Your data stays yours. Exports are part of the plan from the beginning, and nothing you have made gets held hostage.",
   },
 ];
+
+/*
+ * Where the Enterprise card's button goes.
+ *
+ * BuilderHut has no public contact address configured — MAIL_FROM is still
+ * hello@builderhut.local — and a mailto to an address nobody reads is worse
+ * than a page that answers the question. Point this at a real inbox the moment
+ * there is one.
+ */
+export const ENTERPRISE_CONTACT = "/pricing";
+
+/*
+ * The fourth tier.
+ *
+ * Not a plan: tenant_plan is a Postgres enum of free, standard and pro, and
+ * this deliberately is not a fourth value in it. It is a conversation, priced
+ * per shop, and it is presented as one — no price, no "choose" button, nothing
+ * that implies you can buy it from the page.
+ */
+export const ENTERPRISE_TIER = {
+  name: "Enterprise",
+  blurb: "For several shops, or one with requirements the plans above do not cover.",
+  headline: "Priced per shop, once we understand it",
+  points: [
+    "Several shops under one account",
+    "Whatever limits the work actually needs",
+    "A person to talk to about it",
+  ],
+} as const;
