@@ -5,6 +5,7 @@ import { Loader2, ShieldAlert } from "lucide-react";
 
 import { checkoutAction, type CheckoutState } from "@/app/(storefront)/s/[slug]/actions";
 import { TEST_CARDS } from "@/lib/payments/test-cards";
+import { GatewayCheckout } from "./GatewayCheckout";
 import type { CartView } from "@/lib/commerce/cart";
 import { formatMoney } from "@/lib/money";
 
@@ -35,6 +36,8 @@ export function CheckoutForm({
   idempotencyKey,
   requirePhone,
   allowNotes,
+  simulated,
+  shopName,
 }: {
   slug: string;
   cart: CartView;
@@ -42,6 +45,9 @@ export function CheckoutForm({
   idempotencyKey: string;
   requirePhone: boolean;
   allowNotes: boolean;
+  /** True when the shop has no real gateway connected yet. */
+  simulated: boolean;
+  shopName: string;
 }) {
   const action = checkoutAction.bind(null, slug);
   const [state, submit, pending] = useActionState<CheckoutState, FormData>(action, {});
@@ -148,28 +154,50 @@ export function CheckoutForm({
           >
             <ShieldAlert className="size-4 shrink-0" style={{ marginTop: 2 }} />
             <div style={{ fontSize: "0.85rem", lineHeight: 1.55 }}>
-              <strong>This is a test checkout.</strong> No money moves and no card details are
-              stored. Use one of the numbers below to see how each outcome behaves.
+              {simulated ? (
+                <>
+                  <strong>This is a test checkout.</strong> No money moves and no card details
+                  are stored. Use one of the numbers below to see how each outcome behaves.
+                </>
+              ) : (
+                <>
+                  <strong>Your card is entered on the payment provider&rsquo;s own page</strong>,
+                  not here. This shop never sees your card details.
+                </>
+              )}
             </div>
           </div>
 
-          <Field
-            label="Card number"
-            name="cardNumber"
-            required
-            defaultValue="4242 4242 4242 4242"
-            error={state.field === "cardNumber" ? state.error : undefined}
-          />
+          {simulated ? (
+            <>
+              <Field
+                label="Card number"
+                name="cardNumber"
+                required
+                defaultValue="4242 4242 4242 4242"
+                error={state.field === "cardNumber" ? state.error : undefined}
+              />
 
-          <ul style={{ listStyle: "none", padding: 0, margin: "12px 0 0", fontSize: "0.82rem" }}>
-            {TEST_CARDS.map((card) => (
-              <li key={card.number} style={{ color: "var(--sf-muted)", marginTop: 4 }}>
-                <span style={{ fontFamily: "ui-monospace, monospace" }}>{card.number}</span>
-                {" — "}
-                {card.label}
-              </li>
-            ))}
-          </ul>
+              <ul style={{ listStyle: "none", padding: 0, margin: "12px 0 0", fontSize: "0.82rem" }}>
+                {TEST_CARDS.map((card) => (
+                  <li key={card.number} style={{ color: "var(--sf-muted)", marginTop: 4 }}>
+                    <span style={{ fontFamily: "ui-monospace, monospace" }}>{card.number}</span>
+                    {" — "}
+                    {card.label}
+                  </li>
+                ))}
+              </ul>
+            </>
+          ) : null}
+
+          {/*
+            * The gateway takes over once the order exists. Rendered rather
+            * than redirected to, so the customer stays on the shop's own page
+            * with their basket beside them.
+            */}
+          {state.pay ? (
+            <GatewayCheckout slug={slug} pay={state.pay} shopName={shopName} />
+          ) : null}
         </Fieldset>
 
         {state.error && state.field !== "cardNumber" ? (

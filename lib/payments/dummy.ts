@@ -2,6 +2,7 @@ import "server-only";
 
 import { createHmac, randomBytes, timingSafeEqual } from "node:crypto";
 
+import { razorpayConfig, razorpayProvider } from "./razorpay";
 import { type DummyOutcome } from "./test-cards";
 import {
   PaymentError,
@@ -159,15 +160,41 @@ export function settleSimulatedPayment(
   return next;
 }
 
-export function getPaymentProvider(id = "dummy"): PaymentProvider {
+export function getPaymentProvider(id = defaultProviderId()): PaymentProvider {
   switch (id) {
     case "dummy":
       return dummyPaymentProvider;
+    case "razorpay": {
+      const config = razorpayConfig();
+      if (!config) {
+        /*
+         * Configured for Razorpay with no keys is not a reason to fall back to
+         * the simulator. A shop that believes it is taking money and is not is
+         * a far worse outcome than a checkout that refuses and says why.
+         */
+        throw new PaymentError(
+          "Razorpay is selected but its keys are not set.",
+          "provider_error",
+        );
+      }
+      return razorpayProvider(config);
+    }
     default:
       // A store configured for a provider that does not exist must not silently
       // fall back to taking no money.
       throw new PaymentError(`No payment provider called "${id}" is available.`, "provider_error");
   }
+}
+
+/**
+ * Which gateway a shop uses when nothing says otherwise.
+ *
+ * Razorpay as soon as its keys exist, the simulator until then — so a fresh
+ * clone has a working checkout and a configured deployment takes real money,
+ * without either needing a flag remembered separately from the credentials.
+ */
+export function defaultProviderId(): string {
+  return razorpayConfig() ? "razorpay" : "dummy";
 }
 
 export { TEST_CARDS, outcomeForCard, type DummyOutcome } from "./test-cards";

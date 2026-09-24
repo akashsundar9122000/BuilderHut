@@ -201,8 +201,15 @@ test.describe("visual builder", () => {
 
     await expect(page.getByText("Your store is live")).toBeVisible({ timeout: 30_000 });
 
-    await page.goto("/app");
-    const slug = (await page.textContent("body"))!.match(/\/s\/([a-z0-9-]+)/)![1]!;
+    /*
+     * The slug from the builder's own Preview link, while we are still on the
+     * builder. Two earlier attempts were wrong in different ways: a regex over
+     * the dashboard's text found whichever `/s/...` appeared first, and the
+     * sidebar's "View my store" does not exist at phone width. This anchor is
+     * in the document at every width, whether or not it is visible.
+     */
+    const href = await page.locator('a[href^="/s/"]').first().getAttribute("href");
+    const slug = href!.split("/s/")[1]!.replace(/\/.*$/, "");
 
     await page.goto(`/s/${slug}`);
     // updateTag on publish means this is visible immediately, not in five minutes.

@@ -15,6 +15,7 @@ import {
 } from "@/lib/commerce/cart";
 import { placeOrder } from "@/lib/commerce/orders";
 import { recordPayment } from "@/lib/commerce/orders";
+import { razorpayConfig, razorpayProvider, verifyCheckoutSignature } from "@/lib/payments/razorpay";
 import { getPaymentProvider, settleSimulatedPayment } from "@/lib/payments/dummy";
 import { outcomeForCard } from "@/lib/payments/test-cards";
 import { loadPublishedSite } from "@/lib/stores/storefront";
@@ -100,11 +101,35 @@ const CheckoutSchema = z.object({
   country: z.string().trim().length(2).optional(),
   shippingMethodId: z.string().trim().min(1, "Choose how you'd like to receive it."),
   customerNote: z.string().trim().max(1000).optional(),
-  cardNumber: z.string().trim().min(12, "Enter one of the test card numbers."),
+  /*
+   * Only the simulator takes a number here, and only to choose which outcome
+   * to act out. A real gateway collects the card on its own page precisely so
+   * that a platform like this never sees one, so this is optional at the
+   * schema and required by the simulated path below.
+   */
+  cardNumber: z.string().trim().optional(),
   idempotencyKey: z.string().trim().min(8),
 });
 
-export type CheckoutState = { error?: string; field?: string };
+export type CheckoutState = {
+  error?: string;
+  field?: string;
+  /*
+   * Set when a hosted gateway has to take over. The order exists and is
+   * awaiting payment; the browser opens the gateway's own checkout with these
+   * and comes back through confirmPaymentAction.
+   */
+  pay?: {
+    orderId: string;
+    gatewayOrderId: string;
+    keyId: string;
+    amountMinor: number;
+    currency: string;
+    email: string;
+    name: string;
+    phone: string;
+  };
+};
 
 export async function checkoutAction(
   slug: string,
@@ -119,6 +144,10 @@ export async function checkoutAction(
     return { error: issue?.message ?? "Something in that form isn't right.", field: String(issue?.path[0] ?? "") };
   }
   const input = parsed.data;
+
+  if (getPaymentProvider().isSimulated && (input.cardNumber ?? "").replace(/\D/g, "").length < 12) {
+    return { error: "Enter one of the test card numbers.", field: "cardNumber" };
+  }
 
   const cartToken = await readCartToken(site.tenantId);
   if (!cartToken) return { error: "Your basket has expired. Please start again." };
@@ -149,15 +178,16 @@ export async function checkoutAction(
   if (!order.ok) return { error: order.message };
 
   /*
-   * Payment. The provider is asked for an intent and then told the outcome the
-   * test card implies — which is how a real gateway's sandbox behaves, so the
-   * merchant learns the habit they will need when a real one is connected.
+   * Payment.
    *
-   * No card data is stored or even passed to the provider: the number only
-   * selects which outcome to simulate.
+   * With a real gateway the order now exists and is unpaid, and the customer
+   * is handed to the gateway's own page. Nothing here decides whether they
+   * paid — the webhook does, because a customer can close the tab the moment
+   * the money leaves and the browser can be lied to.
    */
-  const provider = getPaymentProvider("dummy");
+  const provider = getPaymentProvider();
   const intent = await provider.createPaymentIntent({
+    tenantId: site.tenantId,
     orderId: order.orderId,
     amountMinor: order.totalMinor,
     currency: site.currency,
@@ -166,7 +196,37 @@ export async function checkoutAction(
     returnUrl: `/s/${slug}/order/${order.orderId}`,
   });
 
-  const settled = settleSimulatedPayment(intent.reference, outcomeForCard(input.cardNumber));
+  if (!provider.isSimulated) {
+    await recordPayment(site.tenantId, order.orderId, {
+      provider: provider.id,
+      reference: intent.reference,
+      state: "pending",
+      amountMinor: order.totalMinor,
+      currency: site.currency,
+    });
+
+    revalidatePath(`/s/${slug}`, "layout");
+    return {
+      pay: {
+        orderId: order.orderId,
+        gatewayOrderId: intent.reference,
+        keyId: String(intent.metadata?.keyId ?? ""),
+        amountMinor: order.totalMinor,
+        currency: site.currency,
+        email: input.email,
+        name: input.name,
+        phone: input.phone ?? "",
+      },
+    };
+  }
+
+  /*
+   * The simulator is told the outcome the test card implies, which is how a
+   * real gateway's sandbox behaves — so the merchant learns the habit they
+   * will need when a real one is connected. No card data is stored or even
+   * passed to the provider; the number only selects which outcome to act out.
+   */
+  const settled = settleSimulatedPayment(intent.reference, outcomeForCard(input.cardNumber ?? ""));
 
   await recordPayment(site.tenantId, order.orderId, {
     provider: provider.id,
@@ -210,8 +270,9 @@ export async function retryPaymentAction(
     return { error: "This order has already been paid for." };
   }
 
-  const provider = getPaymentProvider("dummy");
+  const provider = getPaymentProvider();
   const intent = await provider.createPaymentIntent({
+    tenantId: site.tenantId,
     orderId,
     amountMinor: Number(order.totalMinor),
     currency: order.currency,
@@ -245,4 +306,52 @@ export async function retryPaymentAction(
 /** A fresh key per checkout attempt, so a retry after a failure is a new order. */
 export async function newIdempotencyKey(): Promise<string> {
   return randomUUID();
+}
+
+/**
+ * Confirm a payment the customer just made on the gateway's own page.
+ *
+ * This is a courtesy, not the authority. The webhook is what marks an order
+ * paid, and it arrives whether or not the browser ever comes back. What this
+ * does is verify the signature the gateway handed the browser so the customer
+ * sees a paid order immediately rather than a "we're checking" screen — and
+ * refuses anything that is not signed, because otherwise the confirmation is
+ * whatever the browser says it is.
+ */
+export async function confirmPaymentAction(
+  slug: string,
+  orderId: string,
+  gatewayOrderId: string,
+  gatewayPaymentId: string,
+  signature: string,
+): Promise<{ ok: boolean; message?: string }> {
+  const site = await resolveStore(slug);
+
+  const config = razorpayConfig();
+  if (!config) return { ok: false, message: "Payments aren't configured." };
+
+  if (!verifyCheckoutSignature(config, gatewayOrderId, gatewayPaymentId, signature)) {
+    /*
+     * A signature that does not check out is either a bug or somebody trying
+     * to mark an order paid from the console. Either way the order stays
+     * unpaid and the webhook remains the only thing that can change that.
+     */
+    console.error("[checkout] bad gateway signature for order", orderId);
+    return { ok: false, message: "We couldn't confirm that payment. Please contact the shop." };
+  }
+
+  const intent = await razorpayProvider(config).getPaymentStatus(gatewayPaymentId);
+  await recordPayment(site.tenantId, orderId, {
+    provider: "razorpay",
+    reference: intent.reference,
+    state:
+      intent.state === "succeeded" ? "succeeded" : intent.state === "pending" ? "pending" : "failed",
+    amountMinor: intent.amountMinor,
+    currency: intent.currency,
+    failureReason: intent.failureReason,
+    metadata: { source: "checkout-return" },
+  });
+
+  revalidatePath(`/s/${slug}`, "layout");
+  return { ok: true };
 }

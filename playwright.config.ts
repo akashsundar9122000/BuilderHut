@@ -19,6 +19,13 @@ export default defineConfig({
    * teaches people to ignore it.
    */
   expect: { timeout: 15_000 },
+  /*
+   * Twice Playwright's default, for the same reason as the expect timeout:
+   * these run against a real Neon database that is usually in another region,
+   * and several of them drive a whole merchant journey. A suite that fails on
+   * network distance is a suite people learn to ignore.
+   */
+  timeout: 60_000,
   use: {
     baseURL: `http://localhost:${PORT}`,
     trace: "on-first-retry",
@@ -37,7 +44,12 @@ export default defineConfig({
     command: `pnpm build && pnpm start > ${MAIL_LOG} 2>&1`,
     url: `http://localhost:${PORT}`,
     reuseExistingServer: !process.env.CI,
-    timeout: 300_000,
+    /*
+     * Ten minutes, because this includes a full production build. Five was
+     * enough on an idle machine and not enough on a busy one, and a harness
+     * that gives up on its own build teaches people the suite is unreliable.
+     */
+    timeout: 600_000,
     env: {
       // The origin must match or Better Auth rejects requests as CSRF.
       APP_URL: `http://localhost:${PORT}`,

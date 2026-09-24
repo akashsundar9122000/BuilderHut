@@ -35,6 +35,16 @@ export interface PaymentIntent {
 }
 
 export interface CreateIntentInput {
+  /**
+   * Which shop the money is for.
+   *
+   * A hosted gateway tells us about a payment out of band, long after the
+   * request that created it — and the webhook has no session, no cookie and
+   * no tenant context. Handing the shop's id to the provider means it comes
+   * back with the event, so the write can be scoped without a cross-tenant
+   * lookup that RLS would have to be worked around to perform.
+   */
+  tenantId: string;
   orderId: string;
   amountMinor: number;
   currency: string;

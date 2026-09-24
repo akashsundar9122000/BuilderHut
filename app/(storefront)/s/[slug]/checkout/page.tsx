@@ -6,6 +6,7 @@ import { eq } from "drizzle-orm";
 import { CheckoutForm, type ShippingChoice } from "@/components/storefront/CheckoutForm";
 import { StoreFooter, StoreHeader, StorePageShell } from "@/components/storefront/StoreChrome";
 import { getCart } from "@/lib/commerce/cart";
+import { getPaymentProvider } from "@/lib/payments/dummy";
 import { withTenant } from "@/lib/db/tenant";
 import { shippingMethods, storeSettings } from "@/lib/db/schema";
 import { formatMoney } from "@/lib/money";
@@ -77,6 +78,13 @@ export default async function CheckoutPage({ params }: { params: Promise<{ slug:
           idempotencyKey={randomUUID()}
           requirePhone={settings?.requirePhone ?? true}
           allowNotes={settings?.allowOrderNotes ?? true}
+          /*
+           * Decided on the server from what is configured, not from a setting
+           * a merchant could get wrong. A shop that believes it is taking
+           * money and is not is the worst outcome this screen can produce.
+           */
+          simulated={getPaymentProvider().isSimulated}
+          shopName={store.doc.settings.storeName}
         />
       </StorePageShell>
       <StoreFooter page={home} ctx={ctx} />
