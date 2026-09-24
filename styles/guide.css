@@ -22,11 +22,27 @@
  * than the paragraph it is warning about.
  */
 
+/*
+ * The measure lives on the text, not on the container.
+ *
+ * Prose wants about 70 characters a line; a screenshot of a three-column editor
+ * squeezed to the same width is a picture of something you cannot read. So the
+ * wrapper is unconstrained and every text-shaped child carries the measure,
+ * which leaves figures free to be wider than the paragraph above them.
+ */
 .gd-prose {
   color: var(--bh-text);
   font-size: 1rem;
   line-height: 1.75;
+}
+
+.gd-prose > :is(p, ul, ol, h2, h3, h4, blockquote, pre, .gd-callout, .gd-steps, .gd-faq, .gd-endpoint, .gd-ops) {
   max-width: 44rem;
+}
+
+/* Tables and pictures get the room they need, up to the column itself. */
+.gd-prose > :is(.gd-table, .gd-shot) {
+  max-width: 62rem;
 }
 
 /* ------------------------------------------------------------------ headings */

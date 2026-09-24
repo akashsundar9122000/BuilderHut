@@ -28,3 +28,6 @@ coverage
 
 # os
 .DS_Store
+
+# Capture-run scratch: the journey context, the merchant session, generated artwork.
+.guide-shots

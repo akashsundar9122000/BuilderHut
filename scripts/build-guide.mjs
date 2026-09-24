@@ -219,9 +219,17 @@ const shotManifest = fs.existsSync(MANIFEST) ? JSON.parse(fs.readFileSync(MANIFE
  */
 function shot(ctx, id, alt, caption) {
   const meta = shotManifest[id];
-  const desktopFile = meta && path.join(SHOTS, `${id}--desktop--${meta.themes?.[0] ?? "light"}.webp`);
+  /*
+   * A shot may be phone-only — the builder's panels are sheets there and
+   * columns everywhere else, so a desktop capture of that id would be a
+   * picture of something the page is not describing. Whichever size exists is
+   * the one the <img> points at.
+   */
+  const primary = meta && (meta.desktop ? "desktop" : meta.phone ? "phone" : null);
+  const probe =
+    primary && path.join(SHOTS, `${id}--${primary}--${meta.themes?.[0] ?? "light"}.webp`);
 
-  if (!meta || !fs.existsSync(desktopFile)) {
+  if (!meta || !primary || !fs.existsSync(probe)) {
     ctx.missingShots.push(id);
     return (
       `<figure class="gd-shot gd-shot-missing">` +
@@ -234,18 +242,21 @@ function shot(ctx, id, alt, caption) {
   const themes = meta.themes ?? ["light"];
   const src = (device, theme) => `/guide-shots/${id}--${device}--${theme}.webp`;
 
+  const box = meta[primary];
   const pic = (theme) => {
     const t = themes.includes(theme) ? theme : themes[0];
-    const phone = meta.phone
-      ? `<source media="(max-width: 640px)" srcset="${src("phone", t)}" width="${meta.phone.w}" height="${meta.phone.h}">`
-      : "";
-    // The first figure on a page is eager: a lazy image that is already in the
-    // viewport still decodes late, and the reader watches the gap fill in.
+    // A narrow <source> only when there is both a wide and a narrow capture.
+    const narrow =
+      primary === "desktop" && meta.phone
+        ? `<source media="(max-width: 640px)" srcset="${src("phone", t)}" width="${meta.phone.w}" height="${meta.phone.h}">`
+        : "";
+    // The first figure on a page is eager: a lazy image already in the viewport
+    // still decodes late, and the reader watches the gap fill in.
     const loading = ctx.shots.length === 1 && theme === themes[0] ? "eager" : "lazy";
     return (
-      `<picture class="t-${theme}">${phone}` +
-      `<img src="${src("desktop", t)}" alt="${esc(alt)}" ` +
-      `width="${meta.desktop.w}" height="${meta.desktop.h}" loading="${loading}" decoding="async">` +
+      `<picture class="t-${theme}">${narrow}` +
+      `<img src="${src(primary, t)}" alt="${esc(alt)}" ` +
+      `width="${box.w}" height="${box.h}" loading="${loading}" decoding="async">` +
       `</picture>`
     );
   };

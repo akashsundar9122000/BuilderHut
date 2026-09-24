@@ -1,0 +1,346 @@
+{
+  "marketing-home": {
+    "desktop": {
+      "w": 1280,
+      "h": 900
+    },
+    "themes": [
+      "light",
+      "dark"
+    ]
+  },
+  "templates-gallery": {
+    "desktop": {
+      "w": 1280,
+      "h": 900
+    },
+    "themes": [
+      "light",
+      "dark"
+    ]
+  },
+  "signup": {
+    "desktop": {
+      "w": 1280,
+      "h": 900
+    },
+    "themes": [
+      "light",
+      "dark"
+    ]
+  },
+  "login": {
+    "desktop": {
+      "w": 1280,
+      "h": 900
+    },
+    "themes": [
+      "light",
+      "dark"
+    ]
+  },
+  "dashboard": {
+    "desktop": {
+      "w": 1280,
+      "h": 900
+    },
+    "themes": [
+      "light",
+      "dark"
+    ],
+    "phone": {
+      "w": 780,
+      "h": 1308
+    }
+  },
+  "products-list": {
+    "desktop": {
+      "w": 1280,
+      "h": 900
+    },
+    "themes": [
+      "light",
+      "dark"
+    ]
+  },
+  "product-new": {
+    "desktop": {
+      "w": 1280,
+      "h": 900
+    },
+    "themes": [
+      "light",
+      "dark"
+    ]
+  },
+  "product-images": {
+    "desktop": {
+      "w": 1280,
+      "h": 860
+    },
+    "themes": [
+      "light",
+      "dark"
+    ]
+  },
+  "orders-list": {
+    "desktop": {
+      "w": 1280,
+      "h": 900
+    },
+    "themes": [
+      "light",
+      "dark"
+    ]
+  },
+  "order-detail": {
+    "desktop": {
+      "w": 1280,
+      "h": 950
+    },
+    "themes": [
+      "light",
+      "dark"
+    ]
+  },
+  "customers": {
+    "desktop": {
+      "w": 1280,
+      "h": 950
+    },
+    "themes": [
+      "light",
+      "dark"
+    ]
+  },
+  "analytics": {
+    "desktop": {
+      "w": 1280,
+      "h": 900
+    },
+    "themes": [
+      "light",
+      "dark"
+    ]
+  },
+  "discounts": {
+    "desktop": {
+      "w": 1280,
+      "h": 900
+    },
+    "themes": [
+      "light",
+      "dark"
+    ]
+  },
+  "shipping": {
+    "desktop": {
+      "w": 1280,
+      "h": 900
+    },
+    "themes": [
+      "light",
+      "dark"
+    ]
+  },
+  "taxes": {
+    "desktop": {
+      "w": 1280,
+      "h": 900
+    },
+    "themes": [
+      "light",
+      "dark"
+    ]
+  },
+  "domains": {
+    "desktop": {
+      "w": 1280,
+      "h": 900
+    },
+    "themes": [
+      "light",
+      "dark"
+    ]
+  },
+  "team": {
+    "desktop": {
+      "w": 1280,
+      "h": 900
+    },
+    "themes": [
+      "light",
+      "dark"
+    ]
+  },
+  "plan": {
+    "desktop": {
+      "w": 1280,
+      "h": 900
+    },
+    "themes": [
+      "light",
+      "dark"
+    ]
+  },
+  "settings": {
+    "desktop": {
+      "w": 1280,
+      "h": 900
+    },
+    "themes": [
+      "light",
+      "dark"
+    ]
+  },
+  "builder-three-columns": {
+    "desktop": {
+      "w": 1280,
+      "h": 900
+    },
+    "themes": [
+      "light",
+      "dark"
+    ]
+  },
+  "builder-add": {
+    "desktop": {
+      "w": 1280,
+      "h": 900
+    },
+    "themes": [
+      "light",
+      "dark"
+    ]
+  },
+  "builder-layers": {
+    "desktop": {
+      "w": 1280,
+      "h": 900
+    },
+    "themes": [
+      "light",
+      "dark"
+    ]
+  },
+  "builder-pages": {
+    "desktop": {
+      "w": 1280,
+      "h": 900
+    },
+    "themes": [
+      "light",
+      "dark"
+    ]
+  },
+  "builder-preview": {
+    "desktop": {
+      "w": 1280,
+      "h": 900
+    },
+    "themes": [
+      "light",
+      "dark"
+    ]
+  },
+  "storefront-home": {
+    "desktop": {
+      "w": 1280,
+      "h": 900
+    },
+    "themes": [
+      "light"
+    ],
+    "phone": {
+      "w": 780,
+      "h": 1308
+    }
+  },
+  "storefront-product": {
+    "desktop": {
+      "w": 1280,
+      "h": 900
+    },
+    "themes": [
+      "light"
+    ]
+  },
+  "storefront-cart": {
+    "desktop": {
+      "w": 1280,
+      "h": 900
+    },
+    "themes": [
+      "light"
+    ]
+  },
+  "storefront-checkout": {
+    "desktop": {
+      "w": 1280,
+      "h": 950
+    },
+    "themes": [
+      "light"
+    ]
+  },
+  "builder-panels-phone": {
+    "phone": {
+      "w": 780,
+      "h": 1308
+    },
+    "themes": [
+      "light",
+      "dark"
+    ]
+  },
+  "builder-versions": {
+    "desktop": {
+      "w": 1280,
+      "h": 900
+    },
+    "themes": [
+      "light",
+      "dark"
+    ]
+  },
+  "publish-readiness": {
+    "desktop": {
+      "w": 1280,
+      "h": 900
+    },
+    "themes": [
+      "light",
+      "dark"
+    ]
+  },
+  "verify-code": {
+    "desktop": {
+      "w": 1280,
+      "h": 860
+    },
+    "themes": [
+      "light",
+      "dark"
+    ]
+  },
+  "onboarding-industry": {
+    "desktop": {
+      "w": 1280,
+      "h": 860
+    },
+    "themes": [
+      "light",
+      "dark"
+    ]
+  },
+  "template-picker": {
+    "desktop": {
+      "w": 1280,
+      "h": 860
+    },
+    "themes": [
+      "light",
+      "dark"
+    ]
+  }
+}

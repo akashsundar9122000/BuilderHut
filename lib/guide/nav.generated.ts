@@ -225,6 +225,48 @@ export const GUIDE_NAV: GuideNavPage[] = [
     ]
   },
   {
+    "slug": "delivery",
+    "group": "selling",
+    "audience": "merchant",
+    "order": 67,
+    "title": "Delivery",
+    "summary": "Zones and rates, why a shop cannot publish without one, and the three ways to charge.",
+    "headings": [
+      "Why this blocks publishing",
+      "The three kinds of rate",
+      "Several rates in one zone",
+      "What the customer sees"
+    ]
+  },
+  {
+    "slug": "tax",
+    "group": "selling",
+    "audience": "merchant",
+    "order": 68,
+    "title": "Tax",
+    "summary": "Tax rules, inclusive versus exclusive pricing, and the fields Indian shops need.",
+    "headings": [
+      "Inclusive or exclusive",
+      "Rules",
+      "GSTIN and HSN",
+      "How tax is worked out"
+    ]
+  },
+  {
+    "slug": "discounts",
+    "group": "selling",
+    "audience": "merchant",
+    "order": 69,
+    "title": "Discount codes",
+    "summary": "Codes people type at checkout, how they differ from a compare-at price, and the limits worth setting.",
+    "headings": [
+      "The three kinds",
+      "Limits worth setting",
+      "Writing a code",
+      "What the customer sees"
+    ]
+  },
+  {
     "slug": "the-three-columns",
     "group": "builder",
     "audience": "merchant",
@@ -236,6 +278,87 @@ export const GUIDE_NAV: GuideNavPage[] = [
       "The left panel",
       "The right panel",
       "Undo"
+    ]
+  },
+  {
+    "slug": "adding-sections",
+    "group": "builder",
+    "audience": "merchant",
+    "order": 71,
+    "title": "Adding and arranging sections",
+    "summary": "What a section is, where a new one lands, and how to move, duplicate, hide or remove one.",
+    "headings": [
+      "Where a new one lands",
+      "The twelve sections",
+      "Moving one",
+      "Duplicating",
+      "Hiding rather than deleting"
+    ]
+  },
+  {
+    "slug": "the-settings-panel",
+    "group": "builder",
+    "audience": "merchant",
+    "order": 72,
+    "title": "The settings panel",
+    "summary": "The right-hand column, which shows only the controls that apply to whatever you clicked.",
+    "headings": [
+      "The kinds of control",
+      "Why the choices are named",
+      "Per-section notes worth knowing"
+    ]
+  },
+  {
+    "slug": "style",
+    "group": "builder",
+    "audience": "merchant",
+    "order": 73,
+    "title": "Style — colour, type and shape",
+    "summary": "The theme editor, and why colour is nine roles rather than a colour picker.",
+    "headings": [
+      "Colour, as nine roles",
+      "Type",
+      "Shape",
+      "Your shop s colours are yours"
+    ]
+  },
+  {
+    "slug": "layers-and-pages",
+    "group": "builder",
+    "audience": "merchant",
+    "order": 74,
+    "title": "Layers and pages",
+    "summary": "The whole page as a list, and the pages of the shop — including the ones you cannot delete.",
+    "headings": [
+      "Layers",
+      "Pages",
+      "Adding a page"
+    ]
+  },
+  {
+    "slug": "phone-and-tablet",
+    "group": "builder",
+    "audience": "merchant",
+    "order": 75,
+    "title": "Phone and tablet",
+    "summary": "Why narrowing the canvas shows exactly what a phone shows, and the few things worth checking there.",
+    "headings": [
+      "They are widths, not emulations",
+      "What is worth checking",
+      "On a phone, the builder itself"
+    ]
+  },
+  {
+    "slug": "undo-and-versions",
+    "group": "builder",
+    "audience": "merchant",
+    "order": 76,
+    "title": "Undo, saving and version history",
+    "summary": "What counts as one undo step, when your work is saved, and how to go back to last week.",
+    "headings": [
+      "Saving",
+      "Undo",
+      "Version history"
     ]
   },
   {
@@ -252,6 +375,20 @@ export const GUIDE_NAV: GuideNavPage[] = [
     ]
   },
   {
+    "slug": "the-dashboard",
+    "group": "running",
+    "audience": "merchant",
+    "order": 85,
+    "title": "The dashboard",
+    "summary": "What the front page of your shop's admin shows, and why the checklist comes before the numbers.",
+    "headings": [
+      "The checklist comes first",
+      "The numbers",
+      "Every comparison says what it compares to",
+      "On a phone"
+    ]
+  },
+  {
     "slug": "orders",
     "group": "running",
     "audience": "merchant",
@@ -263,6 +400,47 @@ export const GUIDE_NAV: GuideNavPage[] = [
       "Refunds are partial by default",
       "What the revenue figure counts",
       "When a payment fails"
+    ]
+  },
+  {
+    "slug": "customers",
+    "group": "running",
+    "audience": "merchant",
+    "order": 91,
+    "title": "Customers",
+    "summary": "Who has bought from you, what you can see, and what is deliberately not collected.",
+    "headings": [
+      "What is here",
+      "What is not collected",
+      "Customers are per shop",
+      "Contacting people"
+    ]
+  },
+  {
+    "slug": "analytics",
+    "group": "running",
+    "audience": "merchant",
+    "order": 92,
+    "title": "The numbers",
+    "summary": "What is counted, what each figure is compared against, and how much to read into it early on.",
+    "headings": [
+      "What is counted",
+      "Today and history are stored differently",
+      "How much to read into it",
+      "What the numbers cannot tell you"
+    ]
+  },
+  {
+    "slug": "your-web-address",
+    "group": "running",
+    "audience": "merchant",
+    "order": 93,
+    "title": "Your web address",
+    "summary": "The address your shop gets for free, and how to point a domain you own at it.",
+    "headings": [
+      "Using a domain you own",
+      "Why the redirect matters",
+      "Buying a domain"
     ]
   },
   {
@@ -287,6 +465,36 @@ export const GUIDE_NAV: GuideNavPage[] = [
       "The shape of every response",
       "What a token can be allowed to do",
       "What the API does not do"
+    ]
+  },
+  {
+    "slug": "authentication",
+    "group": "api",
+    "audience": "integrator",
+    "order": 210,
+    "title": "Authentication",
+    "summary": "Personal access tokens — what they stand for, how to scope them, and why the role is read live.",
+    "headings": [
+      "What a token is",
+      "The role is read live",
+      "Scopes",
+      "Three checks, narrowest wins",
+      "Losing one"
+    ]
+  },
+  {
+    "slug": "errors",
+    "group": "api",
+    "audience": "integrator",
+    "order": 220,
+    "title": "Errors",
+    "summary": "The envelope every failure uses, what each code means, and why a resource in another shop is a 404.",
+    "headings": [
+      "The codes",
+      "Unknown, expired and revoked are the same answer",
+      "A resource in another shop is 404, not 403",
+      "Errors never leak internals",
+      "Retrying"
     ]
   },
   {

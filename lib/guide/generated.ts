@@ -110,7 +110,7 @@ export const GUIDE_PAGES: GuidePage[] = [
     "related": [
       "architecture"
     ],
-    "html": "<p>BuilderHut is for people who make things — crochet, cakes, invitations, jewellery, prints,\nT-shirts, digital downloads — and who want a shop of their own rather than a stall inside\nsomebody else&#39;s marketplace.</p>\n<p>You answer a few questions, pick a starting point, change what you want to change, add the\nthings you sell, and press publish. There is no code at any stage, and nothing you do is\npermanent until you publish it.</p>\n<figure class=\"gd-shot gd-shot-missing\"><div class=\"gd-missing\">Screenshot &ldquo;marketing-home&rdquo; has not been captured yet</div><figcaption>Everything on this page is a real storefront, rendered by the same code that renders a live shop.</figcaption></figure>\n<h2 id=\"what-you-end-up-with\">What you end up with</h2>\n<p>A website at an address of your own, with pages you arranged yourself, a basket, a checkout,\ndelivery options you set, and an order that arrives in your dashboard the moment somebody buys\nsomething.</p>\n<aside class=\"gd-callout gd-note\"><p class=\"gd-callout-title\">Note</p><p>You can also run a shop with no checkout at all. If you take orders by conversation — a cake\nwith a date on it, an invitation with somebody&#39;s name in it — you can turn prices off entirely\nand let the site be a catalogue with a contact button. That choice is one of the questions at\nthe start, and you can change it afterwards.</p>\n</aside>\n<h2 id=\"how-long-it-takes\">How long it takes</h2>\n<p>About twenty minutes to something you would show people, if you have your photographs ready.</p>\n<ol class=\"gd-steps\"><li><p class=\"gd-step-title\">Make an account</p><p>An email address and a password. We send you a six-digit code to check the address works,\nbecause an address nobody can reach is an account nobody can recover.</p>\n</li><li><p class=\"gd-step-title\">Answer five questions</p><p>What you make, what the shop is called, how you sell today, what you want the shop to do, and\nwhere you are. These pick your starting point and set your currency — they are not a category\nyou are stuck in.</p>\n</li><li><p class=\"gd-step-title\">Pick a starting point</p><p>Twelve of them, one per trade. Each is a complete site — colours, lettering, page structure —\nand every part of it is yours to change.</p>\n</li><li><p class=\"gd-step-title\">Add what you sell</p><p>A name, a description, a price and a photograph. Pictures are shrunk in your browser before\nthey are sent, so a four-megabyte photo straight off your phone is not a four-megabyte page.</p>\n</li><li><p class=\"gd-step-title\">Arrange the pages</p><p>Sections on the left, the page in the middle, the settings for whatever you clicked on the\nright. Nothing is live yet.</p>\n</li><li><p class=\"gd-step-title\">Publish</p><p>We check the shop can actually take an order before it goes public, and tell you what is\nmissing if it cannot.</p>\n</li></ol>\n<h2 id=\"what-it-costs-to-try\">What it costs to try</h2>\n<p>Nothing, and there is no card to enter. You can build an entire shop and look at it before you\ndecide whether to publish it.</p>\n<aside class=\"gd-callout gd-tip\"><p class=\"gd-callout-title\">Before you start</p><p>Gather your photographs first. Everything else can be typed as you go, but stopping halfway\nthrough to photograph a shelf is what turns twenty minutes into an afternoon.</p>\n</aside>\n<h2 id=\"things-worth-knowing-early\">Things worth knowing early</h2>\n<div class=\"gd-faq\"><details><summary>Can I use my own web address?</summary><div><p>Yes. Your shop gets a BuilderHut address straight away, and you can point a domain you own at\nit afterwards without rebuilding anything.</p>\n</div></details><details><summary>What happens if I change something and regret it?</summary><div><p>Undo, for the last many steps. And every time you publish, that version is kept — going back is\nchoosing an earlier one, not undoing your way there.</p>\n</div></details><details><summary>Is my shop&#39;s look shared with anyone else&#39;s?</summary><div><p>No. The starting points differ from each other in structure, not just colour, and once you have\nchanged yours it is yours.</p>\n</div></details><details><summary>Do I need to know anything technical?</summary><div><p>No. If something in this guide reads as though you do, that is a fault in the guide — tell us.</p>\n</div></details></div>\n<aside class=\"gd-callout gd-warning\"><p class=\"gd-callout-title\">Worth knowing</p><p>Payments in this build are <strong>simulated</strong>. Orders, their states and refunds are all real and\nbehave exactly as they will, but no money moves. Connecting a real payment provider replaces\none step and nothing else.</p>\n</aside>\n",
+    "html": "<p>BuilderHut is for people who make things — crochet, cakes, invitations, jewellery, prints,\nT-shirts, digital downloads — and who want a shop of their own rather than a stall inside\nsomebody else&#39;s marketplace.</p>\n<p>You answer a few questions, pick a starting point, change what you want to change, add the\nthings you sell, and press publish. There is no code at any stage, and nothing you do is\npermanent until you publish it.</p>\n<figure class=\"gd-shot\"><picture class=\"t-light\"><img src=\"/guide-shots/marketing-home--desktop--light.webp\" alt=\"The BuilderHut home page, with two miniature shopfronts side by side showing what the builder produces.\" width=\"1280\" height=\"900\" loading=\"eager\" decoding=\"async\"></picture><picture class=\"t-dark\"><img src=\"/guide-shots/marketing-home--desktop--dark.webp\" alt=\"The BuilderHut home page, with two miniature shopfronts side by side showing what the builder produces.\" width=\"1280\" height=\"900\" loading=\"lazy\" decoding=\"async\"></picture><figcaption>Everything on this page is a real storefront, rendered by the same code that renders a live shop.</figcaption></figure>\n<h2 id=\"what-you-end-up-with\">What you end up with</h2>\n<p>A website at an address of your own, with pages you arranged yourself, a basket, a checkout,\ndelivery options you set, and an order that arrives in your dashboard the moment somebody buys\nsomething.</p>\n<aside class=\"gd-callout gd-note\"><p class=\"gd-callout-title\">Note</p><p>You can also run a shop with no checkout at all. If you take orders by conversation — a cake\nwith a date on it, an invitation with somebody&#39;s name in it — you can turn prices off entirely\nand let the site be a catalogue with a contact button. That choice is one of the questions at\nthe start, and you can change it afterwards.</p>\n</aside>\n<h2 id=\"how-long-it-takes\">How long it takes</h2>\n<p>About twenty minutes to something you would show people, if you have your photographs ready.</p>\n<ol class=\"gd-steps\"><li><p class=\"gd-step-title\">Make an account</p><p>An email address and a password. We send you a six-digit code to check the address works,\nbecause an address nobody can reach is an account nobody can recover.</p>\n</li><li><p class=\"gd-step-title\">Answer five questions</p><p>What you make, what the shop is called, how you sell today, what you want the shop to do, and\nwhere you are. These pick your starting point and set your currency — they are not a category\nyou are stuck in.</p>\n</li><li><p class=\"gd-step-title\">Pick a starting point</p><p>Twelve of them, one per trade. Each is a complete site — colours, lettering, page structure —\nand every part of it is yours to change.</p>\n</li><li><p class=\"gd-step-title\">Add what you sell</p><p>A name, a description, a price and a photograph. Pictures are shrunk in your browser before\nthey are sent, so a four-megabyte photo straight off your phone is not a four-megabyte page.</p>\n</li><li><p class=\"gd-step-title\">Arrange the pages</p><p>Sections on the left, the page in the middle, the settings for whatever you clicked on the\nright. Nothing is live yet.</p>\n</li><li><p class=\"gd-step-title\">Publish</p><p>We check the shop can actually take an order before it goes public, and tell you what is\nmissing if it cannot.</p>\n</li></ol>\n<h2 id=\"what-it-costs-to-try\">What it costs to try</h2>\n<p>Nothing, and there is no card to enter. You can build an entire shop and look at it before you\ndecide whether to publish it.</p>\n<aside class=\"gd-callout gd-tip\"><p class=\"gd-callout-title\">Before you start</p><p>Gather your photographs first. Everything else can be typed as you go, but stopping halfway\nthrough to photograph a shelf is what turns twenty minutes into an afternoon.</p>\n</aside>\n<h2 id=\"things-worth-knowing-early\">Things worth knowing early</h2>\n<div class=\"gd-faq\"><details><summary>Can I use my own web address?</summary><div><p>Yes. Your shop gets a BuilderHut address straight away, and you can point a domain you own at\nit afterwards without rebuilding anything.</p>\n</div></details><details><summary>What happens if I change something and regret it?</summary><div><p>Undo, for the last many steps. And every time you publish, that version is kept — going back is\nchoosing an earlier one, not undoing your way there.</p>\n</div></details><details><summary>Is my shop&#39;s look shared with anyone else&#39;s?</summary><div><p>No. The starting points differ from each other in structure, not just colour, and once you have\nchanged yours it is yours.</p>\n</div></details><details><summary>Do I need to know anything technical?</summary><div><p>No. If something in this guide reads as though you do, that is a fault in the guide — tell us.</p>\n</div></details></div>\n<aside class=\"gd-callout gd-warning\"><p class=\"gd-callout-title\">Worth knowing</p><p>Payments in this build are <strong>simulated</strong>. Orders, their states and refunds are all real and\nbehave exactly as they will, but no money moves. Connecting a real payment provider replaces\none step and nothing else.</p>\n</aside>\n",
     "toc": [
       {
         "id": "what-you-end-up-with",
@@ -190,7 +190,7 @@ export const GUIDE_PAGES: GuidePage[] = [
     "related": [
       "what-you-need"
     ],
-    "html": "<figure class=\"gd-shot gd-shot-missing\"><div class=\"gd-missing\">Screenshot &ldquo;signup&rdquo; has not been captured yet</div><figcaption>Nothing here is a trial. There is no card to enter and nothing expires.</figcaption></figure>\n<p>An email address and a password of at least ten characters. No card, and no sales call.</p>\n<ol class=\"gd-steps\"><li><p class=\"gd-step-title\">Enter your details</p><p>Your name is what appears on your own account, not on the shop — the shop gets its own name in\na moment.</p>\n</li><li><p class=\"gd-step-title\">Read the code we send you</p><p>Six digits, to an inbox you can actually reach. It is good for ten minutes.</p>\n</li><li><p class=\"gd-step-title\">Type it in</p><p>And you are through to the setup questions.</p>\n</li></ol>\n<h2 id=\"why-the-code\">Why the code</h2>\n<p>An address nobody can reach is an account nobody can recover. If you lose the password to a\nshop with orders in it and the address on file is a typo, there is no way back in — so the\naddress gets checked before there is anything to lose.</p>\n<figure class=\"gd-shot gd-shot-missing\"><div class=\"gd-missing\">Screenshot &ldquo;verify-code&rdquo; has not been captured yet</div><figcaption>The address is masked rather than shown in full, so a screenshot of this screen gives nothing away.</figcaption></figure>\n<aside class=\"gd-callout gd-warning\"><p class=\"gd-callout-title\">When the code does not arrive</p><p>Check the spam folder first — it is where most of them are. If it is genuinely not there, ask\nfor another; there is a short wait between sends, which is there to stop the form being used to\nsend mail to somebody else.</p>\n<p>If the address itself is wrong, go back and sign up again with the right one. The half-made\naccount does not get in the way.</p>\n</aside>\n<h2 id=\"choosing-a-password\">Choosing a password</h2>\n<p>Ten characters minimum, and that is the only rule. No required symbol, no forced capital — those\nrules reliably produce <code>Password1!</code> and nothing safer.</p>\n<p>Three or four unrelated words are both easier to remember and harder to guess than a short\npassword with punctuation in it. If you use a password manager, let it do what it wants.</p>\n<aside class=\"gd-callout gd-note\"><p class=\"gd-callout-title\">Note</p><p>Passwords are stored hashed with Argon2, which means nobody here can read yours, including us.\nThe consequence: if you forget it, it is reset, never looked up.</p>\n</aside>\n<h2 id=\"signing-in-afterwards\">Signing in afterwards</h2>\n<p>The same email address and password, at <a href=\"/login\">the sign-in page</a>. If you have forgotten the\npassword, ask for a reset link — it arrives by email and lasts an hour.</p>\n<div class=\"gd-faq\"><details><summary>Can I use a Google or GitHub account instead?</summary><div><p>If those are configured for this deployment, the buttons appear on the sign-up page. If they\nare not, they are not shown at all rather than shown and broken.</p>\n</div></details><details><summary>Can two people share one login?</summary><div><p>They can, but they should not. Invite the other person instead — they get their own account,\ntheir own password, and you can see who did what.</p>\n</div></details><details><summary>Can I change the email address later?</summary><div><p>Yes, from settings. The new address gets its own six-digit code, for the same reason the first\none did.</p>\n</div></details></div>\n",
+    "html": "<figure class=\"gd-shot\"><picture class=\"t-light\"><img src=\"/guide-shots/signup--desktop--light.webp\" alt=\"The sign-up form: name, email address and password, with the BuilderHut wordmark and a miniature shopfront beside it.\" width=\"1280\" height=\"900\" loading=\"eager\" decoding=\"async\"></picture><picture class=\"t-dark\"><img src=\"/guide-shots/signup--desktop--dark.webp\" alt=\"The sign-up form: name, email address and password, with the BuilderHut wordmark and a miniature shopfront beside it.\" width=\"1280\" height=\"900\" loading=\"lazy\" decoding=\"async\"></picture><figcaption>Nothing here is a trial. There is no card to enter and nothing expires.</figcaption></figure>\n<p>An email address and a password of at least ten characters. No card, and no sales call.</p>\n<ol class=\"gd-steps\"><li><p class=\"gd-step-title\">Enter your details</p><p>Your name is what appears on your own account, not on the shop — the shop gets its own name in\na moment.</p>\n</li><li><p class=\"gd-step-title\">Read the code we send you</p><p>Six digits, to an inbox you can actually reach. It is good for ten minutes.</p>\n</li><li><p class=\"gd-step-title\">Type it in</p><p>And you are through to the setup questions.</p>\n</li></ol>\n<h2 id=\"why-the-code\">Why the code</h2>\n<p>An address nobody can reach is an account nobody can recover. If you lose the password to a\nshop with orders in it and the address on file is a typo, there is no way back in — so the\naddress gets checked before there is anything to lose.</p>\n<figure class=\"gd-shot\"><picture class=\"t-light\"><img src=\"/guide-shots/verify-code--desktop--light.webp\" alt=\"The verification screen, showing six single-character boxes and the masked email address the code was sent to.\" width=\"1280\" height=\"860\" loading=\"lazy\" decoding=\"async\"></picture><picture class=\"t-dark\"><img src=\"/guide-shots/verify-code--desktop--dark.webp\" alt=\"The verification screen, showing six single-character boxes and the masked email address the code was sent to.\" width=\"1280\" height=\"860\" loading=\"lazy\" decoding=\"async\"></picture><figcaption>The address is masked rather than shown in full, so a screenshot of this screen gives nothing away.</figcaption></figure>\n<aside class=\"gd-callout gd-warning\"><p class=\"gd-callout-title\">When the code does not arrive</p><p>Check the spam folder first — it is where most of them are. If it is genuinely not there, ask\nfor another; there is a short wait between sends, which is there to stop the form being used to\nsend mail to somebody else.</p>\n<p>If the address itself is wrong, go back and sign up again with the right one. The half-made\naccount does not get in the way.</p>\n</aside>\n<h2 id=\"choosing-a-password\">Choosing a password</h2>\n<p>Ten characters minimum, and that is the only rule. No required symbol, no forced capital — those\nrules reliably produce <code>Password1!</code> and nothing safer.</p>\n<p>Three or four unrelated words are both easier to remember and harder to guess than a short\npassword with punctuation in it. If you use a password manager, let it do what it wants.</p>\n<aside class=\"gd-callout gd-note\"><p class=\"gd-callout-title\">Note</p><p>Passwords are stored hashed with Argon2, which means nobody here can read yours, including us.\nThe consequence: if you forget it, it is reset, never looked up.</p>\n</aside>\n<h2 id=\"signing-in-afterwards\">Signing in afterwards</h2>\n<p>The same email address and password, at <a href=\"/login\">the sign-in page</a>. If you have forgotten the\npassword, ask for a reset link — it arrives by email and lasts an hour.</p>\n<div class=\"gd-faq\"><details><summary>Can I use a Google or GitHub account instead?</summary><div><p>If those are configured for this deployment, the buttons appear on the sign-up page. If they\nare not, they are not shown at all rather than shown and broken.</p>\n</div></details><details><summary>Can two people share one login?</summary><div><p>They can, but they should not. Invite the other person instead — they get their own account,\ntheir own password, and you can see who did what.</p>\n</div></details><details><summary>Can I change the email address later?</summary><div><p>Yes, from settings. The new address gets its own six-digit code, for the same reason the first\none did.</p>\n</div></details></div>\n",
     "toc": [
       {
         "id": "why-the-code",
@@ -222,7 +222,7 @@ export const GUIDE_PAGES: GuidePage[] = [
     "related": [
       "choosing-a-template"
     ],
-    "html": "<figure class=\"gd-shot gd-shot-missing\"><div class=\"gd-missing\">Screenshot &ldquo;onboarding-industry&rdquo; has not been captured yet</div><figcaption>What you make decides which starting points come up. It is not a category you are stuck in.</figcaption></figure>\n<p>Five questions, once. None of the answers is permanent.</p>\n<h2 id=\"what-do-you-make\">What do you make</h2>\n<p>Crochet, cakes, invitations, jewellery, prints, T-shirts, digital downloads, and a few more.\nThis decides which starting points are offered — a bakery and a jeweller want genuinely\ndifferent pages, not the same page in a different colour.</p>\n<aside class=\"gd-callout gd-note\"><p class=\"gd-callout-title\">Note</p><p>Pick the nearest one if nothing fits exactly. Every starting point is fully editable, so the\nchoice narrows what you are shown rather than what you can build.</p>\n</aside>\n<h2 id=\"what-is-it-called\">What is it called</h2>\n<p>The shop&#39;s name, and the web address that comes from it. The address is checked as you type, so\nyou find out immediately if it is taken.</p>\n<p><code>Kiln and Clay Ceramics</code> → <code>kiln-and-clay-ceramics</code> → your shop at that address.</p>\n<h2 id=\"how-you-sell-today\">How you sell today</h2>\n<p>Instagram, WhatsApp, markets, word of mouth, another platform, or not yet. Nothing is judged\nhere — it decides which suggestions you get afterwards, like putting your WhatsApp number on\nthe contact section if that is where people already find you.</p>\n<h2 id=\"what-you-want-the-shop-to-do\">What you want the shop to do</h2>\n<p>Take payments, take enquiries, or just be somewhere to point people. This is the one that\nmatters most, because it decides whether you need a checkout, delivery rates and tax rules at\nall — and if you do not, you are not asked to fill them in.</p>\n<aside class=\"gd-callout gd-tip\"><p class=\"gd-callout-title\">Tip</p><p>Not every shop needs a checkout. If everything you make is to order, a catalogue with prices\nturned off and a contact button is a smaller thing to maintain and a better fit for how you\nactually sell.</p>\n</aside>\n<h2 id=\"where-you-are\">Where you are</h2>\n<p>Sets the currency and the tax rules. India and rupees by default; the currency is fixed once\norders exist, because an order records what was actually charged and changing the currency\nafterwards would rewrite history.</p>\n<h2 id=\"what-happens-when-you-finish\">What happens when you finish</h2>\n<p>A shop exists — draft, unpublished, and already a complete site with pages, a palette and\nlettering. Nothing is on the internet yet.</p>\n",
+    "html": "<figure class=\"gd-shot\"><picture class=\"t-light\"><img src=\"/guide-shots/onboarding-industry--desktop--light.webp\" alt=\"The first step of the setup wizard, a grid of trades to choose from.\" width=\"1280\" height=\"860\" loading=\"eager\" decoding=\"async\"></picture><picture class=\"t-dark\"><img src=\"/guide-shots/onboarding-industry--desktop--dark.webp\" alt=\"The first step of the setup wizard, a grid of trades to choose from.\" width=\"1280\" height=\"860\" loading=\"lazy\" decoding=\"async\"></picture><figcaption>What you make decides which starting points come up. It is not a category you are stuck in.</figcaption></figure>\n<p>Five questions, once. None of the answers is permanent.</p>\n<h2 id=\"what-do-you-make\">What do you make</h2>\n<p>Crochet, cakes, invitations, jewellery, prints, T-shirts, digital downloads, and a few more.\nThis decides which starting points are offered — a bakery and a jeweller want genuinely\ndifferent pages, not the same page in a different colour.</p>\n<aside class=\"gd-callout gd-note\"><p class=\"gd-callout-title\">Note</p><p>Pick the nearest one if nothing fits exactly. Every starting point is fully editable, so the\nchoice narrows what you are shown rather than what you can build.</p>\n</aside>\n<h2 id=\"what-is-it-called\">What is it called</h2>\n<p>The shop&#39;s name, and the web address that comes from it. The address is checked as you type, so\nyou find out immediately if it is taken.</p>\n<p><code>Kiln and Clay Ceramics</code> → <code>kiln-and-clay-ceramics</code> → your shop at that address.</p>\n<h2 id=\"how-you-sell-today\">How you sell today</h2>\n<p>Instagram, WhatsApp, markets, word of mouth, another platform, or not yet. Nothing is judged\nhere — it decides which suggestions you get afterwards, like putting your WhatsApp number on\nthe contact section if that is where people already find you.</p>\n<h2 id=\"what-you-want-the-shop-to-do\">What you want the shop to do</h2>\n<p>Take payments, take enquiries, or just be somewhere to point people. This is the one that\nmatters most, because it decides whether you need a checkout, delivery rates and tax rules at\nall — and if you do not, you are not asked to fill them in.</p>\n<aside class=\"gd-callout gd-tip\"><p class=\"gd-callout-title\">Tip</p><p>Not every shop needs a checkout. If everything you make is to order, a catalogue with prices\nturned off and a contact button is a smaller thing to maintain and a better fit for how you\nactually sell.</p>\n</aside>\n<h2 id=\"where-you-are\">Where you are</h2>\n<p>Sets the currency and the tax rules. India and rupees by default; the currency is fixed once\norders exist, because an order records what was actually charged and changing the currency\nafterwards would rewrite history.</p>\n<h2 id=\"what-happens-when-you-finish\">What happens when you finish</h2>\n<p>A shop exists — draft, unpublished, and already a complete site with pages, a palette and\nlettering. Nothing is on the internet yet.</p>\n",
     "toc": [
       {
         "id": "what-do-you-make",
@@ -270,7 +270,7 @@ export const GUIDE_PAGES: GuidePage[] = [
       "the-questions",
       "the-three-columns"
     ],
-    "html": "<figure class=\"gd-shot gd-shot-missing\"><div class=\"gd-missing\">Screenshot &ldquo;template-picker&rdquo; has not been captured yet</div><figcaption>Each one is a different structure, not the same page recoloured.</figcaption></figure>\n<p>A starting point is a complete site: a palette, a type pairing, page structure, and sections\nalready arranged and filled with placeholder words.</p>\n<h2 id=\"they-differ-in-structure-not-just-colour\">They differ in structure, not just colour</h2>\n<p>This is the part worth knowing. No two of them share a composition, a type personality, a\nproduct-card treatment and a motion profile — that is a rule the codebase actually enforces,\nnot an aspiration. Recolouring one would not turn it into another.</p>\n<p>So choose on <strong>shape</strong>: how the top of the page works, how products are laid out, how much air\nthere is. The colours are the easiest thing to change afterwards and the structure is the\nhardest.</p>\n<aside class=\"gd-callout gd-warning\"><p class=\"gd-callout-title\">Worth knowing</p><p>You can change your starting point later, but it replaces the page you have. Anything you\nalready wrote into a section goes with it. Swapping early costs nothing; swapping after an\nafternoon&#39;s work costs the afternoon.</p>\n</aside>\n<h2 id=\"what-you-can-change-afterwards\">What you can change afterwards</h2>\n<p>All of it. The palette, the lettering, the corner rounding, how much space sits between\nsections, which sections exist, what order they are in, and every word.</p>\n<div class=\"gd-faq\"><details><summary>Will my shop look like other shops using the same one?</summary><div><p>Only until you change something. The words and the photographs are the shop, and those are\nyours from the first minute.</p>\n</div></details><details><summary>Can I start from a blank page?</summary><div><p>Not from the picker — starting points exist because a blank page is a bad place to begin. But\nyou can delete every section from one and be left with something very close to blank.</p>\n</div></details><details><summary>Can I look at one before choosing?</summary><div><p>Yes. The <a href=\"/templates\">templates page</a> shows all of them full-size, without signing up.</p>\n</div></details></div>\n",
+    "html": "<figure class=\"gd-shot\"><picture class=\"t-light\"><img src=\"/guide-shots/template-picker--desktop--light.webp\" alt=\"The template picker, showing several starting points side by side with their own colours and lettering.\" width=\"1280\" height=\"860\" loading=\"eager\" decoding=\"async\"></picture><picture class=\"t-dark\"><img src=\"/guide-shots/template-picker--desktop--dark.webp\" alt=\"The template picker, showing several starting points side by side with their own colours and lettering.\" width=\"1280\" height=\"860\" loading=\"lazy\" decoding=\"async\"></picture><figcaption>Each one is a different structure, not the same page recoloured.</figcaption></figure>\n<p>A starting point is a complete site: a palette, a type pairing, page structure, and sections\nalready arranged and filled with placeholder words.</p>\n<h2 id=\"they-differ-in-structure-not-just-colour\">They differ in structure, not just colour</h2>\n<p>This is the part worth knowing. No two of them share a composition, a type personality, a\nproduct-card treatment and a motion profile — that is a rule the codebase actually enforces,\nnot an aspiration. Recolouring one would not turn it into another.</p>\n<p>So choose on <strong>shape</strong>: how the top of the page works, how products are laid out, how much air\nthere is. The colours are the easiest thing to change afterwards and the structure is the\nhardest.</p>\n<aside class=\"gd-callout gd-warning\"><p class=\"gd-callout-title\">Worth knowing</p><p>You can change your starting point later, but it replaces the page you have. Anything you\nalready wrote into a section goes with it. Swapping early costs nothing; swapping after an\nafternoon&#39;s work costs the afternoon.</p>\n</aside>\n<h2 id=\"what-you-can-change-afterwards\">What you can change afterwards</h2>\n<p>All of it. The palette, the lettering, the corner rounding, how much space sits between\nsections, which sections exist, what order they are in, and every word.</p>\n<div class=\"gd-faq\"><details><summary>Will my shop look like other shops using the same one?</summary><div><p>Only until you change something. The words and the photographs are the shop, and those are\nyours from the first minute.</p>\n</div></details><details><summary>Can I start from a blank page?</summary><div><p>Not from the picker — starting points exist because a blank page is a bad place to begin. But\nyou can delete every section from one and be left with something very close to blank.</p>\n</div></details><details><summary>Can I look at one before choosing?</summary><div><p>Yes. The <a href=\"/templates\">templates page</a> shows all of them full-size, without signing up.</p>\n</div></details></div>\n",
     "toc": [
       {
         "id": "they-differ-in-structure-not-just-colour",
@@ -298,7 +298,7 @@ export const GUIDE_PAGES: GuidePage[] = [
       "pictures",
       "what-you-need"
     ],
-    "html": "<figure class=\"gd-shot gd-shot-missing\"><div class=\"gd-missing\">Screenshot &ldquo;product-new&rdquo; has not been captured yet</div><figcaption>The description is what the product page reads from — it is not an internal note.</figcaption></figure>\n<h2 id=\"the-name\">The name</h2>\n<p>What a customer sees, and what they search for. &quot;Ridged stoneware vase&quot; finds more people than\n&quot;Vase 03&quot;.</p>\n<h2 id=\"the-description\">The description</h2>\n<p>Whatever somebody needs to know before they are willing to buy. What it is made of, how big it\nis, how to look after it, how long it lasts.</p>\n<p>Blank lines make paragraphs. There is no formatting beyond that, on purpose — a product\ndescription that needs headings is usually two products.</p>\n<aside class=\"gd-callout gd-tip\"><p class=\"gd-callout-title\">Tip</p><p>Write the answer to the question you are tired of answering. &quot;Holds water; the glaze stops\nshort of the foot so the body shows&quot; does more work than &quot;beautiful handmade vase&quot;.</p>\n</aside>\n<h2 id=\"the-price\">The price</h2>\n<p>Typed in whole currency units — <code>2400</code> is ₹2,400. Prices are kept exactly, as whole numbers of\npaise, so nothing rounds and nothing drifts between the basket and the receipt.</p>\n<h3 id=\"a-compare-at-price-makes-a-discount\">A compare-at price makes a discount</h3>\n<p>Set one higher than the price, and the shop strikes it through, works out the percentage, and\nshows it. You do not calculate anything.</p>\n<aside class=\"gd-callout gd-warning\"><p class=\"gd-callout-title\">Worth knowing</p><p>A compare-at price should be a price you actually charged. Inventing one to manufacture a\ndiscount is, in many places, illegal — and customers notice.</p>\n</aside>\n<h2 id=\"draft-active-archived\">Draft, active, archived</h2>\n<div class=\"gd-table\"><table><thead><tr><th>Status</th><th>On the shop</th><th>Use it for</th></tr></thead><tbody><tr><td>Draft</td><td>Hidden</td><td>Something you are still writing</td></tr><tr><td>Active</td><td>Visible and buyable</td><td>Everything you sell</td></tr><tr><td>Archived</td><td>Hidden, and kept</td><td>Something you no longer make</td></tr></tbody></table></div>\n<p>Archived rather than deleted, because an old order still points at the product it was for. A\ndeleted product would leave an order describing something that no longer exists.</p>\n<div class=\"gd-faq\"><details><summary>Can I sell the same thing in several sizes?</summary><div><p>Put the sizes in the description for now if they are the same price. Separate prices means\nseparate products.</p>\n</div></details><details><summary>Do I have to set stock levels?</summary><div><p>No. Leave stock alone and the shop simply never says &quot;out of stock&quot;.</p>\n</div></details><details><summary>What if I make everything to order?</summary><div><p>Turn prices off for that section and use a contact button instead. See <a href=\"/guide/setup/the-questions\">the questions at the\nstart</a>.</p>\n</div></details></div>\n",
+    "html": "<figure class=\"gd-shot\"><picture class=\"t-light\"><img src=\"/guide-shots/product-new--desktop--light.webp\" alt=\"The new-product form, with fields for name, description and price, and an area for pictures.\" width=\"1280\" height=\"900\" loading=\"eager\" decoding=\"async\"></picture><picture class=\"t-dark\"><img src=\"/guide-shots/product-new--desktop--dark.webp\" alt=\"The new-product form, with fields for name, description and price, and an area for pictures.\" width=\"1280\" height=\"900\" loading=\"lazy\" decoding=\"async\"></picture><figcaption>The description is what the product page reads from — it is not an internal note.</figcaption></figure>\n<h2 id=\"the-name\">The name</h2>\n<p>What a customer sees, and what they search for. &quot;Ridged stoneware vase&quot; finds more people than\n&quot;Vase 03&quot;.</p>\n<h2 id=\"the-description\">The description</h2>\n<p>Whatever somebody needs to know before they are willing to buy. What it is made of, how big it\nis, how to look after it, how long it lasts.</p>\n<p>Blank lines make paragraphs. There is no formatting beyond that, on purpose — a product\ndescription that needs headings is usually two products.</p>\n<aside class=\"gd-callout gd-tip\"><p class=\"gd-callout-title\">Tip</p><p>Write the answer to the question you are tired of answering. &quot;Holds water; the glaze stops\nshort of the foot so the body shows&quot; does more work than &quot;beautiful handmade vase&quot;.</p>\n</aside>\n<h2 id=\"the-price\">The price</h2>\n<p>Typed in whole currency units — <code>2400</code> is ₹2,400. Prices are kept exactly, as whole numbers of\npaise, so nothing rounds and nothing drifts between the basket and the receipt.</p>\n<h3 id=\"a-compare-at-price-makes-a-discount\">A compare-at price makes a discount</h3>\n<p>Set one higher than the price, and the shop strikes it through, works out the percentage, and\nshows it. You do not calculate anything.</p>\n<aside class=\"gd-callout gd-warning\"><p class=\"gd-callout-title\">Worth knowing</p><p>A compare-at price should be a price you actually charged. Inventing one to manufacture a\ndiscount is, in many places, illegal — and customers notice.</p>\n</aside>\n<h2 id=\"draft-active-archived\">Draft, active, archived</h2>\n<div class=\"gd-table\"><table><thead><tr><th>Status</th><th>On the shop</th><th>Use it for</th></tr></thead><tbody><tr><td>Draft</td><td>Hidden</td><td>Something you are still writing</td></tr><tr><td>Active</td><td>Visible and buyable</td><td>Everything you sell</td></tr><tr><td>Archived</td><td>Hidden, and kept</td><td>Something you no longer make</td></tr></tbody></table></div>\n<p>Archived rather than deleted, because an old order still points at the product it was for. A\ndeleted product would leave an order describing something that no longer exists.</p>\n<div class=\"gd-faq\"><details><summary>Can I sell the same thing in several sizes?</summary><div><p>Put the sizes in the description for now if they are the same price. Separate prices means\nseparate products.</p>\n</div></details><details><summary>Do I have to set stock levels?</summary><div><p>No. Leave stock alone and the shop simply never says &quot;out of stock&quot;.</p>\n</div></details><details><summary>What if I make everything to order?</summary><div><p>Turn prices off for that section and use a contact button instead. See <a href=\"/guide/setup/the-questions\">the questions at the\nstart</a>.</p>\n</div></details></div>\n",
     "toc": [
       {
         "id": "the-name",
@@ -341,7 +341,7 @@ export const GUIDE_PAGES: GuidePage[] = [
       "your-products",
       "what-you-need"
     ],
-    "html": "<figure class=\"gd-shot gd-shot-missing\"><div class=\"gd-missing\">Screenshot &ldquo;product-images&rdquo; has not been captured yet</div><figcaption>The first picture is the one that appears everywhere else on the shop.</figcaption></figure>\n<h2 id=\"they-are-shrunk-in-your-browser\">They are shrunk in your browser</h2>\n<p>Before a photograph is uploaded it is resized in the browser, on your machine. A four-megabyte\nphoto straight off a phone becomes a few hundred kilobytes before a single byte is sent.</p>\n<p>Two things follow from that. Uploading is fast even on a bad connection, and your shop stays\nfast for customers — a page carrying eight full-resolution phone photographs is a page that\nloads slowly on the mobile network most people will open it on.</p>\n<aside class=\"gd-callout gd-note\"><p class=\"gd-callout-title\">Note</p><p>You never need to resize anything yourself. Uploading the original is the right thing to do.</p>\n</aside>\n<h2 id=\"the-first-one-matters-most\">The first one matters most</h2>\n<p>The first picture is the one used on the shop page, in the basket, in search results and next\nto the order. The rest are only seen by somebody already on the product page.</p>\n<p>So the first one should be the clearest single view of the thing. Detail shots, scale shots and\nin-use shots go after it.</p>\n<p>Reorder them with the arrows beside each thumbnail. There is no dragging here, deliberately —\ndragging thumbnails on a phone fights with scrolling the page.</p>\n<h2 id=\"describing-a-picture\">Describing a picture</h2>\n<p>Each picture has a description field. It is read aloud to anybody using a screen reader, and\nshown if the image fails to load.</p>\n<p>Write what the picture <strong>shows</strong>: &quot;an ash-glazed bowl on a scrubbed table&quot;, not &quot;product\nphoto&quot;. The second one tells somebody who cannot see it nothing at all.</p>\n<aside class=\"gd-callout gd-tip\"><p class=\"gd-callout-title\">Tip</p><p>It is also what search engines read. A description that says what the thing is does more for\nbeing found than any amount of keywords elsewhere.</p>\n</aside>\n<h2 id=\"what-is-accepted\">What is accepted</h2>\n<p>JPEG, PNG, WebP and GIF, up to 8 MB before shrinking.</p>\n<aside class=\"gd-callout gd-warning\"><p class=\"gd-callout-title\">Worth knowing</p><p>Files are checked by their <strong>contents</strong>, not their name. Renaming something to <code>.jpg</code> does not\nmake it an image, and it will be refused — which is the point: an upload box that trusted the\nfile name would accept anything anybody chose to call a picture.</p>\n</aside>\n<h2 id=\"the-media-library\">The media library</h2>\n<p>Everything uploaded is kept in one place, so a picture used on a product can also be used in a\nsection of the page without uploading it twice. Deleting from the library removes it everywhere\nit is used, so it asks first.</p>\n<div class=\"gd-faq\"><details><summary>What size should my photographs be?</summary><div><p>Whatever your camera makes. Square or portrait crops suit product grids best, but the shop\nhandles any shape.</p>\n</div></details><details><summary>Can I use the same picture on several products?</summary><div><p>Yes, from the media library.</p>\n</div></details><details><summary>Why does my picture look softer than the original?</summary><div><p>It was resized for the web. If something genuinely needs full resolution — a print, a detailed\ntextile — say so and it can be reviewed, but for a shop page the trade is almost always worth it.</p>\n</div></details></div>\n",
+    "html": "<figure class=\"gd-shot\"><picture class=\"t-light\"><img src=\"/guide-shots/product-images--desktop--light.webp\" alt=\"The product form's picture area, with several thumbnails and controls to reorder them.\" width=\"1280\" height=\"860\" loading=\"eager\" decoding=\"async\"></picture><picture class=\"t-dark\"><img src=\"/guide-shots/product-images--desktop--dark.webp\" alt=\"The product form's picture area, with several thumbnails and controls to reorder them.\" width=\"1280\" height=\"860\" loading=\"lazy\" decoding=\"async\"></picture><figcaption>The first picture is the one that appears everywhere else on the shop.</figcaption></figure>\n<h2 id=\"they-are-shrunk-in-your-browser\">They are shrunk in your browser</h2>\n<p>Before a photograph is uploaded it is resized in the browser, on your machine. A four-megabyte\nphoto straight off a phone becomes a few hundred kilobytes before a single byte is sent.</p>\n<p>Two things follow from that. Uploading is fast even on a bad connection, and your shop stays\nfast for customers — a page carrying eight full-resolution phone photographs is a page that\nloads slowly on the mobile network most people will open it on.</p>\n<aside class=\"gd-callout gd-note\"><p class=\"gd-callout-title\">Note</p><p>You never need to resize anything yourself. Uploading the original is the right thing to do.</p>\n</aside>\n<h2 id=\"the-first-one-matters-most\">The first one matters most</h2>\n<p>The first picture is the one used on the shop page, in the basket, in search results and next\nto the order. The rest are only seen by somebody already on the product page.</p>\n<p>So the first one should be the clearest single view of the thing. Detail shots, scale shots and\nin-use shots go after it.</p>\n<p>Reorder them with the arrows beside each thumbnail. There is no dragging here, deliberately —\ndragging thumbnails on a phone fights with scrolling the page.</p>\n<h2 id=\"describing-a-picture\">Describing a picture</h2>\n<p>Each picture has a description field. It is read aloud to anybody using a screen reader, and\nshown if the image fails to load.</p>\n<p>Write what the picture <strong>shows</strong>: &quot;an ash-glazed bowl on a scrubbed table&quot;, not &quot;product\nphoto&quot;. The second one tells somebody who cannot see it nothing at all.</p>\n<aside class=\"gd-callout gd-tip\"><p class=\"gd-callout-title\">Tip</p><p>It is also what search engines read. A description that says what the thing is does more for\nbeing found than any amount of keywords elsewhere.</p>\n</aside>\n<h2 id=\"what-is-accepted\">What is accepted</h2>\n<p>JPEG, PNG, WebP and GIF, up to 8 MB before shrinking.</p>\n<aside class=\"gd-callout gd-warning\"><p class=\"gd-callout-title\">Worth knowing</p><p>Files are checked by their <strong>contents</strong>, not their name. Renaming something to <code>.jpg</code> does not\nmake it an image, and it will be refused — which is the point: an upload box that trusted the\nfile name would accept anything anybody chose to call a picture.</p>\n</aside>\n<h2 id=\"the-media-library\">The media library</h2>\n<p>Everything uploaded is kept in one place, so a picture used on a product can also be used in a\nsection of the page without uploading it twice. Deleting from the library removes it everywhere\nit is used, so it asks first.</p>\n<div class=\"gd-faq\"><details><summary>What size should my photographs be?</summary><div><p>Whatever your camera makes. Square or portrait crops suit product grids best, but the shop\nhandles any shape.</p>\n</div></details><details><summary>Can I use the same picture on several products?</summary><div><p>Yes, from the media library.</p>\n</div></details><details><summary>Why does my picture look softer than the original?</summary><div><p>It was resized for the web. If something genuinely needs full resolution — a print, a detailed\ntextile — say so and it can be reviewed, but for a shop page the trade is almost always worth it.</p>\n</div></details></div>\n",
     "toc": [
       {
         "id": "they-are-shrunk-in-your-browser",
@@ -371,6 +371,119 @@ export const GUIDE_PAGES: GuidePage[] = [
     ]
   },
   {
+    "slug": "delivery",
+    "group": "selling",
+    "audience": "merchant",
+    "order": 67,
+    "title": "Delivery",
+    "summary": "Zones and rates, why a shop cannot publish without one, and the three ways to charge.",
+    "who": "Merchants",
+    "icon": "truck",
+    "noindex": false,
+    "related": [
+      "your-products",
+      "tax"
+    ],
+    "html": "<figure class=\"gd-shot\"><picture class=\"t-light\"><img src=\"/guide-shots/shipping--desktop--light.webp\" alt=\"The shipping page: zones, and the rates that apply inside each.\" width=\"1280\" height=\"900\" loading=\"eager\" decoding=\"async\"></picture><picture class=\"t-dark\"><img src=\"/guide-shots/shipping--desktop--dark.webp\" alt=\"The shipping page: zones, and the rates that apply inside each.\" width=\"1280\" height=\"900\" loading=\"lazy\" decoding=\"async\"></picture><figcaption>A zone is where you post to. A rate is what it costs to get there.</figcaption></figure>\n<p>Two ideas, and they nest.</p>\n<p>A <strong>zone</strong> is somewhere you post to — &quot;India&quot;, &quot;Tamil Nadu&quot;, &quot;everywhere else&quot;. A <strong>rate</strong> is an\noption a customer picks inside that zone — &quot;Standard, ₹60&quot;, &quot;Express, ₹150&quot;.</p>\n<h2 id=\"why-this-blocks-publishing\">Why this blocks publishing</h2>\n<p>A shop with no delivery option has a checkout nobody can complete. The customer fills in their\naddress, reaches the delivery step, and there is nothing to choose — so the order cannot be\nplaced and they leave.</p>\n<p>That is why it is a blocker rather than a warning: it is not a shop that looks unfinished, it is\na shop that cannot take money.</p>\n<aside class=\"gd-callout gd-tip\"><p class=\"gd-callout-title\">Tip</p><p>If everything you sell is digital, you still need one zone with one free rate. Give it a name\nlike &quot;Nothing to post&quot; and price it at zero.</p>\n</aside>\n<h2 id=\"the-three-kinds-of-rate\">The three kinds of rate</h2>\n<div class=\"gd-table\"><table><thead><tr><th>Kind</th><th>What it does</th></tr></thead><tbody><tr><td><strong>Flat</strong></td><td>The same amount however much is in the basket</td></tr><tr><td><strong>Free</strong></td><td>No charge</td></tr><tr><td><strong>Free over</strong></td><td>Free above a threshold, a flat amount below it</td></tr></tbody></table></div>\n<p><strong>Free over</strong> is the one worth thinking about. &quot;Free delivery over ₹2,000&quot; reliably raises the\naverage basket, because somebody at ₹1,700 will find another ₹300 of things rather than pay ₹80\nof postage. Set the threshold somewhere above your typical order, not below it.</p>\n<h2 id=\"several-rates-in-one-zone\">Several rates in one zone</h2>\n<p>Offer more than one and the customer chooses. &quot;Standard, 5 days, ₹60&quot; beside &quot;Express, 2 days,\n₹150&quot; lets somebody in a hurry pay for it.</p>\n<aside class=\"gd-callout gd-warning\"><p class=\"gd-callout-title\">Worth knowing</p><p>Name them for what the customer gets, not for the courier. &quot;Express — 2 days&quot; means something;\n&quot;Blue Dart Surface&quot; does not, unless your customers are logistics people.</p>\n</aside>\n<h2 id=\"what-the-customer-sees\">What the customer sees</h2>\n<p>At checkout, after the address — because which zone applies depends on where it is going. The\ntotal re-adds itself as they change the choice.</p>\n<div class=\"gd-faq\"><details><summary>Can delivery be free for some products and not others?</summary><div><p>Not per product in this build. The rate applies to the basket.</p>\n</div></details><details><summary>What if I only post within one city?</summary><div><p>One zone covering it, and no other zone. An address outside it then has nothing to choose, which\ntells the customer you do not post there — clearly, and before they have paid.</p>\n</div></details><details><summary>Do I have to charge what it costs me?</summary><div><p>No, and most shops do not. Postage is part of the price for many small makers; a free rate with\nthe cost built into the product price is a perfectly normal choice.</p>\n</div></details></div>\n",
+    "toc": [
+      {
+        "id": "why-this-blocks-publishing",
+        "text": "Why this blocks publishing",
+        "depth": 2
+      },
+      {
+        "id": "the-three-kinds-of-rate",
+        "text": "The three kinds of rate",
+        "depth": 2
+      },
+      {
+        "id": "several-rates-in-one-zone",
+        "text": "Several rates in one zone",
+        "depth": 2
+      },
+      {
+        "id": "what-the-customer-sees",
+        "text": "What the customer sees",
+        "depth": 2
+      }
+    ]
+  },
+  {
+    "slug": "tax",
+    "group": "selling",
+    "audience": "merchant",
+    "order": 68,
+    "title": "Tax",
+    "summary": "Tax rules, inclusive versus exclusive pricing, and the fields Indian shops need.",
+    "who": "Merchants",
+    "icon": "percent",
+    "noindex": false,
+    "related": [
+      "delivery",
+      "your-products"
+    ],
+    "html": "<aside class=\"gd-callout gd-danger\"><p class=\"gd-callout-title\">This is not tax advice</p><p>What follows explains which switches exist and what they do. Whether you should be charging tax\nat all, at what rate, and what you must show on an invoice depends on where you are, what you\nsell and how much you turn over. Ask an accountant. Getting this wrong is expensive in a way\ngetting a heading wrong is not.</p>\n</aside>\n<h2 id=\"inclusive-or-exclusive\">Inclusive or exclusive</h2>\n<p>The one decision that changes what customers see.</p>\n<p><strong>Inclusive</strong> — the price shown is the price paid. Tax is worked out backwards from it and shown\nas a line on the receipt. This is what shoppers expect in India and most of the world.</p>\n<p><strong>Exclusive</strong> — tax is added at checkout. The total goes up after the customer has decided. Normal\nfor business-to-business, and a reliable source of abandoned baskets for anything else.</p>\n<aside class=\"gd-callout gd-tip\"><p class=\"gd-callout-title\">Tip</p><p>If you are selling to the public, choose inclusive. A basket that grows at the last step is the\nsingle most common reason people leave one.</p>\n</aside>\n<h2 id=\"rules\">Rules</h2>\n<p>A rule is a rate that applies somewhere. Most shops need one: the rate that applies where they\nare. Add more if you sell into places that tax differently.</p>\n<p>A rule can be switched off without deleting it, which is what you want when a rate changes or a\nthreshold moves.</p>\n<h2 id=\"gstin-and-hsn\">GSTIN and HSN</h2>\n<p>Both fields exist. <strong>GSTIN</strong> is your registration number and appears on invoices. <strong>HSN</strong> is the\nclassification code for a product, set per product.</p>\n<aside class=\"gd-callout gd-note\"><p class=\"gd-callout-title\">Note</p><p>Neither is required to run a shop. If you are below the registration threshold, leave them\nempty — the shop works exactly the same and the invoice simply does not carry them.</p>\n</aside>\n<h2 id=\"how-tax-is-worked-out\">How tax is worked out</h2>\n<p>On the server, every time, from the rules as they stand. Never in the browser and never stored\non the product.</p>\n<p>The reason is that an order records what was actually charged, as whole paise, at the moment it\nwas placed. Changing a rate next month does not rewrite last month&#39;s orders — those say what\nthey said. A figure worked out in the shopper&#39;s browser could disagree with the server&#39;s, and\nthe first place anyone would notice is the payment step, which is the worst possible place to\nfind out.</p>\n",
+    "toc": [
+      {
+        "id": "inclusive-or-exclusive",
+        "text": "Inclusive or exclusive",
+        "depth": 2
+      },
+      {
+        "id": "rules",
+        "text": "Rules",
+        "depth": 2
+      },
+      {
+        "id": "gstin-and-hsn",
+        "text": "GSTIN and HSN",
+        "depth": 2
+      },
+      {
+        "id": "how-tax-is-worked-out",
+        "text": "How tax is worked out",
+        "depth": 2
+      }
+    ]
+  },
+  {
+    "slug": "discounts",
+    "group": "selling",
+    "audience": "merchant",
+    "order": 69,
+    "title": "Discount codes",
+    "summary": "Codes people type at checkout, how they differ from a compare-at price, and the limits worth setting.",
+    "who": "Merchants",
+    "icon": "ticket",
+    "noindex": false,
+    "related": [
+      "your-products"
+    ],
+    "html": "<figure class=\"gd-shot\"><picture class=\"t-light\"><img src=\"/guide-shots/discounts--desktop--light.webp\" alt=\"The discounts page, listing codes with what each takes off and how many times it has been used.\" width=\"1280\" height=\"900\" loading=\"eager\" decoding=\"async\"></picture><picture class=\"t-dark\"><img src=\"/guide-shots/discounts--desktop--dark.webp\" alt=\"The discounts page, listing codes with what each takes off and how many times it has been used.\" width=\"1280\" height=\"900\" loading=\"lazy\" decoding=\"async\"></picture><figcaption>A code is typed at checkout. A compare-at price is shown on the product.</figcaption></figure>\n<p>Two different tools, often confused:</p>\n<ul>\n<li>A <strong>compare-at price</strong> is a visible sale. The old price is struck through, the percentage is\nworked out for you, and everybody gets it. See <a href=\"/guide/selling/your-products\">adding what you sell</a>.</li>\n<li>A <strong>discount code</strong> is typed at checkout. Only people who have it get it.</li>\n</ul>\n<p>Use the first for a sale. Use the second for a specific group — a market you did, a collaboration,\nan apology for a late parcel.</p>\n<h2 id=\"the-three-kinds\">The three kinds</h2>\n<div class=\"gd-table\"><table><thead><tr><th>Kind</th><th>Example</th></tr></thead><tbody><tr><td><strong>Percent off</strong></td><td><code>WINTER10</code> — 10% off the basket</td></tr><tr><td><strong>Fixed amount off</strong></td><td><code>SORRY200</code> — ₹200 off</td></tr><tr><td><strong>Free delivery</strong></td><td><code>FREEPOST</code> — postage removed</td></tr></tbody></table></div>\n<h2 id=\"limits-worth-setting\">Limits worth setting</h2>\n<p><strong>An expiry.</strong> Codes escape. A code printed on a flyer in March and still working in November is\na code somebody has posted to a deals site.</p>\n<p><strong>A usage cap.</strong> Especially for anything generous. &quot;First 50 customers&quot; is a promise you can\nactually keep if the code stops at 50.</p>\n<aside class=\"gd-callout gd-warning\"><p class=\"gd-callout-title\">Worth knowing</p><p>A code with no expiry and no cap is permanent and unlimited. Deals sites index these\nautomatically, and a 25% code meant for twelve market customers can end up on every order you\ntake for a year.</p>\n</aside>\n<h2 id=\"writing-a-code\">Writing a code</h2>\n<p>Short, unambiguous, and unmistakable when read aloud.</p>\n<aside class=\"gd-callout gd-tip\"><p class=\"gd-callout-title\">Tip</p><p>Avoid the characters people confuse — <code>0</code> and <code>O</code>, <code>1</code> and <code>l</code>. <code>KILN10</code> is fine. <code>KILN1O0</code> will\ngenerate messages asking why it does not work.</p>\n</aside>\n<p>Codes are not case sensitive, so nobody has to get that right.</p>\n<h2 id=\"what-the-customer-sees\">What the customer sees</h2>\n<p>A box at the basket, and again at checkout. A code that does not apply says why — expired, used\nup, or not a code — rather than silently doing nothing.</p>\n<div class=\"gd-faq\"><details><summary>Can two codes be used together?</summary><div><p>No. One per order, which is almost always what you meant.</p>\n</div></details><details><summary>Does a code work with a compare-at price?</summary><div><p>Yes, and it comes off the already-reduced price. Worth remembering before setting both at once.</p>\n</div></details><details><summary>Can I see who used a code?</summary><div><p>Redemptions are counted, and the code appears on the order it was used on.</p>\n</div></details><details><summary>How do I stop a code immediately?</summary><div><p>Switch it off. It stays in the list with its history rather than vanishing.</p>\n</div></details></div>\n",
+    "toc": [
+      {
+        "id": "the-three-kinds",
+        "text": "The three kinds",
+        "depth": 2
+      },
+      {
+        "id": "limits-worth-setting",
+        "text": "Limits worth setting",
+        "depth": 2
+      },
+      {
+        "id": "writing-a-code",
+        "text": "Writing a code",
+        "depth": 2
+      },
+      {
+        "id": "what-the-customer-sees",
+        "text": "What the customer sees",
+        "depth": 2
+      }
+    ]
+  },
+  {
     "slug": "the-three-columns",
     "group": "builder",
     "audience": "merchant",
@@ -384,7 +497,7 @@ export const GUIDE_PAGES: GuidePage[] = [
       "choosing-a-template",
       "publishing"
     ],
-    "html": "<figure class=\"gd-shot gd-shot-missing\"><div class=\"gd-missing\">Screenshot &ldquo;builder-three-columns&rdquo; has not been captured yet</div><figcaption>Click anything in the middle and the right-hand panel becomes its settings.</figcaption></figure>\n<p>Three columns. Sections on the left, the page in the middle, and on the right the settings for\nwhatever you have selected.</p>\n<p>On a phone the two side panels become sheets that slide up over the page, because three columns\non a phone is three things too narrow to use.</p>\n<h2 id=\"the-middle-is-not-a-preview\">The middle is not a preview</h2>\n<p>Worth saying plainly, because most builders are not like this: the page in the middle is drawn\nby exactly the same code that draws your live shop. It is not an approximation that gets\nre-rendered properly later.</p>\n<p>There is no second implementation to drift, which means there is no category of bug where the\neditor showed you one thing and the shop published another.</p>\n<h2 id=\"the-left-panel\">The left panel</h2>\n<p>Four tabs.</p>\n<div class=\"gd-table\"><table><thead><tr><th>Tab</th><th>What it is</th></tr></thead><tbody><tr><td><strong>Add</strong></td><td>The sections you can put on the page</td></tr><tr><td><strong>Layers</strong></td><td>The whole page as a list — reorder, hide, jump to one</td></tr><tr><td><strong>Pages</strong></td><td>The pages of the shop, including ones you cannot delete</td></tr><tr><td><strong>Assist</strong></td><td>Ask for a change in words, and get a proposal</td></tr></tbody></table></div>\n<h2 id=\"the-right-panel\">The right panel</h2>\n<p>Whatever you clicked on. Select a heading and it offers the heading&#39;s words, its size and its\nalignment. Select a product grid and it offers how many columns, which products and whether\nprices show.</p>\n<p>Only the controls that apply to the thing you selected — there is no settings page with forty\nrows where thirty-six do nothing.</p>\n<aside class=\"gd-callout gd-tip\"><p class=\"gd-callout-title\">Tip</p><p>Click on empty space, away from every section, and the right panel becomes the theme: the\npalette, the lettering and the shapes for the whole shop at once.</p>\n</aside>\n<h2 id=\"undo\">Undo</h2>\n<p>Everything is undoable, and the steps are the size you would expect. Typing a heading is one\nstep, not one per letter.</p>\n<aside class=\"gd-callout gd-note\"><p class=\"gd-callout-title\">Note</p><p>Nothing in the builder is live. You are editing a draft; the shop the public sees does not\nchange until you publish. There is a Preview button for seeing the draft as a customer would,\nwithout publishing it.</p>\n</aside>\n",
+    "html": "<figure class=\"gd-shot\"><picture class=\"t-light\"><img src=\"/guide-shots/builder-three-columns--desktop--light.webp\" alt=\"The builder: a panel of sections on the left, the shop page in the middle, and a settings panel on the right.\" width=\"1280\" height=\"900\" loading=\"eager\" decoding=\"async\"></picture><picture class=\"t-dark\"><img src=\"/guide-shots/builder-three-columns--desktop--dark.webp\" alt=\"The builder: a panel of sections on the left, the shop page in the middle, and a settings panel on the right.\" width=\"1280\" height=\"900\" loading=\"lazy\" decoding=\"async\"></picture><figcaption>Click anything in the middle and the right-hand panel becomes its settings.</figcaption></figure>\n<p>Three columns. Sections on the left, the page in the middle, and on the right the settings for\nwhatever you have selected.</p>\n<p>On a phone the two side panels become sheets that slide up over the page, because three columns\non a phone is three things too narrow to use.</p>\n<h2 id=\"the-middle-is-not-a-preview\">The middle is not a preview</h2>\n<p>Worth saying plainly, because most builders are not like this: the page in the middle is drawn\nby exactly the same code that draws your live shop. It is not an approximation that gets\nre-rendered properly later.</p>\n<p>There is no second implementation to drift, which means there is no category of bug where the\neditor showed you one thing and the shop published another.</p>\n<h2 id=\"the-left-panel\">The left panel</h2>\n<p>Four tabs.</p>\n<div class=\"gd-table\"><table><thead><tr><th>Tab</th><th>What it is</th></tr></thead><tbody><tr><td><strong>Add</strong></td><td>The sections you can put on the page</td></tr><tr><td><strong>Layers</strong></td><td>The whole page as a list — reorder, hide, jump to one</td></tr><tr><td><strong>Pages</strong></td><td>The pages of the shop, including ones you cannot delete</td></tr><tr><td><strong>Assist</strong></td><td>Ask for a change in words, and get a proposal</td></tr></tbody></table></div>\n<h2 id=\"the-right-panel\">The right panel</h2>\n<p>Whatever you clicked on. Select a heading and it offers the heading&#39;s words, its size and its\nalignment. Select a product grid and it offers how many columns, which products and whether\nprices show.</p>\n<p>Only the controls that apply to the thing you selected — there is no settings page with forty\nrows where thirty-six do nothing.</p>\n<aside class=\"gd-callout gd-tip\"><p class=\"gd-callout-title\">Tip</p><p>Click on empty space, away from every section, and the right panel becomes the theme: the\npalette, the lettering and the shapes for the whole shop at once.</p>\n</aside>\n<h2 id=\"undo\">Undo</h2>\n<p>Everything is undoable, and the steps are the size you would expect. Typing a heading is one\nstep, not one per letter.</p>\n<aside class=\"gd-callout gd-note\"><p class=\"gd-callout-title\">Note</p><p>Nothing in the builder is live. You are editing a draft; the shop the public sees does not\nchange until you publish. There is a Preview button for seeing the draft as a customer would,\nwithout publishing it.</p>\n</aside>\n",
     "toc": [
       {
         "id": "the-middle-is-not-a-preview",
@@ -409,6 +522,216 @@ export const GUIDE_PAGES: GuidePage[] = [
     ]
   },
   {
+    "slug": "adding-sections",
+    "group": "builder",
+    "audience": "merchant",
+    "order": 71,
+    "title": "Adding and arranging sections",
+    "summary": "What a section is, where a new one lands, and how to move, duplicate, hide or remove one.",
+    "who": "Merchants",
+    "icon": "layers",
+    "noindex": false,
+    "related": [
+      "the-three-columns",
+      "the-settings-panel"
+    ],
+    "html": "<figure class=\"gd-shot\"><picture class=\"t-light\"><img src=\"/guide-shots/builder-add--desktop--light.webp\" alt=\"The Add panel open beside the canvas, listing the sections available to put on the page.\" width=\"1280\" height=\"900\" loading=\"eager\" decoding=\"async\"></picture><picture class=\"t-dark\"><img src=\"/guide-shots/builder-add--desktop--dark.webp\" alt=\"The Add panel open beside the canvas, listing the sections available to put on the page.\" width=\"1280\" height=\"900\" loading=\"lazy\" decoding=\"async\"></picture><figcaption>A new section lands below whatever is selected, not at the bottom of the page.</figcaption></figure>\n<p>A page is a stack of <strong>sections</strong>. Each one is a band across the page — a header, a hero, a row\nof products, a paragraph, a gallery, a footer. You build a page by stacking them and then\nchanging what is inside each.</p>\n<h2 id=\"where-a-new-one-lands\">Where a new one lands</h2>\n<p>Below whatever is currently selected. That is almost always what you want: you are looking at a\nsection, you want another one after it.</p>\n<p>If nothing is selected it goes at the end.</p>\n<h2 id=\"the-twelve-sections\">The twelve sections</h2>\n<div class=\"gd-table\"><table><thead><tr><th>Section</th><th>What it is for</th></tr></thead><tbody><tr><td><strong>Header</strong></td><td>The bar at the top: your name, the menu, a search, an announcement</td></tr><tr><td><strong>Hero</strong></td><td>The first thing a visitor sees. A heading, a line, a button, usually a picture</td></tr><tr><td><strong>Highlights</strong></td><td>Two to four short points — why these last, how they are made, delivery</td></tr><tr><td><strong>Image and text</strong></td><td>A picture beside a paragraph. The workhorse of an about page</td></tr><tr><td><strong>Product grid</strong></td><td>Your catalogue on the page, all of it or the newest few</td></tr><tr><td><strong>Text</strong></td><td>Your story in your own words. Blank lines make paragraphs</td></tr><tr><td><strong>Gallery</strong></td><td>A grid of photographs, with no prices attached</td></tr><tr><td><strong>Testimonials</strong></td><td>A quote, a name, and where they are from</td></tr><tr><td><strong>FAQ</strong></td><td>The questions you keep getting, answered once</td></tr><tr><td><strong>Newsletter</strong></td><td>An email box. Addresses land in your dashboard, not a third-party widget</td></tr><tr><td><strong>Contact</strong></td><td>WhatsApp, Instagram and email buttons that open the apps people already use</td></tr><tr><td><strong>Footer</strong></td><td>The small print: links, socials, and the policies a shop has to publish</td></tr></tbody></table></div>\n<p>Header and footer are <strong>structural</strong> — every page has them, and they cannot be removed, only\nchanged.</p>\n<h2 id=\"moving-one\">Moving one</h2>\n<p>Drag it in the canvas, or open <strong>Layers</strong> in the left panel and drag it there. Layers is easier\nfor a long page, because you can see the whole thing at once instead of scrolling.</p>\n<p>Keyboard works too: select a section and use the move controls in the settings panel.</p>\n<h2 id=\"duplicating\">Duplicating</h2>\n<p>Useful more often than it sounds. Two image-and-text bands alternating sides is a good-looking\nabout page, and the second one is a copy of the first with the picture flipped.</p>\n<h2 id=\"hiding-rather-than-deleting\">Hiding rather than deleting</h2>\n<aside class=\"gd-callout gd-tip\"><p class=\"gd-callout-title\">Tip</p><p>Hide is the one worth knowing about. A hidden section stays on the page, keeps every word and\npicture in it, and simply does not render. It is the right tool for anything seasonal — a\nDiwali banner, a &quot;closed until the 8th&quot; notice — because next year it is one click rather than\nrebuilding it.</p>\n</aside>\n<p>Deleting is permanent for that draft, though undo will bring it back in the same session, and\nrestoring an earlier version will bring it back later.</p>\n<aside class=\"gd-callout gd-warning\"><p class=\"gd-callout-title\">Worth knowing</p><p>Deleting a section deletes the words in it. If you are unsure, hide it — the page looks\nidentical either way.</p>\n</aside>\n",
+    "toc": [
+      {
+        "id": "where-a-new-one-lands",
+        "text": "Where a new one lands",
+        "depth": 2
+      },
+      {
+        "id": "the-twelve-sections",
+        "text": "The twelve sections",
+        "depth": 2
+      },
+      {
+        "id": "moving-one",
+        "text": "Moving one",
+        "depth": 2
+      },
+      {
+        "id": "duplicating",
+        "text": "Duplicating",
+        "depth": 2
+      },
+      {
+        "id": "hiding-rather-than-deleting",
+        "text": "Hiding rather than deleting",
+        "depth": 2
+      }
+    ]
+  },
+  {
+    "slug": "the-settings-panel",
+    "group": "builder",
+    "audience": "merchant",
+    "order": 72,
+    "title": "The settings panel",
+    "summary": "The right-hand column, which shows only the controls that apply to whatever you clicked.",
+    "who": "Merchants",
+    "icon": "sliders-horizontal",
+    "noindex": false,
+    "related": [
+      "adding-sections",
+      "style"
+    ],
+    "html": "<p>Click anything in the canvas and the right-hand column becomes its settings. Click something\nelse and it becomes that thing&#39;s settings instead.</p>\n<p>There is no settings page with forty rows where thirty-six do nothing. What you see is what\napplies.</p>\n<h2 id=\"the-kinds-of-control\">The kinds of control</h2>\n<p><strong>Words.</strong> Type into the box and the canvas updates as you type. There is no save button; see\n<a href=\"/guide/builder/undo-and-versions\">undo and version history</a> for what happens to it.</p>\n<p><strong>Choices.</strong> Layout, alignment, how many columns, which corner rounding. These are a small set\nof named options rather than free numbers, on purpose — &quot;2, 3 or 4 columns&quot; cannot produce a\nbroken layout, and &quot;any number you like&quot; can.</p>\n<p><strong>Switches.</strong> Show prices, show the search, keep the header on screen while scrolling. On or\noff.</p>\n<p><strong>Pictures.</strong> Opens your media library, or uploads a new one. See <a href=\"/guide/selling/pictures\">pictures</a>.</p>\n<p><strong>Tone.</strong> Most sections offer a background: the page colour, or a raised one. Alternating them\ndown a page is what stops it reading as one long scroll.</p>\n<h2 id=\"why-the-choices-are-named\">Why the choices are named</h2>\n<p>Look at the colour controls and you will find nine <strong>roles</strong> rather than a colour picker —\n&quot;Buttons&quot;, &quot;Highlights&quot;, &quot;Page background&quot;. Changing the one called Buttons changes every button\non the shop, and they stay consistent with each other because they were never separate.</p>\n<p>A free-for-all gives you a shop with four slightly different oranges in it and no way to find\nthem all again.</p>\n<aside class=\"gd-callout gd-note\"><p class=\"gd-callout-title\">Note</p><p>This is why a shop built here is hard to make ugly. The controls are deliberately not a design\ntool — they are a set of decisions somebody already made, with the parts you would actually want\nto change left open.</p>\n</aside>\n<h2 id=\"per-section-notes-worth-knowing\">Per-section notes worth knowing</h2>\n<div class=\"gd-faq\"><details><summary>The hero&#39;s height</summary><div><p>Compact, tall or full. Full means the first screen is the picture and nothing else, which suits\na shop with one very good photograph and suits nothing else.</p>\n</div></details><details><summary>Product grid: which products</summary><div><p>All of them, the newest few, or a category. &quot;Newest&quot; is the one to pick if you add things often\n— the page rearranges itself and you never touch it again.</p>\n</div></details><details><summary>Prices can be turned off</summary><div><p>Per product grid. A grid with prices off and a contact section below it is a catalogue that\ntakes enquiries, which is the right shape for anything made to order.</p>\n</div></details><details><summary>The announcement bar</summary><div><p>Part of the header. A line of text across the very top. Empty means it does not render at all,\nso clearing it is how you remove it.</p>\n</div></details></div>\n",
+    "toc": [
+      {
+        "id": "the-kinds-of-control",
+        "text": "The kinds of control",
+        "depth": 2
+      },
+      {
+        "id": "why-the-choices-are-named",
+        "text": "Why the choices are named",
+        "depth": 2
+      },
+      {
+        "id": "per-section-notes-worth-knowing",
+        "text": "Per-section notes worth knowing",
+        "depth": 2
+      }
+    ]
+  },
+  {
+    "slug": "style",
+    "group": "builder",
+    "audience": "merchant",
+    "order": 73,
+    "title": "Style — colour, type and shape",
+    "summary": "The theme editor, and why colour is nine roles rather than a colour picker.",
+    "who": "Merchants",
+    "icon": "palette",
+    "noindex": false,
+    "related": [
+      "the-settings-panel",
+      "choosing-a-template"
+    ],
+    "html": "<p>Click away from every section — on empty space around the page — and the right-hand panel stops\nbeing about one section and becomes the <strong>theme</strong>: one palette, one type pairing and one set of\nshapes, applied to every page of the shop at once.</p>\n<h2 id=\"colour-as-nine-roles\">Colour, as nine roles</h2>\n<p>Not a colour picker with nine slots. Nine <strong>jobs</strong>, each of which means something:</p>\n<div class=\"gd-table\"><table><thead><tr><th>Role</th><th>Where it lands</th></tr></thead><tbody><tr><td>Page</td><td>The background behind everything</td></tr><tr><td>Surface</td><td>Cards, panels, anything raised off the page</td></tr><tr><td>Text</td><td>Body copy</td></tr><tr><td>Muted text</td><td>Captions, secondary lines</td></tr><tr><td>Buttons</td><td>Every button, and what sits on it</td></tr><tr><td>Highlights</td><td>Links, prices, anything asking to be noticed</td></tr><tr><td>Borders</td><td>Hairlines between things</td></tr><tr><td>Success</td><td>&quot;Added to basket&quot;, &quot;paid&quot;</td></tr><tr><td>Warning</td><td>&quot;Only two left&quot;, &quot;unpaid&quot;</td></tr></tbody></table></div>\n<p>Because &quot;Buttons&quot; means something, changing it stays coherent everywhere it lands. A picker with\nnine unnamed swatches gives you a shop with four slightly different oranges and no way to find\nthem all again.</p>\n<aside class=\"gd-callout gd-tip\"><p class=\"gd-callout-title\">Tip</p><p>Change <strong>Highlights</strong> first. It is the colour a visitor reads as &quot;this shop&#39;s colour&quot;, and it\ndoes more to make a template feel like yours than the other eight put together.</p>\n</aside>\n<h2 id=\"type\">Type</h2>\n<p>Nine faces, paired for you — a display face for headings and a text face for everything else.\nThe pairing is the identity; most sites use one face for both and look like every other site.</p>\n<aside class=\"gd-callout gd-note\"><p class=\"gd-callout-title\">Note</p><p>The fonts are <strong>self-hosted</strong>. A shopper&#39;s browser never has to tell a font service who they\nare, which is one fewer third party watching people who are only trying to buy a bowl.</p>\n</aside>\n<h2 id=\"shape\">Shape</h2>\n<p>Three controls, and they do more than they sound like:</p>\n<ul>\n<li><strong>Corner rounding</strong> on cards and pictures. Sharp reads as gallery; soft reads as friendly.</li>\n<li><strong>Button rounding</strong>, separately. Pill-shaped buttons on square cards is a real combination\nand a good one.</li>\n<li><strong>Rhythm</strong> — how much air sits between sections. The single biggest lever on whether a shop\nfeels expensive or cramped, and the one people never think to touch.</li>\n</ul>\n<aside class=\"gd-callout gd-warning\"><p class=\"gd-callout-title\">Worth knowing</p><p>Changing the theme changes every page at once. That is the point, but it means a change that\nlooks right on the home page is worth checking on a product page before publishing — the\nproduct page has more text on it than anything you designed by hand.</p>\n</aside>\n<h2 id=\"your-shop-s-colours-are-yours\">Your shop&#39;s colours are yours</h2>\n<p>The theme applies to your shop and nothing else. BuilderHut&#39;s own dark mode does not reach in\nand repaint your brand, and your palette does not leak out into the dashboard.</p>\n<p>That is also why a shopper visiting your shop sees your colours regardless of whether their\nphone is set to dark mode: a bakery&#39;s warm cream is the bakery, not a preference.</p>\n",
+    "toc": [
+      {
+        "id": "colour-as-nine-roles",
+        "text": "Colour, as nine roles",
+        "depth": 2
+      },
+      {
+        "id": "type",
+        "text": "Type",
+        "depth": 2
+      },
+      {
+        "id": "shape",
+        "text": "Shape",
+        "depth": 2
+      },
+      {
+        "id": "your-shop-s-colours-are-yours",
+        "text": "Your shop s colours are yours",
+        "depth": 2
+      }
+    ]
+  },
+  {
+    "slug": "layers-and-pages",
+    "group": "builder",
+    "audience": "merchant",
+    "order": 74,
+    "title": "Layers and pages",
+    "summary": "The whole page as a list, and the pages of the shop — including the ones you cannot delete.",
+    "who": "Merchants",
+    "icon": "list-tree",
+    "noindex": false,
+    "related": [
+      "adding-sections"
+    ],
+    "html": "<figure class=\"gd-shot\"><picture class=\"t-light\"><img src=\"/guide-shots/builder-layers--desktop--light.webp\" alt=\"The Layers tab, listing every section on the page in order with hide and reorder controls.\" width=\"1280\" height=\"900\" loading=\"eager\" decoding=\"async\"></picture><picture class=\"t-dark\"><img src=\"/guide-shots/builder-layers--desktop--dark.webp\" alt=\"The Layers tab, listing every section on the page in order with hide and reorder controls.\" width=\"1280\" height=\"900\" loading=\"lazy\" decoding=\"async\"></picture><figcaption>Easier than the canvas for a long page: you can see the whole thing at once.</figcaption></figure>\n<h2 id=\"layers\">Layers</h2>\n<p>The page as a list, top to bottom. Every section, in order.</p>\n<p>Three things it does better than the canvas:</p>\n<ul>\n<li><strong>Reordering a long page.</strong> Dragging a footer past six sections in the canvas means scrolling\nwhile dragging. In the list it is one short drag.</li>\n<li><strong>Hiding.</strong> The eye beside each row. A hidden section keeps everything in it and simply does\nnot render — see <a href=\"/guide/builder/adding-sections\">adding and arranging sections</a>.</li>\n<li><strong>Finding.</strong> Click a row and the canvas jumps to it and selects it.</li>\n</ul>\n<h2 id=\"pages\">Pages</h2>\n<figure class=\"gd-shot\"><picture class=\"t-light\"><img src=\"/guide-shots/builder-pages--desktop--light.webp\" alt=\"The Pages tab, showing the shop's pages including the ones that cannot be removed.\" width=\"1280\" height=\"900\" loading=\"lazy\" decoding=\"async\"></picture><picture class=\"t-dark\"><img src=\"/guide-shots/builder-pages--desktop--dark.webp\" alt=\"The Pages tab, showing the shop's pages including the ones that cannot be removed.\" width=\"1280\" height=\"900\" loading=\"lazy\" decoding=\"async\"></picture><figcaption>Some pages are generated from your catalogue rather than built by hand.</figcaption></figure>\n<p>Your shop has more pages than the ones you made.</p>\n<p><strong>Pages you build.</strong> Home, about, anything else you add. Each is its own stack of sections.</p>\n<p><strong>Pages that are generated.</strong> Product pages come from your catalogue — a new product is a new\npage with no layout work at all. The basket, the checkout and the order confirmation are the\nsame: they exist, they follow your theme, and there is nothing to arrange.</p>\n<p><strong>Pages you cannot delete.</strong> The home page, and the policy pages a shop is required to publish.\nThey can be edited; they cannot be removed, because a shop without a home page is not a shop and\na checkout without a returns policy is a problem in several countries.</p>\n<aside class=\"gd-callout gd-note\"><p class=\"gd-callout-title\">Note</p><p>This is why &quot;product pages are generated, not built&quot; matters more than it sounds. Adding your\nfortieth product costs exactly what adding your first did.</p>\n</aside>\n<h2 id=\"adding-a-page\">Adding a page</h2>\n<p>New pages get an address from their name — &quot;Our workshop&quot; becomes <code>/our-workshop</code> — and appear\nin the header menu unless you say otherwise.</p>\n<aside class=\"gd-callout gd-tip\"><p class=\"gd-callout-title\">Tip</p><p>Fewer pages is almost always better. A shop where everything is on the home page and the\nproducts are one click away outperforms one with six pages nobody visits. Add a page when you\nhave something that genuinely does not fit, not before.</p>\n</aside>\n",
+    "toc": [
+      {
+        "id": "layers",
+        "text": "Layers",
+        "depth": 2
+      },
+      {
+        "id": "pages",
+        "text": "Pages",
+        "depth": 2
+      },
+      {
+        "id": "adding-a-page",
+        "text": "Adding a page",
+        "depth": 2
+      }
+    ]
+  },
+  {
+    "slug": "phone-and-tablet",
+    "group": "builder",
+    "audience": "merchant",
+    "order": 75,
+    "title": "Phone and tablet",
+    "summary": "Why narrowing the canvas shows exactly what a phone shows, and the few things worth checking there.",
+    "who": "Merchants",
+    "icon": "smartphone",
+    "noindex": false,
+    "related": [
+      "the-three-columns"
+    ],
+    "html": "<p>The top bar has three widths: desktop, tablet and phone. They narrow the canvas.</p>\n<h2 id=\"they-are-widths-not-emulations\">They are widths, not emulations</h2>\n<p>There is no phone simulator here and no separate mobile version of your shop to maintain. The\nstorefront is responsive — it rearranges itself to whatever width it is given — so narrowing the\ncanvas shows you exactly what a phone shows, because it is the same page at the same width.</p>\n<p>This means two things:</p>\n<ul>\n<li>You cannot make the phone version differ from the desktop version, because there is only one\nversion.</li>\n<li>Anything that looks wrong at phone width <strong>is</strong> wrong, right now, for the majority of your\nvisitors.</li>\n</ul>\n<aside class=\"gd-callout gd-warning\"><p class=\"gd-callout-title\">Worth knowing</p><p>Most people will see your shop on a phone. If you only ever look at it on a laptop, you are\nchecking the version fewer of your customers get.</p>\n</aside>\n<h2 id=\"what-is-worth-checking\">What is worth checking</h2>\n<ol class=\"gd-steps\"><li><p class=\"gd-step-title\">Your heading</p><p>A heading that fits on one line at desktop width often takes four on a phone. Shorter is better\nanyway.</p>\n</li><li><p class=\"gd-step-title\">The hero picture</p><p>A wide landscape photograph becomes a thin strip on a phone. If the subject is off to one side,\nit may be cropped out entirely.</p>\n</li><li><p class=\"gd-step-title\">Product grid columns</p><p>Four columns at desktop width become one or two on a phone regardless of what you chose, so the\nsetting is really about desktop.</p>\n</li><li><p class=\"gd-step-title\">Your contact buttons</p><p>These are the most-tapped things on a phone shop. Check they are reachable without a long scroll.</p>\n</li></ol>\n<h2 id=\"on-a-phone-the-builder-itself\">On a phone, the builder itself</h2>\n<figure class=\"gd-shot\"><picture class=\"t-light\"><img src=\"/guide-shots/builder-panels-phone--phone--light.webp\" alt=\"The builder at phone width, with the section panel open as a sheet over the canvas.\" width=\"780\" height=\"1308\" loading=\"eager\" decoding=\"async\"></picture><picture class=\"t-dark\"><img src=\"/guide-shots/builder-panels-phone--phone--dark.webp\" alt=\"The builder at phone width, with the section panel open as a sheet over the canvas.\" width=\"780\" height=\"1308\" loading=\"lazy\" decoding=\"async\"></picture><figcaption>The side panels become sheets, because three columns on a phone is three things too narrow to use.</figcaption></figure>\n<p>You can edit from a phone. The two side panels become sheets that slide up over the canvas\nrather than columns beside it — three columns on a phone is three things too narrow to be\nusable.</p>\n<p>Tapping a section on the canvas opens its settings directly, which is faster than it sounds for\nsmall fixes.</p>\n",
+    "toc": [
+      {
+        "id": "they-are-widths-not-emulations",
+        "text": "They are widths, not emulations",
+        "depth": 2
+      },
+      {
+        "id": "what-is-worth-checking",
+        "text": "What is worth checking",
+        "depth": 2
+      },
+      {
+        "id": "on-a-phone-the-builder-itself",
+        "text": "On a phone, the builder itself",
+        "depth": 2
+      }
+    ]
+  },
+  {
+    "slug": "undo-and-versions",
+    "group": "builder",
+    "audience": "merchant",
+    "order": 76,
+    "title": "Undo, saving and version history",
+    "summary": "What counts as one undo step, when your work is saved, and how to go back to last week.",
+    "who": "Merchants",
+    "icon": "history",
+    "noindex": false,
+    "related": [
+      "publishing"
+    ],
+    "html": "<h2 id=\"saving\">Saving</h2>\n<p>There is no save button. The draft saves itself a moment after you stop typing.</p>\n<p>The top bar says which state you are in — saving, saved, or a problem. If you close the tab\nmid-save, the words you typed are not lost: the save that was in flight completes, and anything\ntyped after it is kept and sent when you come back.</p>\n<aside class=\"gd-callout gd-note\"><p class=\"gd-callout-title\">Note</p><p>Saving is not publishing. The shop the public sees does not change until you publish. See\n<a href=\"/guide/builder/publishing\">previewing and publishing</a>.</p>\n</aside>\n<h2 id=\"undo\">Undo</h2>\n<p>Cmd-Z or Ctrl-Z, or the arrows in the top bar. Many steps back, not one.</p>\n<p><strong>Typing a heading is one step, not forty.</strong> Continuous typing in the same box collapses into a\nsingle undo, which is what you expect and is surprisingly rare in editors. Undoing after a long\nsentence takes you to before the sentence, not to the middle of it.</p>\n<p>Everything else is one step per action: adding a section, moving one, changing a colour, picking\na picture.</p>\n<h2 id=\"version-history\">Version history</h2>\n<figure class=\"gd-shot\"><picture class=\"t-light\"><img src=\"/guide-shots/builder-versions--desktop--light.webp\" alt=\"The version history panel, listing published versions with the date each went live.\" width=\"1280\" height=\"900\" loading=\"eager\" decoding=\"async\"></picture><picture class=\"t-dark\"><img src=\"/guide-shots/builder-versions--desktop--dark.webp\" alt=\"The version history panel, listing published versions with the date each went live.\" width=\"1280\" height=\"900\" loading=\"lazy\" decoding=\"async\"></picture><figcaption>Each one is an exact snapshot, not a description of what changed.</figcaption></figure>\n<p>Every time you publish, that exact state is kept — not a summary of what changed, the whole\ndocument.</p>\n<p>Restoring copies the old version <strong>into your draft</strong>. It does not go live. So you can restore\nsomething from last month, look at it, decide you were wrong, and the public never saw either.</p>\n<aside class=\"gd-callout gd-tip\"><p class=\"gd-callout-title\">Tip</p><p>This is the safety net that makes experimenting free. Publish, try something drastic, and if it\nwas a mistake, restore the version from before it and publish again. There is nothing to lose\nand no way to get stuck.</p>\n</aside>\n<div class=\"gd-faq\"><details><summary>How far back does undo go?</summary><div><p>Many steps, within the session. Reloading the page starts a fresh undo history — but your work\nis saved, so nothing is lost, and version history covers anything older.</p>\n</div></details><details><summary>Does undo cross a reload?</summary><div><p>No. Undo is for the session; version history is for anything longer.</p>\n</div></details><details><summary>Can I name a version?</summary><div><p>Versions carry a note, and publishing is the moment to write one. &quot;Before the winter photos&quot; is\nworth thirty seconds now and a lot later.</p>\n</div></details><details><summary>What if I restore and then change my mind?</summary><div><p>Restore a different version. Nothing is destroyed — every published version stays.</p>\n</div></details></div>\n",
+    "toc": [
+      {
+        "id": "saving",
+        "text": "Saving",
+        "depth": 2
+      },
+      {
+        "id": "undo",
+        "text": "Undo",
+        "depth": 2
+      },
+      {
+        "id": "version-history",
+        "text": "Version history",
+        "depth": 2
+      }
+    ]
+  },
+  {
     "slug": "publishing",
     "group": "builder",
     "audience": "merchant",
@@ -421,7 +744,7 @@ export const GUIDE_PAGES: GuidePage[] = [
     "related": [
       "the-three-columns"
     ],
-    "html": "<h2 id=\"preview\">Preview</h2>\n<p>Preview saves the draft first, then opens it in a new tab. That order matters: what you look at\nis what is <strong>stored</strong>, not what happened to be on screen — so if the two ever disagreed, preview\nwould show you the disagreement rather than hide it.</p>\n<p>What you get is the shop as a customer would get it. No outlines, no panels, links between\npages working. The band across the top is the only thing that is not the shop.</p>\n<h2 id=\"publishing\">Publishing</h2>\n<figure class=\"gd-shot gd-shot-missing\"><div class=\"gd-missing\">Screenshot &ldquo;publish-readiness&rdquo; has not been captured yet</div><figcaption>Blockers stop a publish. Warnings and suggestions do not.</figcaption></figure>\n<p>Publishing checks the shop is fit to open before it opens it.</p>\n<div class=\"gd-table\"><table><thead><tr><th></th><th>Stops a publish</th><th>Example</th></tr></thead><tbody><tr><td><strong>Blocker</strong></td><td>Yes</td><td>No delivery option, so the checkout cannot complete</td></tr><tr><td><strong>Warning</strong></td><td>No</td><td>A product with no picture</td></tr><tr><td><strong>Suggestion</strong></td><td>No</td><td>No description on the home page for search engines</td></tr></tbody></table></div>\n<p>A shop with no delivery option has a checkout nobody can finish. Letting that go live would\nmean finding out from a customer, so it says so instead.</p>\n<aside class=\"gd-callout gd-warning\"><p class=\"gd-callout-title\">Worth knowing</p><p>Blockers are about whether the shop can take an order, not whether it looks finished. A shop\ncan publish with placeholder words still in it — that is a warning, not a blocker, because only\nyou know whether they are placeholders.</p>\n</aside>\n<h2 id=\"going-back\">Going back</h2>\n<p>Every publish is kept as a version — an exact snapshot, not a summary of what changed. Going\nback is choosing an earlier one, which copies it into your draft for you to look at before you\npublish it again.</p>\n<aside class=\"gd-callout gd-note\"><p class=\"gd-callout-title\">Note</p><p>Restoring puts the old version into the <strong>draft</strong>, not straight onto the live shop. So you can\nrestore something from last month, look at it, change your mind, and the public never saw\neither.</p>\n</aside>\n<div class=\"gd-faq\"><details><summary>Can I unpublish?</summary><div><p>Yes. The shop&#39;s address then shows that it is not currently open, rather than disappearing.</p>\n</div></details><details><summary>Does publishing change my web address?</summary><div><p>No. The address is set once and stays.</p>\n</div></details><details><summary>How long does it take to appear?</summary><div><p>Immediately. There is no build step and nothing to wait for.</p>\n</div></details></div>\n",
+    "html": "<h2 id=\"preview\">Preview</h2>\n<p>Preview saves the draft first, then opens it in a new tab. That order matters: what you look at\nis what is <strong>stored</strong>, not what happened to be on screen — so if the two ever disagreed, preview\nwould show you the disagreement rather than hide it.</p>\n<p>What you get is the shop as a customer would get it. No outlines, no panels, links between\npages working. The band across the top is the only thing that is not the shop.</p>\n<h2 id=\"publishing\">Publishing</h2>\n<figure class=\"gd-shot\"><picture class=\"t-light\"><img src=\"/guide-shots/publish-readiness--desktop--light.webp\" alt=\"The publish panel, listing what is ready and what is not before anything goes public.\" width=\"1280\" height=\"900\" loading=\"eager\" decoding=\"async\"></picture><picture class=\"t-dark\"><img src=\"/guide-shots/publish-readiness--desktop--dark.webp\" alt=\"The publish panel, listing what is ready and what is not before anything goes public.\" width=\"1280\" height=\"900\" loading=\"lazy\" decoding=\"async\"></picture><figcaption>Blockers stop a publish. Warnings and suggestions do not.</figcaption></figure>\n<p>Publishing checks the shop is fit to open before it opens it.</p>\n<div class=\"gd-table\"><table><thead><tr><th></th><th>Stops a publish</th><th>Example</th></tr></thead><tbody><tr><td><strong>Blocker</strong></td><td>Yes</td><td>No delivery option, so the checkout cannot complete</td></tr><tr><td><strong>Warning</strong></td><td>No</td><td>A product with no picture</td></tr><tr><td><strong>Suggestion</strong></td><td>No</td><td>No description on the home page for search engines</td></tr></tbody></table></div>\n<p>A shop with no delivery option has a checkout nobody can finish. Letting that go live would\nmean finding out from a customer, so it says so instead.</p>\n<aside class=\"gd-callout gd-warning\"><p class=\"gd-callout-title\">Worth knowing</p><p>Blockers are about whether the shop can take an order, not whether it looks finished. A shop\ncan publish with placeholder words still in it — that is a warning, not a blocker, because only\nyou know whether they are placeholders.</p>\n</aside>\n<h2 id=\"going-back\">Going back</h2>\n<p>Every publish is kept as a version — an exact snapshot, not a summary of what changed. Going\nback is choosing an earlier one, which copies it into your draft for you to look at before you\npublish it again.</p>\n<aside class=\"gd-callout gd-note\"><p class=\"gd-callout-title\">Note</p><p>Restoring puts the old version into the <strong>draft</strong>, not straight onto the live shop. So you can\nrestore something from last month, look at it, change your mind, and the public never saw\neither.</p>\n</aside>\n<div class=\"gd-faq\"><details><summary>Can I unpublish?</summary><div><p>Yes. The shop&#39;s address then shows that it is not currently open, rather than disappearing.</p>\n</div></details><details><summary>Does publishing change my web address?</summary><div><p>No. The address is set once and stays.</p>\n</div></details><details><summary>How long does it take to appear?</summary><div><p>Immediately. There is no build step and nothing to wait for.</p>\n</div></details></div>\n",
     "toc": [
       {
         "id": "preview",
@@ -441,6 +764,44 @@ export const GUIDE_PAGES: GuidePage[] = [
     ]
   },
   {
+    "slug": "the-dashboard",
+    "group": "running",
+    "audience": "merchant",
+    "order": 85,
+    "title": "The dashboard",
+    "summary": "What the front page of your shop's admin shows, and why the checklist comes before the numbers.",
+    "who": "Merchants",
+    "icon": "layout-dashboard",
+    "noindex": false,
+    "related": [
+      "analytics",
+      "orders"
+    ],
+    "html": "<figure class=\"gd-shot\"><picture class=\"t-light\"><source media=\"(max-width: 640px)\" srcset=\"/guide-shots/dashboard--phone--light.webp\" width=\"780\" height=\"1308\"><img src=\"/guide-shots/dashboard--desktop--light.webp\" alt=\"The dashboard: a setup checklist at the top, then revenue, orders and conversion.\" width=\"1280\" height=\"900\" loading=\"eager\" decoding=\"async\"></picture><picture class=\"t-dark\"><source media=\"(max-width: 640px)\" srcset=\"/guide-shots/dashboard--phone--dark.webp\" width=\"780\" height=\"1308\"><img src=\"/guide-shots/dashboard--desktop--dark.webp\" alt=\"The dashboard: a setup checklist at the top, then revenue, orders and conversion.\" width=\"1280\" height=\"900\" loading=\"lazy\" decoding=\"async\"></picture><figcaption>The checklist comes first until it is done, because a shop with no delivery option cannot take an order at all.</figcaption></figure>\n<h2 id=\"the-checklist-comes-first\">The checklist comes first</h2>\n<p>Until your shop is genuinely ready, the top of the dashboard is a list of what is missing rather\nthan a chart of nothing.</p>\n<p>That ordering is deliberate. A revenue chart showing zero is not information — it is the same\npicture whether you have no customers or a broken checkout. The checklist tells you which.</p>\n<p>Once the list is done it stops taking up room.</p>\n<h2 id=\"the-numbers\">The numbers</h2>\n<p>Three tiles and two charts.</p>\n<div class=\"gd-table\"><table><thead><tr><th></th><th>What it counts</th></tr></thead><tbody><tr><td><strong>Revenue</strong></td><td>Paid, less refunded. Net, not gross</td></tr><tr><td><strong>Orders</strong></td><td>Orders placed, whatever state they are in</td></tr><tr><td><strong>Conversion</strong></td><td>Visitors who bought, as a percentage</td></tr></tbody></table></div>\n<aside class=\"gd-callout gd-warning\"><p class=\"gd-callout-title\">Worth knowing</p><p>Revenue is <strong>net</strong>. A figure that counts refunded money is a figure that lies to the person\nrelying on it, and it lies upwards — at exactly the moment you are deciding whether you can\nafford something.</p>\n</aside>\n<h2 id=\"every-comparison-says-what-it-compares-to\">Every comparison says what it compares to</h2>\n<p>A number with an arrow next to it is meaningless unless you know the period. Every delta here is\nlabelled — &quot;vs the previous 30 days&quot;, not just a green arrow.</p>\n<aside class=\"gd-callout gd-note\"><p class=\"gd-callout-title\">Note</p><p>Early on these will swing wildly. Two orders last week and four this week is +100%, and it means\nnothing. Percentages start being useful somewhere around thirty orders a month; before that,\nread the counts.</p>\n</aside>\n<h2 id=\"on-a-phone\">On a phone</h2>\n<p>The sidebar becomes a bar across the bottom with four things on it: the dashboard, products,\norders and the builder. Four, deliberately — a bottom bar with nine items is a bar where nothing\ncan be hit with a thumb.</p>\n<p>Everything else is still reachable, just not from there.</p>\n",
+    "toc": [
+      {
+        "id": "the-checklist-comes-first",
+        "text": "The checklist comes first",
+        "depth": 2
+      },
+      {
+        "id": "the-numbers",
+        "text": "The numbers",
+        "depth": 2
+      },
+      {
+        "id": "every-comparison-says-what-it-compares-to",
+        "text": "Every comparison says what it compares to",
+        "depth": 2
+      },
+      {
+        "id": "on-a-phone",
+        "text": "On a phone",
+        "depth": 2
+      }
+    ]
+  },
+  {
     "slug": "orders",
     "group": "running",
     "audience": "merchant",
@@ -453,7 +814,7 @@ export const GUIDE_PAGES: GuidePage[] = [
     "related": [
       "publishing"
     ],
-    "html": "<figure class=\"gd-shot gd-shot-missing\"><div class=\"gd-missing\">Screenshot &ldquo;order-detail&rdquo; has not been captured yet</div><figcaption>Only the states that can follow this one are offered.</figcaption></figure>\n<h2 id=\"an-order-is-a-state-machine-not-a-status-field\">An order is a state machine, not a status field</h2>\n<p>An order can only move to a state that actually follows the one it is in. &quot;Delivered&quot; is not\noffered until it has been sent; &quot;sent&quot; is not offered until it has been paid.</p>\n<p>This is why the buttons change from one order to the next. It is not a permissions thing — it\nis that a dropdown listing every state lets you mark something delivered that was never posted,\nand then the history of that order is a lie.</p>\n<h2 id=\"refunds-are-partial-by-default\">Refunds are partial by default</h2>\n<p>The amount box starts empty rather than filled in with the order total.</p>\n<p>A chipped piece is worth a thousand rupees back, not the whole order and an argument about\nreturn postage. Making partial the default costs one number typed; making full the default\ncosts the difference, every time somebody accepts it without thinking.</p>\n<aside class=\"gd-callout gd-warning\"><p class=\"gd-callout-title\">Worth knowing</p><p>A refund cannot be undone. It is a real movement of money — or in this build, a real record of\none — and reversing it means taking a fresh payment.</p>\n</aside>\n<h2 id=\"what-the-revenue-figure-counts\">What the revenue figure counts</h2>\n<p>Paid, less refunded. Net, not gross.</p>\n<p>A revenue number that counts refunded money is a number that lies to the person relying on it,\nand it lies in the most expensive direction — upwards, at exactly the moment you are deciding\nwhether you can afford something.</p>\n<h2 id=\"when-a-payment-fails\">When a payment fails</h2>\n<p>A refused card leaves a <strong>payable order</strong>, not an empty basket. The order exists, the basket is\nclosed, and the customer pays against the order rather than building it a second time and\nhoping the stock held.</p>\n<p>From your side it appears in the orders list as unpaid, and the customer can be sent back to it.</p>\n<div class=\"gd-faq\"><details><summary>Can I create an order myself?</summary><div><p>Not in this build. Orders come from the shop.</p>\n</div></details><details><summary>Can I change an order after it is placed?</summary><div><p>You can move it through its states and refund it. The items and the prices are fixed, because\nthey are the record of what was actually agreed.</p>\n</div></details><details><summary>What happens to stock on a refund?</summary><div><p>Nothing automatic. Whether a refunded item comes back to you is a conversation, not a rule.</p>\n</div></details></div>\n",
+    "html": "<figure class=\"gd-shot\"><picture class=\"t-light\"><img src=\"/guide-shots/order-detail--desktop--light.webp\" alt=\"An order's page: the items, the address, the payment, and the actions available at this point in its life.\" width=\"1280\" height=\"950\" loading=\"eager\" decoding=\"async\"></picture><picture class=\"t-dark\"><img src=\"/guide-shots/order-detail--desktop--dark.webp\" alt=\"An order's page: the items, the address, the payment, and the actions available at this point in its life.\" width=\"1280\" height=\"950\" loading=\"lazy\" decoding=\"async\"></picture><figcaption>Only the states that can follow this one are offered.</figcaption></figure>\n<h2 id=\"an-order-is-a-state-machine-not-a-status-field\">An order is a state machine, not a status field</h2>\n<p>An order can only move to a state that actually follows the one it is in. &quot;Delivered&quot; is not\noffered until it has been sent; &quot;sent&quot; is not offered until it has been paid.</p>\n<p>This is why the buttons change from one order to the next. It is not a permissions thing — it\nis that a dropdown listing every state lets you mark something delivered that was never posted,\nand then the history of that order is a lie.</p>\n<h2 id=\"refunds-are-partial-by-default\">Refunds are partial by default</h2>\n<p>The amount box starts empty rather than filled in with the order total.</p>\n<p>A chipped piece is worth a thousand rupees back, not the whole order and an argument about\nreturn postage. Making partial the default costs one number typed; making full the default\ncosts the difference, every time somebody accepts it without thinking.</p>\n<aside class=\"gd-callout gd-warning\"><p class=\"gd-callout-title\">Worth knowing</p><p>A refund cannot be undone. It is a real movement of money — or in this build, a real record of\none — and reversing it means taking a fresh payment.</p>\n</aside>\n<h2 id=\"what-the-revenue-figure-counts\">What the revenue figure counts</h2>\n<p>Paid, less refunded. Net, not gross.</p>\n<p>A revenue number that counts refunded money is a number that lies to the person relying on it,\nand it lies in the most expensive direction — upwards, at exactly the moment you are deciding\nwhether you can afford something.</p>\n<h2 id=\"when-a-payment-fails\">When a payment fails</h2>\n<p>A refused card leaves a <strong>payable order</strong>, not an empty basket. The order exists, the basket is\nclosed, and the customer pays against the order rather than building it a second time and\nhoping the stock held.</p>\n<p>From your side it appears in the orders list as unpaid, and the customer can be sent back to it.</p>\n<div class=\"gd-faq\"><details><summary>Can I create an order myself?</summary><div><p>Not in this build. Orders come from the shop.</p>\n</div></details><details><summary>Can I change an order after it is placed?</summary><div><p>You can move it through its states and refund it. The items and the prices are fixed, because\nthey are the record of what was actually agreed.</p>\n</div></details><details><summary>What happens to stock on a refund?</summary><div><p>Nothing automatic. Whether a refunded item comes back to you is a conversation, not a rule.</p>\n</div></details></div>\n",
     "toc": [
       {
         "id": "an-order-is-a-state-machine-not-a-status-field",
@@ -473,6 +834,112 @@ export const GUIDE_PAGES: GuidePage[] = [
       {
         "id": "when-a-payment-fails",
         "text": "When a payment fails",
+        "depth": 2
+      }
+    ]
+  },
+  {
+    "slug": "customers",
+    "group": "running",
+    "audience": "merchant",
+    "order": 91,
+    "title": "Customers",
+    "summary": "Who has bought from you, what you can see, and what is deliberately not collected.",
+    "who": "Merchants",
+    "icon": "users",
+    "noindex": false,
+    "related": [
+      "orders"
+    ],
+    "html": "<p>Everyone who has completed an order, with what they bought and when.</p>\n<h2 id=\"what-is-here\">What is here</h2>\n<p>A name, an email address, the orders they placed, and what they spent. Click through to any\norder.</p>\n<p>That is the whole of it, and the absence of more is the point.</p>\n<h2 id=\"what-is-not-collected\">What is not collected</h2>\n<aside class=\"gd-callout gd-note\"><p class=\"gd-callout-title\">Note</p><p>No browsing history tied to a person. No profile built across shops. No &quot;customers who looked at\nthis also looked at that&quot;.</p>\n<p>Visitor counting uses a <strong>first-party cookie scoped to one shop</strong> — a random value, with nothing\njoined to a customer record and nothing shared with any other shop on BuilderHut. So your\nanalytics can tell you how many people visited, and cannot tell you that a particular person\ndid.</p>\n</aside>\n<p>That is a deliberate trade. It means slightly less information for you, and it means a customer\nbuying a cake is not being followed around.</p>\n<h2 id=\"customers-are-per-shop\">Customers are per shop</h2>\n<p>Somebody who buys from two BuilderHut shops is two customers, one in each. There is no shared\nidentity across the platform, so your customer list is genuinely yours and nobody else can see\nit — including other merchants and including us, beyond what running the service requires.</p>\n<h2 id=\"contacting-people\">Contacting people</h2>\n<p>The email address is there. There is no bulk mail tool in this build — see\n<a href=\"/guide/running/orders\">reminders</a> for the one automated message the shop sends, which is about\nan order somebody did not finish paying for.</p>\n<aside class=\"gd-callout gd-warning\"><p class=\"gd-callout-title\">Worth knowing</p><p>Somebody giving you an email address to complete an order has not agreed to a newsletter.\nAdding them to one is, in most places, against the law and, everywhere, a good way to be marked\nas spam. The newsletter section on your shop exists so people can ask for it.</p>\n</aside>\n",
+    "toc": [
+      {
+        "id": "what-is-here",
+        "text": "What is here",
+        "depth": 2
+      },
+      {
+        "id": "what-is-not-collected",
+        "text": "What is not collected",
+        "depth": 2
+      },
+      {
+        "id": "customers-are-per-shop",
+        "text": "Customers are per shop",
+        "depth": 2
+      },
+      {
+        "id": "contacting-people",
+        "text": "Contacting people",
+        "depth": 2
+      }
+    ]
+  },
+  {
+    "slug": "analytics",
+    "group": "running",
+    "audience": "merchant",
+    "order": 92,
+    "title": "The numbers",
+    "summary": "What is counted, what each figure is compared against, and how much to read into it early on.",
+    "who": "Merchants",
+    "icon": "chart-line",
+    "noindex": false,
+    "related": [
+      "the-dashboard"
+    ],
+    "html": "<figure class=\"gd-shot\"><picture class=\"t-light\"><img src=\"/guide-shots/analytics--desktop--light.webp\" alt=\"The analytics page: visitors, orders and conversion over time, with the comparison period named.\" width=\"1280\" height=\"900\" loading=\"eager\" decoding=\"async\"></picture><picture class=\"t-dark\"><img src=\"/guide-shots/analytics--desktop--dark.webp\" alt=\"The analytics page: visitors, orders and conversion over time, with the comparison period named.\" width=\"1280\" height=\"900\" loading=\"lazy\" decoding=\"async\"></picture><figcaption>Every delta says what it is comparing to. A green arrow on its own is not information.</figcaption></figure>\n<h2 id=\"what-is-counted\">What is counted</h2>\n<p><strong>Visitors</strong> — distinct people, by a first-party cookie scoped to your shop, over a rolling\nwindow.</p>\n<p><strong>Sessions</strong> — a visit. Somebody who comes back tomorrow is one visitor and two sessions.</p>\n<p><strong>Orders</strong> and <strong>revenue</strong> — as on the dashboard, net of refunds.</p>\n<p><strong>Conversion</strong> — orders divided by sessions, as a percentage.</p>\n<h2 id=\"today-and-history-are-stored-differently\">Today and history are stored differently</h2>\n<p>Raw events are kept briefly and rolled up nightly into daily totals, which are kept.</p>\n<p>The practical consequence: <strong>today&#39;s figures move as the day goes on</strong>, and yesterday&#39;s are\nfinal. If a number changes between the morning and the evening, that is the day still happening\nrather than a fault.</p>\n<h2 id=\"how-much-to-read-into-it\">How much to read into it</h2>\n<aside class=\"gd-callout gd-warning\"><p class=\"gd-callout-title\">Worth knowing</p><p>Early on, almost nothing. Ten sessions and one order is a 10% conversion rate and it is noise —\nthe same shop next week will show 0% or 25% with nothing having changed.</p>\n<p>Counts are honest at any volume. Percentages start meaning something somewhere around a few\nhundred sessions a month. Until then, read the counts and ignore the rates.</p>\n</aside>\n<h2 id=\"what-the-numbers-cannot-tell-you\">What the numbers cannot tell you</h2>\n<p>They cannot tell you <strong>why</strong>. A dip might be a broken picture, a holiday, or an Instagram post\nthat did well last week and is now buried.</p>\n<aside class=\"gd-callout gd-tip\"><p class=\"gd-callout-title\">Tip</p><p>The single most useful thing is not on this page: open your own shop on your own phone, as a\ncustomer, once a week. Add something to the basket and go as far as the payment step. Most\nproblems that cost sales are visible in thirty seconds and invisible in a chart.</p>\n</aside>\n<div class=\"gd-faq\"><details><summary>Where do visitors come from?</summary><div><p>Referrer information is recorded where the browser provides it. A lot of traffic arrives with\nnone — anything from a messaging app usually does — so &quot;direct&quot; is larger than it really is\neverywhere, not just here.</p>\n</div></details><details><summary>Does this use Google Analytics?</summary><div><p>No. Nothing is sent to a third party. That is also why there is no cookie banner: a first-party\ncounter scoped to one shop, with no profile and nothing shared, is not what those rules are\nabout.</p>\n</div></details><details><summary>Can I see which products are viewed most?</summary><div><p>Product page views are counted. Orders per product are on the products list.</p>\n</div></details></div>\n",
+    "toc": [
+      {
+        "id": "what-is-counted",
+        "text": "What is counted",
+        "depth": 2
+      },
+      {
+        "id": "today-and-history-are-stored-differently",
+        "text": "Today and history are stored differently",
+        "depth": 2
+      },
+      {
+        "id": "how-much-to-read-into-it",
+        "text": "How much to read into it",
+        "depth": 2
+      },
+      {
+        "id": "what-the-numbers-cannot-tell-you",
+        "text": "What the numbers cannot tell you",
+        "depth": 2
+      }
+    ]
+  },
+  {
+    "slug": "your-web-address",
+    "group": "running",
+    "audience": "merchant",
+    "order": 93,
+    "title": "Your web address",
+    "summary": "The address your shop gets for free, and how to point a domain you own at it.",
+    "who": "Merchants",
+    "icon": "globe",
+    "noindex": false,
+    "related": [
+      "publishing"
+    ],
+    "html": "<figure class=\"gd-shot\"><picture class=\"t-light\"><img src=\"/guide-shots/domains--desktop--light.webp\" alt=\"The domains page, showing the DNS record to add and whether it has taken effect.\" width=\"1280\" height=\"900\" loading=\"eager\" decoding=\"async\"></picture><picture class=\"t-dark\"><img src=\"/guide-shots/domains--desktop--dark.webp\" alt=\"The domains page, showing the DNS record to add and whether it has taken effect.\" width=\"1280\" height=\"900\" loading=\"lazy\" decoding=\"async\"></picture><figcaption>The page tells you the exact record and checks it for you rather than asking you to guess.</figcaption></figure>\n<p>Every shop gets an address the moment it is created. It works immediately, it is free, and it\nkeeps working forever — connecting your own domain adds one, it does not replace it.</p>\n<h2 id=\"using-a-domain-you-own\">Using a domain you own</h2>\n<ol class=\"gd-steps\"><li><p class=\"gd-step-title\">Add it here</p><p>Type the domain into the domains page. It is checked for obvious problems before anything else\nhappens.</p>\n</li><li><p class=\"gd-step-title\">Add one DNS record</p><p>The page shows you exactly which record, with the exact value. You add it wherever you bought\nthe domain.</p>\n</li><li><p class=\"gd-step-title\">Wait</p><p>DNS takes anywhere from a few minutes to a few hours to spread. The page checks and tells you\nwhen it has.</p>\n</li><li><p class=\"gd-step-title\">Make it the primary</p><p>Once verified, set it as primary. Your BuilderHut address then redirects to it.</p>\n</li></ol>\n<aside class=\"gd-callout gd-warning\"><p class=\"gd-callout-title\">Worth knowing</p><p>The wait is genuinely out of anyone&#39;s hands. If the page says the record is not visible yet,\nthat is usually true rather than a fault — give it an hour before assuming something is wrong.</p>\n</aside>\n<h2 id=\"why-the-redirect-matters\">Why the redirect matters</h2>\n<p>Two addresses serving the same shop means search engines see two shops and split the credit\nbetween them. Setting a primary makes every other address redirect to it, so there is one shop\nwith one address as far as anything outside is concerned.</p>\n<h2 id=\"buying-a-domain\">Buying a domain</h2>\n<p>Not from here, in this build. Buy it wherever you like — the DNS record is the same everywhere —\nand point it at the shop.</p>\n<div class=\"gd-faq\"><details><summary>Do I need a domain?</summary><div><p>No. Plenty of shops run on the address they were given. A domain is worth it when you are\nprinting it on something.</p>\n</div></details><details><summary>Can I use a subdomain?</summary><div><p>Yes — <code>shop.yourname.com</code> works the same way as the bare domain.</p>\n</div></details><details><summary>What happens to my BuilderHut address afterwards?</summary><div><p>It keeps working and redirects to the primary domain, so an old link in somebody&#39;s messages\nstill arrives.</p>\n</div></details><details><summary>Is HTTPS included?</summary><div><p>Yes, issued automatically once the domain verifies. There is nothing to buy or renew.</p>\n</div></details></div>\n",
+    "toc": [
+      {
+        "id": "using-a-domain-you-own",
+        "text": "Using a domain you own",
+        "depth": 2
+      },
+      {
+        "id": "why-the-redirect-matters",
+        "text": "Why the redirect matters",
+        "depth": 2
+      },
+      {
+        "id": "buying-a-domain",
+        "text": "Buying a domain",
         "depth": 2
       }
     ]
@@ -526,6 +993,88 @@ export const GUIDE_PAGES: GuidePage[] = [
       {
         "id": "what-the-api-does-not-do",
         "text": "What the API does not do",
+        "depth": 2
+      }
+    ]
+  },
+  {
+    "slug": "authentication",
+    "group": "api",
+    "audience": "integrator",
+    "order": 210,
+    "title": "Authentication",
+    "summary": "Personal access tokens — what they stand for, how to scope them, and why the role is read live.",
+    "who": "Integrators",
+    "icon": "key",
+    "noindex": false,
+    "related": [
+      "overview"
+    ],
+    "html": "<p>Every request carries a personal access token as a bearer credential.</p>\n<pre><code class=\"language-http\">GET /api/v1/products HTTP/1.1\nAuthorization: Bearer bh_pat_…\n</code></pre>\n<p>There is no cookie path and no session path. A browser session with no <code>Authorization</code> header\ngets <code>401</code>, even when the session is valid — this API accepts the token and only the token,\nwhich is what removes CSRF from the picture entirely.</p>\n<h2 id=\"what-a-token-is\">What a token is</h2>\n<p>A scoped stand-in for <strong>one person, in one shop</strong>.</p>\n<p>There are no service accounts. Nothing may act with an authority no person holds, which means\nevery action a token takes is attributable to somebody who could have taken it themselves.</p>\n<h2 id=\"the-role-is-read-live\">The role is read live</h2>\n<p>This is the part worth understanding, because it is what makes revocation instant.</p>\n<p>The token row records which shop and which user. It does <strong>not</strong> record the role. On every\nrequest, the user&#39;s membership of that shop is looked up fresh — so if the owner demotes\nsomebody or removes them, their token loses that authority on the very next call. There is no\nsecond thing to remember to revoke.</p>\n<p>The same applies to the shop itself: a token for a suspended shop resolves to nothing.</p>\n<aside class=\"gd-callout gd-warning\"><p class=\"gd-callout-title\">Worth knowing</p><p>A token is a password that skips the login screen. Treat it as one.</p>\n<p>Give it the narrowest scopes that do the job. Give it an expiry — the form offers 30, 90 or 365\ndays and does not offer &quot;never&quot;, because a credential that outlives the laptop it was made on\noutlives the person who would have revoked it. And keep it out of anything that syncs between\nmachines unless you meant it to be on all of them.</p>\n</aside>\n<h2 id=\"scopes\">Scopes</h2>\n<p>Named for a capability rather than a table: <code>products:read</code>, <code>orders:write</code>, <code>site:publish</code>.</p>\n<p><code>site:publish</code> is separate from <code>site:write</code> on purpose. Editing a draft and making it public\nare different levels of trust, and plenty of integrations want the first without the second.</p>\n<h2 id=\"three-checks-narrowest-wins\">Three checks, narrowest wins</h2>\n<div class=\"gd-table\"><table><thead><tr><th>Order</th><th>Check</th><th>Refusal</th></tr></thead><tbody><tr><td>1</td><td>Scope, from the token</td><td><code>403 INSUFFICIENT_SCOPE</code></td></tr><tr><td>2</td><td>Role, read live from membership</td><td><code>403 FORBIDDEN</code></td></tr><tr><td>3</td><td>Plan entitlement</td><td><code>402 PLAN_LIMIT</code></td></tr></tbody></table></div>\n<p>There is no override. A staff-role token carrying <code>products:write</code> is still refused, because a\nstaff member cannot change prices — a token is never wider than the person it belongs to.</p>\n<h2 id=\"losing-one\">Losing one</h2>\n<p>Revoke it. The list shows each token&#39;s prefix, when it was last used, and when it expires;\nrevoking takes effect immediately.</p>\n<aside class=\"gd-callout gd-note\"><p class=\"gd-callout-title\">Note</p><p>A token cannot mint or revoke another token, at any scope. That is why token management lives\nonly in the browser — a token that could make tokens would be one you could never safely put in\na config file.</p>\n</aside>\n",
+    "toc": [
+      {
+        "id": "what-a-token-is",
+        "text": "What a token is",
+        "depth": 2
+      },
+      {
+        "id": "the-role-is-read-live",
+        "text": "The role is read live",
+        "depth": 2
+      },
+      {
+        "id": "scopes",
+        "text": "Scopes",
+        "depth": 2
+      },
+      {
+        "id": "three-checks-narrowest-wins",
+        "text": "Three checks, narrowest wins",
+        "depth": 2
+      },
+      {
+        "id": "losing-one",
+        "text": "Losing one",
+        "depth": 2
+      }
+    ]
+  },
+  {
+    "slug": "errors",
+    "group": "api",
+    "audience": "integrator",
+    "order": 220,
+    "title": "Errors",
+    "summary": "The envelope every failure uses, what each code means, and why a resource in another shop is a 404.",
+    "who": "Integrators",
+    "icon": "triangle-alert",
+    "noindex": false,
+    "related": [],
+    "html": "<p>Every failure is one object with one <code>error</code> key.</p>\n<pre><code class=\"language-json\">{\n  &quot;error&quot;: {\n    &quot;code&quot;: &quot;VALIDATION_ERROR&quot;,\n    &quot;message&quot;: &quot;priceMinor must be a positive integer.&quot;,\n    &quot;requestId&quot;: &quot;01936f2c-8f4a-7c31-9a55-1d2e3f4a5b6c&quot;,\n    &quot;fields&quot;: { &quot;priceMinor&quot;: [&quot;must be a positive integer&quot;] }\n  }\n}\n</code></pre>\n<p><code>fields</code> is present only for validation failures. <code>requestId</code> is always present and is echoed in\nthe <code>X-Request-Id</code> header — quote it when asking about a specific failure.</p>\n<h2 id=\"the-codes\">The codes</h2>\n<div class=\"gd-table\"><table><thead><tr><th>Code</th><th>Status</th><th>Means</th></tr></thead><tbody><tr><td><code>VALIDATION_ERROR</code></td><td>400</td><td>The request did not match the schema</td></tr><tr><td><code>UNAUTHENTICATED</code></td><td>401</td><td>No token, or one that is unknown, expired or revoked</td></tr><tr><td><code>INSUFFICIENT_SCOPE</code></td><td>403</td><td>The token lacks the scope this operation needs</td></tr><tr><td><code>FORBIDDEN</code></td><td>403</td><td>The scope was there; the person&#39;s role was not</td></tr><tr><td><code>PLAN_LIMIT</code></td><td>402</td><td>The shop&#39;s plan does not include this</td></tr><tr><td><code>NOT_FOUND</code></td><td>404</td><td>No such resource — see below</td></tr><tr><td><code>CONFLICT</code></td><td>409</td><td>Optimistic concurrency: somebody else changed it first</td></tr><tr><td><code>RATE_LIMITED</code></td><td>429</td><td>Too many requests; see <code>Retry-After</code></td></tr><tr><td><code>INTERNAL_ERROR</code></td><td>500</td><td>Our fault. <code>requestId</code> is how we find it</td></tr></tbody></table></div>\n<h2 id=\"unknown-expired-and-revoked-are-the-same-answer\">Unknown, expired and revoked are the same answer</h2>\n<p>All three are <code>UNAUTHENTICATED</code> with the same message. Distinguishing them would tell somebody\nholding a string whether it was ever a real token, which is information they should not get.</p>\n<h2 id=\"a-resource-in-another-shop-is-404-not-403\">A resource in another shop is 404, not 403</h2>\n<aside class=\"gd-callout gd-note\"><p class=\"gd-callout-title\">Note</p><p>This is not obfuscation, it is how the query works. Every read is scoped to the token&#39;s shop\nbefore it reaches the database, and the database refuses it again underneath — so a product\nbelonging to somebody else does not exist as far as your token is concerned. There is no code\npath that could return 403 here.</p>\n<p>A 403 would confirm that an id you guessed is real somewhere, which is exactly the thing worth\nnot confirming.</p>\n</aside>\n<h2 id=\"errors-never-leak-internals\">Errors never leak internals</h2>\n<p><code>INTERNAL_ERROR</code> carries no detail in production. A database error string names columns and\noccasionally contains data; <code>requestId</code> is what connects your failure to our log without\nhanding you either.</p>\n<h2 id=\"retrying\">Retrying</h2>\n<p><code>429</code> and <code>500</code> are worth retrying with backoff. <code>4xx</code> other than <code>429</code> will fail the same way\nevery time — retrying a <code>VALIDATION_ERROR</code> is a loop.</p>\n<aside class=\"gd-callout gd-tip\"><p class=\"gd-callout-title\">Tip</p><p>Use <code>Idempotency-Key</code> on anything that moves money. A refund that timed out may or may not have\nhappened; replaying it with the same key returns the first result instead of refunding twice.</p>\n</aside>\n",
+    "toc": [
+      {
+        "id": "the-codes",
+        "text": "The codes",
+        "depth": 2
+      },
+      {
+        "id": "unknown-expired-and-revoked-are-the-same-answer",
+        "text": "Unknown, expired and revoked are the same answer",
+        "depth": 2
+      },
+      {
+        "id": "a-resource-in-another-shop-is-404-not-403",
+        "text": "A resource in another shop is 404, not 403",
+        "depth": 2
+      },
+      {
+        "id": "errors-never-leak-internals",
+        "text": "Errors never leak internals",
+        "depth": 2
+      },
+      {
+        "id": "retrying",
+        "text": "Retrying",
         "depth": 2
       }
     ]
