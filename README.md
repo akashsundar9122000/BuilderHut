@@ -5,8 +5,14 @@ jewellery, prints — signs up, answers a few questions, picks a template for th
 customises it visually, adds their products, and publishes a real shop with a cart and a
 checkout. No code, and no "looks like every other SaaS" either.
 
-Status: **Phase 0 — foundations.** Design system and data layer are in place. See
-`docs/plan.md` for the phase sequence and `docs/blueprint.md` for the full specification.
+Status: **built.** All eight phases have shipped — landing page, auth, onboarding, twelve
+templates, the visual builder, commerce, publish, domains, analytics, the platform console,
+plans, staff accounts and payments. See `docs/plan.md` for the phase sequence and
+`docs/blueprint.md` for the full specification.
+
+The guide lives at `/guide` and is written in `docs/guide/`. Its engineering section is the
+place to start if you are new to this codebase; run `pnpm guide:build` after editing a page,
+and `pnpm check:guide` will tell you if you forgot.
 
 ## Running it
 
@@ -43,7 +49,8 @@ an error. An empty dashboard is far more often a missing context than missing da
 | | |
 |---|---|
 | `pnpm dev` | development server |
-| `pnpm verify` | the full gate: contrast, types, lint, tests, build, secrets, bundle budget |
+| `pnpm verify` | the full gate: contrast, guide, types, lint, tests, build, secrets, bundle budget |
+| `pnpm guide:build` | compile `docs/guide/**.md` into `lib/guide/*.generated.ts` |
 | `pnpm test` | unit, integration and cross-tenant security tests |
 | `pnpm db:generate` | generate a migration from the schema (and normalise the journal) |
 | `pnpm db:migrate` | apply migrations, as the owner role |

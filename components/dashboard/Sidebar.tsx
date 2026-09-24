@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
-  BarChart3, Box, CreditCard, Globe, LayoutDashboard, Megaphone, Package,
+  BarChart3, BookOpen, Box, CreditCard, Globe, LayoutDashboard, Megaphone, Package,
   Gem, PanelLeftClose, PanelLeft, Percent, Receipt, Settings, ShoppingBag, Truck, UserPlus, Users,
 } from "lucide-react";
 import { useState } from "react";
@@ -128,7 +128,22 @@ export function Sidebar({ storeName, storeSlug }: { storeName: string; storeSlug
       </nav>
 
       {!collapsed ? (
-        <div className="border-border border-t p-3">
+        <div className="border-border flex flex-col gap-2 border-t p-3">
+          {/*
+            Chrome, not a place that changes what the shop does — which is why
+            this is here and not in GROUPS. A new tab, like "View my store"
+            below it: somebody who opens the guide to check one thing should
+            come back to the form they were half way through filling in.
+          */}
+          <a
+            href="/guide/start/welcome"
+            target="_blank"
+            rel="noreferrer"
+            className="text-muted hover:text-accent flex items-center gap-2 text-xs transition-colors"
+          >
+            <BookOpen className="size-3.5" />
+            Guide
+          </a>
           <a
             href={`/s/${storeSlug}`}
             target="_blank"

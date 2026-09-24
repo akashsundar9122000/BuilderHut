@@ -25,6 +25,12 @@ jobs:
         run: pnpm check:contrast
       - name: Secrets in tracked files
         run: pnpm check:secrets
+      # Before typecheck, so a Markdown mistake reports as the file and line it
+      # is in rather than as a type error inside a generated file nobody wrote.
+      # A stale generated guide is still valid TypeScript, so no later step here
+      # would catch it.
+      - name: Guide matches docs/guide (and every link resolves)
+        run: pnpm check:guide
       - run: pnpm typecheck
       - run: pnpm lint
       - run: pnpm build

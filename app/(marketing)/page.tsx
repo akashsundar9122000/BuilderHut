@@ -30,6 +30,32 @@ export const metadata: Metadata = {
  * quietly start lying about the product.
  */
 
+/*
+ * Three doors, not one link. The three audiences want genuinely different
+ * things, and a single "Read the guide" button sends a shop owner into the API
+ * reference.
+ */
+const GUIDE_DOORS = [
+  {
+    href: "/guide/start/welcome",
+    title: "Using BuilderHut",
+    body: "From signing up to taking your first order. Every screen, in plain words, with pictures of the real thing.",
+    cta: "Start reading",
+  },
+  {
+    href: "/guide/api/overview",
+    title: "API and MCP",
+    body: "A REST API for your shop’s products, orders and customers — and an MCP server so an assistant can use it.",
+    cta: "See the reference",
+  },
+  {
+    href: "/guide/engineering/architecture",
+    title: "How it is built",
+    body: "Tenancy, the document model behind the builder, the render pipeline, and the gates that keep it honest.",
+    cta: "Read the notes",
+  },
+];
+
 const STEPS = [
   {
     n: "01",
@@ -178,6 +204,38 @@ export default function LandingPage() {
               </Reveal>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* ── Guide ────────────────────────────────────────────────────────── */}
+      <section id="guide" className="mx-auto max-w-6xl px-5 py-24 sm:px-8">
+        <Reveal>
+          <p className="text-accent text-xs font-medium tracking-[0.18em] uppercase">The guide</p>
+          <h2 className="font-display mt-4 max-w-xl text-[clamp(1.9rem,1.4rem+2vw,3rem)] leading-[1.08]">
+            Every screen, explained in plain words.
+          </h2>
+          <p className="text-muted mt-4 max-w-lg text-balance">
+            Written for the person using it, not a help centre of ticket answers. Free to read,
+            and you do not need an account.
+          </p>
+        </Reveal>
+
+        <div className="mt-12 grid gap-5 md:grid-cols-3">
+          {GUIDE_DOORS.map((door, i) => (
+            <Reveal key={door.href} delay={i * 90}>
+              <Link
+                href={door.href}
+                className="border-border bg-surface hover:border-accent-border group flex h-full flex-col rounded-[var(--bh-radius-lg)] border p-6 transition-colors"
+              >
+                <h3 className="font-display text-xl leading-snug">{door.title}</h3>
+                <p className="text-muted mt-2.5 flex-1 text-sm leading-relaxed">{door.body}</p>
+                <span className="text-accent mt-4 inline-flex items-center gap-1 text-sm font-medium">
+                  {door.cta}
+                  <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-0.5 motion-reduce:transition-none" />
+                </span>
+              </Link>
+            </Reveal>
+          ))}
         </div>
       </section>
 

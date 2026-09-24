@@ -1,0 +1,519 @@
+/*
+ * The guide's prose styles.
+ *
+ * Imported by app/(marketing)/guide/layout.tsx rather than the root layout, so
+ * none of it reaches a storefront, a dashboard or the builder. That matters:
+ * styles/tokens.css says in its own header that merchant storefronts do not use
+ * BuilderHut's tokens, and shipping a prose stylesheet to a bakery's shopfront
+ * would be the same mistake one layer down.
+ *
+ * Everything is scoped under .gd-prose. The HTML comes out of
+ * scripts/build-guide.mjs with no class names on its paragraphs, lists or
+ * tables, which is the one place in this codebase where element selectors are
+ * the right tool — and the scope is what stops any of it escaping into the app.
+ *
+ * COLOUR RULE, and it is not a style preference. scripts/check-contrast.ts
+ * reads only styles/tokens.css, so any foreground/background pair invented here
+ * ships unchecked. So: a callout tones its left rule and its title, never its
+ * body. Body text stays --bh-text-secondary on --bh-surface, and titles use the
+ * status colours on --bh-surface — every one of those pairs is already asserted
+ * in both themes. This file therefore introduces no new pair. It also reads
+ * better: a danger callout rendered as a block of red prose is harder to read
+ * than the paragraph it is warning about.
+ */
+
+.gd-prose {
+  color: var(--bh-text);
+  font-size: 1rem;
+  line-height: 1.75;
+  max-width: 44rem;
+}
+
+/* ------------------------------------------------------------------ headings */
+
+.gd-prose h2,
+.gd-prose h3,
+.gd-prose h4 {
+  font-family: var(--font-display);
+  letter-spacing: -0.018em;
+  text-wrap: balance;
+}
+
+.gd-prose h2 {
+  font-size: 1.6rem;
+  line-height: 1.2;
+  margin-block: 2.75rem 0.85rem;
+}
+
+.gd-prose h3 {
+  font-size: 1.2rem;
+  line-height: 1.3;
+  margin-block: 2rem 0.6rem;
+}
+
+.gd-prose h4 {
+  font-size: 1rem;
+  margin-block: 1.5rem 0.4rem;
+}
+
+.gd-prose > :first-child {
+  margin-top: 0;
+}
+
+/*
+ * The marketing header is sticky and 4rem tall, so an anchor that scrolled to
+ * the top of the viewport would put the heading underneath it and leave the
+ * reader looking at the paragraph after the one they asked for.
+ */
+.gd-prose :is(h2, h3, h4)[id] {
+  scroll-margin-top: 5.5rem;
+}
+
+/* --------------------------------------------------------------------- text */
+
+.gd-prose p,
+.gd-prose ul,
+.gd-prose ol {
+  margin-block: 0.9rem;
+}
+
+.gd-prose :is(ul, ol):not(.gd-steps) {
+  padding-left: 1.3rem;
+}
+
+.gd-prose :is(ul, ol):not(.gd-steps) > li {
+  margin-block: 0.35rem;
+}
+
+.gd-prose ul:not(.gd-steps) {
+  list-style: disc;
+}
+
+.gd-prose ol:not(.gd-steps) {
+  list-style: decimal;
+}
+
+.gd-prose strong {
+  font-weight: 600;
+  color: var(--bh-text);
+}
+
+.gd-prose a {
+  color: var(--bh-accent);
+  text-decoration: underline;
+  text-underline-offset: 0.18em;
+  text-decoration-thickness: 1px;
+  transition: color var(--bh-duration-fast) var(--bh-ease-out);
+}
+
+.gd-prose a:hover {
+  color: var(--bh-accent-hover);
+}
+
+/*
+ * A link to a guide page nobody has written yet.
+ *
+ * The compiler turns it into a span rather than dropping the sentence, so the
+ * prose reads correctly now and the link appears by itself the moment the page
+ * exists. Styled as ordinary text with the faintest possible hint, because a
+ * reader should not be invited to click something that is not there.
+ */
+.gd-prose .gd-pending {
+  color: inherit;
+  border-bottom: 1px dotted var(--bh-border-strong);
+}
+
+.gd-prose blockquote {
+  border-left: 2px solid var(--bh-border-strong);
+  padding-left: 1rem;
+  margin-block: 1.25rem;
+  color: var(--bh-text-secondary);
+}
+
+.gd-prose hr {
+  border: 0;
+  border-top: 1px solid var(--bh-border);
+  margin-block: 2.5rem;
+}
+
+/* --------------------------------------------------------------------- code */
+
+.gd-prose code {
+  font-family: var(--font-mono);
+  font-size: 0.86em;
+  background: var(--bh-raised);
+  border: 1px solid var(--bh-border);
+  border-radius: var(--bh-radius-xs);
+  padding: 0.1em 0.35em;
+}
+
+.gd-prose pre {
+  background: var(--bh-sunken);
+  border: 1px solid var(--bh-border);
+  border-radius: var(--bh-radius-md);
+  padding: 0.95rem 1.1rem;
+  margin-block: 1.25rem;
+  overflow-x: auto;
+  line-height: 1.6;
+}
+
+.gd-prose pre code {
+  background: none;
+  border: 0;
+  padding: 0;
+  font-size: 0.85rem;
+}
+
+/* -------------------------------------------------------------------- tables */
+
+.gd-prose .gd-table {
+  margin-block: 1.4rem;
+  overflow-x: auto;
+  border: 1px solid var(--bh-border);
+  border-radius: var(--bh-radius-md);
+}
+
+.gd-prose table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.925rem;
+}
+
+.gd-prose :is(th, td) {
+  text-align: left;
+  padding: 0.6rem 0.9rem;
+  border-bottom: 1px solid var(--bh-border);
+  vertical-align: top;
+}
+
+.gd-prose th {
+  background: var(--bh-raised);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.gd-prose tbody tr:last-child :is(th, td) {
+  border-bottom: 0;
+}
+
+/* ------------------------------------------------------------------ callouts */
+
+.gd-prose .gd-callout {
+  border: 1px solid var(--bh-border);
+  border-left-width: 3px;
+  border-radius: var(--bh-radius-md);
+  background: var(--bh-surface);
+  padding: 0.9rem 1.1rem;
+  margin-block: 1.4rem;
+  color: var(--bh-text-secondary);
+}
+
+.gd-prose .gd-callout > :first-child {
+  margin-top: 0;
+}
+
+.gd-prose .gd-callout > :last-child {
+  margin-bottom: 0;
+}
+
+.gd-prose .gd-callout-title {
+  font-weight: 600;
+  font-size: 0.9rem;
+  letter-spacing: 0.01em;
+  margin-bottom: 0.3rem;
+}
+
+.gd-prose .gd-note {
+  border-left-color: var(--bh-info);
+}
+.gd-prose .gd-note .gd-callout-title {
+  color: var(--bh-info);
+}
+
+.gd-prose .gd-tip {
+  border-left-color: var(--bh-success);
+}
+.gd-prose .gd-tip .gd-callout-title {
+  color: var(--bh-success);
+}
+
+.gd-prose .gd-warning {
+  border-left-color: var(--bh-warning);
+}
+.gd-prose .gd-warning .gd-callout-title {
+  color: var(--bh-warning);
+}
+
+.gd-prose .gd-danger {
+  border-left-color: var(--bh-danger);
+}
+.gd-prose .gd-danger .gd-callout-title {
+  color: var(--bh-danger);
+}
+
+/* --------------------------------------------------------------------- steps */
+
+/*
+ * `.gd-prose .gd-steps`, not a bare `.gd-steps`.
+ *
+ * A bare class selector loses to `.gd-prose ol`, which is one element more
+ * specific, so the browser keeps drawing its own decimal marker beside the
+ * numbered badge and every step ends up labelled twice.
+ */
+.gd-prose .gd-steps {
+  list-style: none;
+  padding: 0;
+  margin-block: 1.5rem;
+  counter-reset: gd-step;
+}
+
+.gd-prose .gd-steps > li {
+  counter-increment: gd-step;
+  position: relative;
+  padding-left: 2.6rem;
+  margin-block: 1.2rem;
+}
+
+.gd-prose .gd-steps > li::before {
+  content: counter(gd-step);
+  position: absolute;
+  left: 0;
+  top: 0.1rem;
+  width: 1.75rem;
+  height: 1.75rem;
+  display: grid;
+  place-items: center;
+  border-radius: var(--bh-radius-full);
+  background: var(--bh-accent-soft);
+  color: var(--bh-accent);
+  font-size: 0.82rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.gd-prose .gd-step-title {
+  font-weight: 600;
+  color: var(--bh-text);
+  margin-bottom: 0.2rem;
+}
+
+.gd-prose .gd-steps > li > :last-child {
+  margin-bottom: 0;
+}
+
+/* ----------------------------------------------------------------------- faq */
+
+.gd-prose .gd-faq {
+  margin-block: 1.5rem;
+  border: 1px solid var(--bh-border);
+  border-radius: var(--bh-radius-md);
+  overflow: hidden;
+}
+
+.gd-prose .gd-faq details + details {
+  border-top: 1px solid var(--bh-border);
+}
+
+.gd-prose .gd-faq summary {
+  cursor: pointer;
+  padding: 0.8rem 1.1rem;
+  font-weight: 600;
+  font-size: 0.95rem;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-height: 2.75rem;
+}
+
+.gd-prose .gd-faq summary::-webkit-details-marker {
+  display: none;
+}
+
+.gd-prose .gd-faq summary::before {
+  content: "";
+  width: 0.45rem;
+  height: 0.45rem;
+  flex: none;
+  border-right: 1.5px solid var(--bh-muted);
+  border-bottom: 1.5px solid var(--bh-muted);
+  transform: rotate(-45deg);
+  transition: transform var(--bh-duration-fast) var(--bh-ease-out);
+}
+
+.gd-prose .gd-faq details[open] summary::before {
+  transform: rotate(45deg);
+}
+
+.gd-prose .gd-faq details > div {
+  padding: 0 1.1rem 0.9rem 2.15rem;
+  color: var(--bh-text-secondary);
+}
+
+.gd-prose .gd-faq details > div > :first-child {
+  margin-top: 0;
+}
+
+/* --------------------------------------------------------------- screenshots */
+
+.gd-prose .gd-shot {
+  margin-block: 1.75rem;
+}
+
+.gd-prose .gd-shot img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--bh-border);
+  border-radius: var(--bh-radius-md);
+  box-shadow: var(--bh-shadow-sm);
+  /*
+   * A floor under layout shift. The compiler writes real width and height from
+   * the capture manifest, so this only ever applies to a picture taken before
+   * the manifest existed — but without it that one figure jumps the page under
+   * the reader's cursor as it loads.
+   */
+  aspect-ratio: auto;
+  background: var(--bh-raised);
+}
+
+.gd-prose .gd-shot figcaption {
+  margin-top: 0.55rem;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: var(--bh-text-secondary);
+}
+
+/*
+ * Which screenshot is shown.
+ *
+ * Duplicated rather than shared, exactly as styles/tokens.css duplicates its
+ * own dark block, and for the same reason: a rule keyed only on the media query
+ * cannot show the dark screenshot to somebody on a light OS who pressed the
+ * toggle. lib/theme.tsx stamps data-theme on <html> before first paint, so by
+ * the time this applies the answer is already there — no React, no hydration,
+ * and the reader's toggle swaps every picture on the page with it.
+ */
+.gd-prose .gd-shot .t-dark {
+  display: none;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .gd-prose .gd-shot .t-light {
+    display: none;
+  }
+  :root:not([data-theme="light"]) .gd-prose .gd-shot .t-dark {
+    display: block;
+  }
+}
+
+:root[data-theme="dark"] .gd-prose .gd-shot .t-light {
+  display: none;
+}
+
+:root[data-theme="dark"] .gd-prose .gd-shot .t-dark {
+  display: block;
+}
+
+/*
+ * A shot that has not been captured, or an operation list with no document
+ * behind it yet. A visible, labelled gap — never a broken image and never
+ * nothing, because a partial guide must not read as a complete one.
+ */
+.gd-prose :is(.gd-missing, .gd-ops-missing) {
+  border: 1px dashed var(--bh-border-strong);
+  border-radius: var(--bh-radius-md);
+  background: var(--bh-raised);
+  color: var(--bh-muted);
+  padding: 2rem 1.1rem;
+  text-align: center;
+  font-size: 0.875rem;
+}
+
+/* ------------------------------------------------------- API reference bits */
+
+.gd-prose .gd-op-line {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  margin: 0;
+}
+
+.gd-prose .gd-method {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  padding: 0.18em 0.45em;
+  border-radius: var(--bh-radius-xs);
+  background: var(--bh-raised);
+  border: 1px solid var(--bh-border);
+  color: var(--bh-text-secondary);
+}
+
+.gd-prose .gd-m-get {
+  color: var(--bh-info);
+}
+.gd-prose .gd-m-post {
+  color: var(--bh-success);
+}
+.gd-prose :is(.gd-m-put, .gd-m-patch) {
+  color: var(--bh-warning);
+}
+.gd-prose .gd-m-delete {
+  color: var(--bh-danger);
+}
+
+.gd-prose .gd-endpoint {
+  border: 1px solid var(--bh-border);
+  border-radius: var(--bh-radius-md);
+  background: var(--bh-surface);
+  padding: 0.9rem 1.1rem;
+  margin-block: 1.4rem;
+}
+
+.gd-prose .gd-endpoint > :last-child {
+  margin-bottom: 0;
+}
+
+.gd-prose ul.gd-ops {
+  list-style: none;
+  padding: 0;
+  margin-block: 1.5rem;
+  border: 1px solid var(--bh-border);
+  border-radius: var(--bh-radius-md);
+}
+
+.gd-prose .gd-op {
+  padding: 0.85rem 1.1rem;
+  margin: 0;
+}
+
+.gd-prose .gd-op + .gd-op {
+  border-top: 1px solid var(--bh-border);
+}
+
+.gd-prose :is(.gd-op-summary, .gd-op-scope) {
+  margin: 0.35rem 0 0;
+  font-size: 0.9rem;
+  color: var(--bh-text-secondary);
+}
+
+/* ------------------------------------------------------------------- phones */
+
+@media (max-width: 640px) {
+  .gd-prose {
+    font-size: 1.0625rem;
+  }
+
+  .gd-prose h2 {
+    font-size: 1.4rem;
+    margin-block: 2.25rem 0.7rem;
+  }
+
+  /* A numbered badge plus a 2.6rem indent leaves too little for the sentence. */
+  .gd-prose .gd-steps > li {
+    padding-left: 2.25rem;
+  }
+}

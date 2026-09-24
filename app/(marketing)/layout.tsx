@@ -22,6 +22,9 @@ export default function MarketingLayout({ children }: { children: React.ReactNod
             <a href="#pricing" className="hover:text-accent transition-colors">
               Pricing
             </a>
+            <Link href="/guide" className="hover:text-accent transition-colors">
+              Guide
+            </Link>
           </nav>
           <div className="ml-auto flex items-center gap-2 sm:gap-3">
             <ThemeToggle />
@@ -45,7 +48,7 @@ export default function MarketingLayout({ children }: { children: React.ReactNod
               A shop for people who make things. Built in Chennai.
             </p>
           </div>
-          <div className="flex gap-14">
+          <div className="flex flex-wrap gap-x-14 gap-y-8">
             <div className="flex flex-col gap-2.5 text-sm">
               <p className="text-faint text-xs tracking-[0.14em] uppercase">Product</p>
               <Link href="/templates" className="text-muted hover:text-text transition-colors">
@@ -57,6 +60,9 @@ export default function MarketingLayout({ children }: { children: React.ReactNod
               <a href="#pricing" className="text-muted hover:text-text transition-colors">
                 Pricing
               </a>
+              <Link href="/guide" className="text-muted hover:text-text transition-colors">
+                Guide
+              </Link>
             </div>
             <div className="flex flex-col gap-2.5 text-sm">
               <p className="text-faint text-xs tracking-[0.14em] uppercase">Get started</p>
@@ -65,6 +71,21 @@ export default function MarketingLayout({ children }: { children: React.ReactNod
               </Link>
               <Link href="/login" className="text-muted hover:text-text transition-colors">
                 Sign in
+              </Link>
+            </div>
+            <div className="flex flex-col gap-2.5 text-sm">
+              <p className="text-faint text-xs tracking-[0.14em] uppercase">Developers</p>
+              <Link
+                href="/guide/api/overview"
+                className="text-muted hover:text-text transition-colors"
+              >
+                API reference
+              </Link>
+              <Link
+                href="/guide/engineering/architecture"
+                className="text-muted hover:text-text transition-colors"
+              >
+                How it is built
               </Link>
             </div>
           </div>

@@ -171,10 +171,15 @@ export async function middleware(request: NextRequest) {
 export const config = {
   matcher: [
     /*
-     * Everything except Next's internals and the media route. A custom domain
-     * can arrive at any path, so this cannot be narrowed to /s/ — but keeping
-     * middleware off static assets and off every image a shop serves matters.
+     * Everything except Next's internals, the media route and the guide's
+     * screenshots. A custom domain can arrive at any path, so this cannot be
+     * narrowed to /s/ — but keeping middleware off static assets and off every
+     * image a shop serves matters.
+     *
+     * guide-shots/ is excluded for a second reason as well as cost: on a
+     * merchant's custom domain the rewrite below would send each screenshot to
+     * /s/<slug>/guide-shots/… and every picture in the guide would 404.
      */
-    "/((?!_next/static|_next/image|media/|favicon.ico).*)",
+    "/((?!_next/static|_next/image|media/|guide-shots/|favicon.ico).*)",
   ],
 };

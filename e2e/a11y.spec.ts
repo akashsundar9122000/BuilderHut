@@ -64,7 +64,19 @@ async function violationsOn(page: Page, url: string, theme: "light" | "dark"): P
   );
 }
 
-const PUBLIC_PAGES = ["/", "/templates", "/pricing", "/login", "/signup"];
+const PUBLIC_PAGES = [
+  "/",
+  "/templates",
+  "/pricing",
+  "/login",
+  "/signup",
+  // The guide. One of each kind of page, because they differ structurally: the
+  // front door is a plain column, a group index is a list, and an article is
+  // the three-column shell with prose, callouts, steps and a disclosure FAQ.
+  "/guide",
+  "/guide/start",
+  "/guide/start/welcome",
+];
 
 test.describe("public surfaces", () => {
   for (const theme of ["light", "dark"] as const) {

@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Fraunces, Inter } from "next/font/google";
+import { appUrl } from "@/lib/app-url";
 import { themeScript } from "@/lib/theme";
 import "@/styles/tokens.css";
 
@@ -23,6 +24,10 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
+  // Absolute URLs for canonical links and social cards. appUrl() already knows
+  // the difference between a preview deployment and production; a hard-coded
+  // constant would make every preview claim to be the real site.
+  metadataBase: new URL(appUrl()),
   title: {
     default: "BuilderHut — Sell what you make",
     template: "%s · BuilderHut",
