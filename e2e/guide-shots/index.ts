@@ -106,7 +106,16 @@ export const SHOTS: Shot[] = [
     },
     height: 900,
   },
-  { id: "builder-preview", path: "/app/builder/preview", persona: "merchant", height: 900 },
+  {
+    id: "builder-preview",
+    path: "/app/builder/preview",
+    persona: "merchant",
+    // Preview renders the shop, and a shop renders the MERCHANT's palette —
+    // BuilderHut's theme deliberately does not reach into it. A dark capture
+    // would be the same picture under a different name.
+    themes: ["light"],
+    height: 900,
+  },
 
   /* ── the shop a customer sees ───────────────────────────────────────── */
   {

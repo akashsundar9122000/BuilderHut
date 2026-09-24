@@ -31,6 +31,13 @@ jobs:
       # would catch it.
       - name: Guide matches docs/guide (and every link resolves)
         run: pnpm check:guide
+      # check:shots opens each screenshot and compares its light and dark
+      # captures, so it needs a browser to decode WebP. Chromium only, and no
+      # system deps: it decodes an image, it does not drive a page.
+      - name: Install Chromium (for the screenshot check)
+        run: pnpm exec playwright install chromium
+      - name: Screenshots are of a styled page
+        run: pnpm check:shots
       - run: pnpm typecheck
       - run: pnpm lint
       - run: pnpm build

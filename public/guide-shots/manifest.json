@@ -76,7 +76,7 @@
   "product-images": {
     "desktop": {
       "w": 1280,
-      "h": 860
+      "h": 900
     },
     "themes": [
       "light",
@@ -239,8 +239,7 @@
       "h": 900
     },
     "themes": [
-      "light",
-      "dark"
+      "light"
     ]
   },
   "storefront-home": {

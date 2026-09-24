@@ -384,14 +384,33 @@ async function drive(browser: Browser, base: string): Promise<Journey> {
  * before it is written.
  */
 async function assertStyled(page: Page, id: string): Promise<void> {
-  const styled = await page.evaluate(() => {
-    if (document.styleSheets.length === 0) return false;
-    // Every BuilderHut surface paints a background from a token; an unstyled
-    // document reports the initial transparent value instead.
-    const background = getComputedStyle(document.body).backgroundColor;
-    return background !== "" && background !== "rgba(0, 0, 0, 0)" && background !== "transparent";
+  const state = await page.evaluate(() => {
+    let rules = 0;
+    for (const sheet of Array.from(document.styleSheets)) {
+      try {
+        rules += sheet.cssRules.length;
+      } catch {
+        // A cross-origin sheet cannot be counted, but it did load.
+        rules += 1;
+      }
+    }
+    const body = getComputedStyle(document.body).backgroundColor;
+    return { rules, body };
   });
-  if (!styled) throw new Error(`${id}: the page rendered without its stylesheet`);
+
+  /*
+   * Pure white is the tell. Every BuilderHut surface paints a token — bone in
+   * light, warm near-black in dark — and none of them is #fff, so a white body
+   * means the stylesheet never arrived. "Not transparent" was too weak a test:
+   * the browser resolves an unstyled body to white, which passed.
+   */
+  const white = /^rgba?\(\s*255,\s*255,\s*255/.test(state.body);
+  const bare = state.body === "" || state.body === "rgba(0, 0, 0, 0)" || state.body === "transparent";
+  if (state.rules === 0 || white || bare) {
+    throw new Error(
+      `${id}: rendered without its stylesheet (${state.rules} rules, body ${state.body || "unset"})`,
+    );
+  }
 }
 
 /* ── screens you only see on the way in ───────────────────────────────── */
@@ -428,6 +447,7 @@ async function captureArrival(
     const keep = async (id: string) => {
       await page.evaluate(() => document.fonts.ready);
       await page.waitForTimeout(500);
+      await assertStyled(page, id);
       const webp = await toWebp(page, await page.screenshot(), TARGET_WIDTH.desktop);
       writeFileSync(path.join(OUT, `${id}--desktop--${theme}.webp`), webp);
       const entry = (manifest[id] ??= {}) as Record<string, unknown>;
@@ -514,8 +534,27 @@ async function main() {
   await ensureBuild();
   const port = await freePort();
   say(`port ${port}`);
-  const server = await startServer(port);
+  let server = await startServer(port);
   const base = `http://localhost:${port}`;
+
+  /*
+   * The server has died mid-run more than once, and the failure is quiet in the
+   * worst way: the pages already photographed are fine, and every one after it
+   * is either a connection refused or — far worse — an HTML response whose
+   * stylesheet 404s, which writes a perfectly valid picture of an unstyled
+   * page. Rather than lose a five-minute run, bring it back and carry on.
+   */
+  const ensureAlive = async () => {
+    const ok = await fetch(`${base}/guide`)
+      .then((r) => r.ok)
+      .catch(() => false);
+    if (ok) return;
+    say("  the server went away — restarting it");
+    try {
+      if (server.pid) process.kill(-server.pid, "SIGKILL");
+    } catch {}
+    server = await startServer(port);
+  };
   const browser = await chromium.launch();
 
   try {
@@ -566,8 +605,12 @@ async function main() {
 
         for (const shot of shots) {
           const url = typeof shot.path === "function" ? shot.path(journey) : shot.path;
+          await ensureAlive();
           try {
             await page.goto(base + url, { waitUntil: "networkidle", timeout: 45_000 });
+            await page
+              .waitForFunction(() => document.styleSheets.length > 0, null, { timeout: 15_000 })
+              .catch(() => {});
             const actual = await page.evaluate(() => document.documentElement.dataset.theme);
             // Storefronts deliberately do not follow our theme; everything else must.
             if (!url.startsWith(`/s/`) && actual !== theme) {
@@ -609,7 +652,35 @@ async function main() {
 
             say(`  ✓ ${shot.id}--${device}--${theme}  ${(webp.length / 1024).toFixed(0)} KB`);
           } catch (error) {
-            say(`  ✗ ${shot.id}--${device}--${theme}  ${(error as Error).message.split("\n")[0]}`);
+            /*
+             * One retry, after making sure the server is up. Most failures here
+             * are the server having gone away, and a shot silently missing is
+             * how a gap ends up in the guide.
+             */
+            try {
+              await ensureAlive();
+              await page.goto(base + url, { waitUntil: "networkidle", timeout: 45_000 });
+              if (shot.prepare) await shot.prepare(page, device);
+              await page.evaluate(() => document.fonts.ready);
+              await page.waitForTimeout(700);
+              await assertStyled(page, shot.id);
+              const target = shot.element ? shot.element(page) : page;
+              const webp = await toWebp(
+                page,
+                await target.screenshot({ mask: shot.mask?.(page) ?? [] }),
+                TARGET_WIDTH[device],
+              );
+              writeFileSync(path.join(OUT, `${shot.id}--${device}--${theme}.webp`), webp);
+              const entry = (manifest[shot.id] ??= {}) as Record<string, unknown>;
+              entry[device] = { w: TARGET_WIDTH[device], h: shot.height ?? VIEWPORT[device].height };
+              entry.themes = [...new Set([...((entry.themes as Theme[]) ?? []), theme])];
+              if (device === "phone") entry.phone = entry[device];
+              say(`  ✓ ${shot.id}--${device}--${theme}  (retry)  ${(webp.length / 1024).toFixed(0)} KB`);
+            } catch (retryError) {
+              say(
+                `  ✗ ${shot.id}--${device}--${theme}  ${(retryError as Error).message.split("\n")[0]}`,
+              );
+            }
           }
         }
         await context.close();

@@ -14,6 +14,7 @@
     "lint": "eslint",
     "guide:build": "node scripts/build-guide.mjs",
     "check:guide": "GUIDE_STRICT_LINKS=1 GUIDE_STRICT_SHOTS=1 node scripts/build-guide.mjs --check",
+    "check:shots": "node scripts/check-guide-shots.mjs",
     "guide:shots": "tsx --env-file-if-exists=.env.local scripts/guide-shots.mts",
     "typecheck": "next typegen && tsc --noEmit",
     "test": "tsx --env-file-if-exists=.env.local node_modules/vitest/vitest.mjs run",
@@ -27,7 +28,7 @@
     "check:contrast": "tsx scripts/check-contrast.ts",
     "check:secrets": "node scripts/check-secrets.mjs",
     "check:budget": "node scripts/check-budget.mjs",
-    "verify": "pnpm check:contrast && pnpm check:guide && pnpm typecheck && pnpm lint && pnpm test && pnpm build && pnpm check:secrets && pnpm check:budget",
+    "verify": "pnpm check:contrast && pnpm check:guide && pnpm check:shots && pnpm typecheck && pnpm lint && pnpm test && pnpm build && pnpm check:secrets && pnpm check:budget",
     "admin:grant": "tsx --env-file-if-exists=.env.local scripts/db/grant-admin.mts"
   },
   "dependencies": {
