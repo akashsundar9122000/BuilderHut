@@ -8,8 +8,16 @@ import { getActor } from "@/lib/auth/session";
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const actor = await getActor();
   if (!actor) redirect("/login");
-  // Signed in with no store: onboarding is the only sensible destination.
-  if (!actor.tenantId) redirect("/onboarding");
+  /*
+   * Signed in with no store.
+   *
+   * For a merchant, onboarding is the only sensible destination. For a
+   * platform operator it is the wrong one: an account created by
+   * `pnpm admin:bootstrap` exists to watch the platform, not to open a shop,
+   * and sending it through "what do you make?" on every sign-in asks it to
+   * become a merchant to do its job.
+   */
+  if (!actor.tenantId) redirect(actor.isPlatformAdmin ? "/admin" : "/onboarding");
 
   return (
     <div className="flex min-h-dvh">

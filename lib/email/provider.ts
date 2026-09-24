@@ -1,5 +1,6 @@
 import "server-only";
 import nodemailer, { type Transporter } from "nodemailer";
+import { recordIncident } from "@/lib/platform/incidents";
 
 /*
  * Email behind one interface, with a console implementation when SMTP is not
@@ -88,6 +89,21 @@ export async function sendEmail(message: EmailMessage): Promise<void> {
     // Never let a mail outage take down signup. The caller decides what to tell
     // the user; what must not happen is an unhandled rejection in a route.
     console.error(`[email] ${provider.name} send failed for ${message.to}:`, error);
+    /*
+     * Also recorded where somebody will see it. A verification code that never
+     * arrives is invisible from the inside — the relay said yes, the log line
+     * scrolled past, and the only person who knows is the one who cannot sign
+     * in. That exact failure went unnoticed for a day on 2026-09-24.
+     *
+     * The recipient, never the subject: the verification subject line is
+     * "123456 is your BuilderHut verification code".
+     */
+    await recordIncident({
+      kind: "email.send_failed",
+      severity: "error",
+      summary: `Could not send email to ${message.to}`,
+      detail: { provider: provider.name, error },
+    });
     throw error;
   }
 }

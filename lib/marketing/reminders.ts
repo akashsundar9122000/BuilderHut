@@ -9,6 +9,7 @@ import { withTenant } from "@/lib/db/tenant";
 import { sendEmail } from "@/lib/email/provider";
 import { unpaidOrderEmail } from "@/lib/email/templates";
 import { PLANS, isPlanId } from "@/lib/plans/catalog";
+import { recordIncident } from "@/lib/platform/incidents";
 
 /*
  * Reminding somebody about an order they never paid for.
@@ -144,6 +145,15 @@ export async function runUnpaidOrderReminders(now = new Date()): Promise<Reminde
       } catch (error) {
         summary.failed += 1;
         console.error(`[reminders] ${shop.slug} order ${order.number}:`, error);
+        // A warning, not an error: one customer missed one nudge. The order is
+        // already marked reminded, so it will not be retried either way.
+        await recordIncident({
+          kind: "reminder.send_failed",
+          severity: "warning",
+          tenantId: shop.id,
+          summary: `Unpaid-order reminder failed for ${shop.slug} order #${order.number}`,
+          detail: { error },
+        });
       }
     }
   }

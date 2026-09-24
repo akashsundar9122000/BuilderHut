@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { timingSafeEqual } from "node:crypto";
 
 import { runUnpaidOrderReminders } from "@/lib/marketing/reminders";
+import { recordIncident } from "@/lib/platform/incidents";
 
 /*
  * One nudge, once a day, about orders that were never paid for.
@@ -36,6 +37,12 @@ export async function GET(request: Request) {
     return NextResponse.json({ ok: true, ...(await runUnpaidOrderReminders()) });
   } catch (error) {
     console.error("[cron/reminders] failed:", error);
+    await recordIncident({
+      kind: "cron.reminders_failed",
+      severity: "error",
+      summary: "The unpaid-order reminder run did not complete",
+      detail: { error },
+    });
     return NextResponse.json({ ok: false, error: "Reminders failed" }, { status: 500 });
   }
 }

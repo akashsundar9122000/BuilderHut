@@ -1,5 +1,5 @@
 import AxeBuilder from "@axe-core/playwright";
-import { expect, test, type Page } from "@playwright/test";
+import { expect, test, type BrowserContext, type Page } from "@playwright/test";
 
 /*
  * Blueprint section 52, as a test rather than an intention.
@@ -28,6 +28,18 @@ const PASSWORD = process.env.BH_E2E_PASSWORD;
  * held responsible for.
  */
 const STORE = process.env.BH_E2E_STORE;
+
+/*
+ * A platform operator, for the /admin sweep.
+ *
+ * Separate credentials from BH_E2E_EMAIL because operator access is a
+ * different thing from being a merchant, and the merchant account
+ * deliberately does not have it — `pnpm admin:bootstrap` makes one of these.
+ * Skipped when unset rather than reusing the merchant, which would silently
+ * scan a redirect to /app and pass.
+ */
+const ADMIN_EMAIL = process.env.BH_E2E_ADMIN_EMAIL;
+const ADMIN_PASSWORD = process.env.BH_E2E_ADMIN_PASSWORD;
 
 async function violationsOn(page: Page, url: string, theme: "light" | "dark"): Promise<string[]> {
   /*
@@ -184,6 +196,83 @@ test.describe("signed-in surfaces", () => {
         ),
       );
 
+      expect(found.join("\n  "), found.join("\n  ")).toBe("");
+    });
+  }
+});
+
+const ADMIN_PAGES = [
+  "/admin",
+  "/admin/stores",
+  "/admin/users",
+  "/admin/traffic",
+  "/admin/revenue",
+  "/admin/domains",
+  "/admin/incidents",
+  "/admin/audit",
+];
+
+test.describe("the operator console", () => {
+  test.skip(
+    !ADMIN_EMAIL || !ADMIN_PASSWORD,
+    "set BH_E2E_ADMIN_EMAIL and BH_E2E_ADMIN_PASSWORD (see pnpm admin:bootstrap)",
+  );
+  test.describe.configure({ mode: "serial" });
+
+  /*
+   * One sign-in for both themes, on a page hoisted out of the tests.
+   *
+   * Playwright gives every test its own context, so a test per theme meant a
+   * sign-in per theme — and with the public sweeps running alongside, that put
+   * eight logins a minute on one address. Better Auth rate-limits
+   * /sign-in/email at ten, correctly, so the suite started failing at the
+   * waitForURL below: not a violation, just the limiter doing its job. Serial
+   * mode alone does not fix this; it orders the tests but does not share the
+   * session. The page has to be hoisted.
+   */
+  let page: Page;
+  let context: BrowserContext;
+
+  test.beforeAll(async ({ browser }, testInfo) => {
+    /*
+     * An explicit context built from the project's own options, not
+     * browser.newPage(). Two reasons: axe refuses to run in the default
+     * context it creates, and that context would also drop the project's
+     * device emulation — so the "mobile" run would quietly have been a second
+     * desktop run passing under a phone's name.
+     */
+    context = await browser.newContext(testInfo.project.use);
+    page = await context.newPage();
+    await page.goto("/login");
+    await page.fill("#email", ADMIN_EMAIL!);
+    await page.fill("#password", ADMIN_PASSWORD!);
+    await page.click('button[type="submit"]');
+    /*
+     * An operator with no shop of their own lands on /app and is then
+     * redirected to /admin; one who has a shop stays on /app. Waiting for the
+     * URL alone matched the first of those and raced the second — the first
+     * goto was interrupted mid-flight by the app's own redirect.
+     */
+    await page.waitForURL(/\/(admin|app|onboarding)/, { timeout: 30_000 });
+    await page.waitForLoadState("networkidle");
+  });
+
+  test.afterAll(async () => {
+    await context?.close();
+  });
+
+  /*
+   * Denser than the merchant dashboard by design, which is exactly why it
+   * needs sweeping: tables, badges and status colours are where contrast and
+   * naming problems collect, and nobody outside the company ever sees this
+   * console to complain about them.
+   */
+  for (const theme of ["light", "dark"] as const) {
+    test.setTimeout(180_000);
+
+    test(`has no axe violations in ${theme}`, async () => {
+      const found: string[] = [];
+      for (const path of ADMIN_PAGES) found.push(...(await violationsOn(page, path, theme)));
       expect(found.join("\n  "), found.join("\n  ")).toBe("");
     });
   }

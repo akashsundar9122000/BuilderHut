@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { timingSafeEqual } from "node:crypto";
 
 import { runRollup } from "@/lib/analytics/rollup";
+import { recordIncident } from "@/lib/platform/incidents";
 
 /*
  * Nightly analytics rollup.
@@ -42,6 +43,18 @@ export async function GET(request: Request) {
     return NextResponse.json({ ok: true, ...summary });
   } catch (error) {
     console.error("[cron/rollup] failed:", error);
+    /*
+     * A cron that fails is the definition of a silent failure: nobody is
+     * waiting for the response, so the only trace is a 500 in a log nobody
+     * reads. A missed rollup means every analytics screen quietly shows a hole
+     * for that day.
+     */
+    await recordIncident({
+      kind: "cron.rollup_failed",
+      severity: "error",
+      summary: "The nightly analytics rollup did not complete",
+      detail: { error },
+    });
     return NextResponse.json({ ok: false, error: "Rollup failed" }, { status: 500 });
   }
 }

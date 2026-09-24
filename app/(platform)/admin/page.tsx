@@ -4,17 +4,26 @@ import Link from "next/link";
 import { Card, CardBody } from "@/components/ui";
 import { TrendChart } from "@/components/dashboard/Charts";
 import { requirePlatformAdmin } from "@/lib/platform/guard";
-import { loadOverview, loadPlatformTrend, loadTemplateUsage } from "@/lib/platform/queries";
+import { loadAuditLog, loadOverview, loadPlatformTrend, loadTemplateUsage } from "@/lib/platform/queries";
+import { loadIncidentSummary } from "@/lib/platform/incidents";
 import { formatMoney } from "@/lib/money";
 
 export const metadata: Metadata = { title: "Platform overview" };
 
 export default async function AdminOverviewPage() {
   const actor = await requirePlatformAdmin();
-  const [overview, trend, templates] = await Promise.all([
+  const [overview, trend, templates, activity, incidents] = await Promise.all([
     loadOverview(actor.userId),
     loadPlatformTrend(actor.userId, 30),
     loadTemplateUsage(actor.userId),
+    /*
+     * The audit log again, short. Deliberately the same query the audit page
+     * runs rather than a second one shaped for this card: two queries claiming
+     * to be "what happened" that could disagree is worse than one that is a
+     * little more than this needs.
+     */
+    loadAuditLog(actor.userId, 14),
+    loadIncidentSummary(actor.userId),
   ]);
 
   return (
@@ -132,26 +141,97 @@ export default async function AdminOverviewPage() {
           <Card>
             <CardBody>
               <h2 className="font-display text-lg">Needs attention</h2>
+              {/*
+                * Incidents first. A suspended shop is a decision somebody made;
+                * an outstanding incident is something broken that nobody has
+                * looked at, which is the more urgent of the two.
+                */}
+              {incidents.outstanding > 0 ? (
+                <p className="text-danger mt-2 text-sm">
+                  {incidents.outstanding} unresolved incident
+                  {incidents.outstanding === 1 ? "" : "s"}
+                  {incidents.errors24h > 0 ? ` · ${incidents.errors24h} today` : ""}
+                </p>
+              ) : (
+                <p className="text-muted mt-2 text-sm">Nothing is failing.</p>
+              )}
               {overview.suspendedStores > 0 ? (
-                <p className="text-warning mt-2 text-sm">
+                <p className="text-warning mt-1 text-sm">
                   {overview.suspendedStores} suspended shop
                   {overview.suspendedStores === 1 ? "" : "s"}
                 </p>
-              ) : (
-                <p className="text-muted mt-2 text-sm">Nothing suspended.</p>
-              )}
-              <Link
-                href="/admin/stores"
-                className="text-accent hover:text-accent-hover mt-3 inline-block text-sm underline underline-offset-4"
-              >
-                Open the store explorer
-              </Link>
+              ) : null}
+              <div className="mt-3 flex flex-col gap-1.5">
+                <Link
+                  href="/admin/incidents"
+                  className="text-accent hover:text-accent-hover text-sm underline underline-offset-4"
+                >
+                  Open incidents
+                </Link>
+                <Link
+                  href="/admin/stores"
+                  className="text-accent hover:text-accent-hover text-sm underline underline-offset-4"
+                >
+                  Open the store explorer
+                </Link>
+              </div>
             </CardBody>
           </Card>
         </div>
       </div>
+
+      <Card className="mt-5">
+        <CardBody>
+          <div className="mb-4 flex items-baseline justify-between gap-3">
+            <h2 className="font-display text-lg">Activity</h2>
+            <Link
+              href="/admin/audit"
+              className="text-accent hover:text-accent-hover text-sm underline underline-offset-4"
+            >
+              Full audit log
+            </Link>
+          </div>
+
+          {activity.length === 0 ? (
+            <p className="text-muted text-sm">Nothing has happened yet.</p>
+          ) : (
+            <ol className="divide-border divide-y">
+              {activity.map((entry) => (
+                <li key={entry.id} className="flex flex-wrap items-baseline gap-x-3 gap-y-1 py-2.5">
+                  <span className="text-faint w-20 shrink-0 text-xs tabular-nums">
+                    {ago(entry.createdAt)}
+                  </span>
+                  <span className="text-text-secondary font-mono text-xs">{entry.action}</span>
+                  <span className="text-text min-w-0 flex-1 truncate text-sm">
+                    {entry.tenantName ?? "—"}
+                  </span>
+                  <span className="text-muted shrink-0 text-xs">{entry.actorEmail ?? "system"}</span>
+                </li>
+              ))}
+            </ol>
+          )}
+        </CardBody>
+      </Card>
     </div>
   );
+}
+
+/**
+ * How long ago, in as few characters as the column allows.
+ *
+ * Rendered on the server, so it is the age at render time rather than a live
+ * ticking clock — which for a page somebody opens, reads and leaves is the
+ * honest thing, and avoids a client component and a hydration mismatch for the
+ * sake of a number that changes once a minute.
+ */
+function ago(iso: string): string {
+  const seconds = Math.max(0, (Date.now() - new Date(iso).getTime()) / 1000);
+  if (seconds < 90) return "just now";
+  const minutes = seconds / 60;
+  if (minutes < 60) return `${Math.round(minutes)}m ago`;
+  const hours = minutes / 60;
+  if (hours < 24) return `${Math.round(hours)}h ago`;
+  return `${Math.round(hours / 24)}d ago`;
 }
 
 function Stat({ label, value, note }: { label: string; value: number; note: string }) {

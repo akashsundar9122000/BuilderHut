@@ -1,6 +1,6 @@
 import Link from "next/link";
 import {
-  BarChart3, Building2, FileClock, Globe, LayoutDashboard, Receipt, Shield, Users,
+  BarChart3, Building2, FileClock, Globe, LayoutDashboard, Receipt, Shield, ShieldAlert, Users,
 } from "lucide-react";
 
 import { ThemeToggle } from "@/components/ui";
@@ -23,14 +23,11 @@ const NAV = [
   { href: "/admin", label: "Overview", icon: LayoutDashboard },
   { href: "/admin/stores", label: "Stores", icon: Building2 },
   { href: "/admin/users", label: "People", icon: Users },
+  { href: "/admin/traffic", label: "Traffic", icon: BarChart3 },
   { href: "/admin/revenue", label: "Revenue", icon: Receipt },
+  { href: "/admin/domains", label: "Domains", icon: Globe },
+  { href: "/admin/incidents", label: "Incidents", icon: ShieldAlert },
   { href: "/admin/audit", label: "Audit log", icon: FileClock },
-];
-
-const SOON = [
-  { label: "Traffic", icon: BarChart3 },
-  { label: "Domains", icon: Globe },
-  { label: "Incidents", icon: Shield },
 ];
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -59,27 +56,21 @@ export default async function AdminLayout({ children }: { children: React.ReactN
             ))}
           </ul>
 
-          <p className="text-faint mt-6 mb-2 px-2 text-[0.65rem] font-medium tracking-[0.14em] uppercase">
-            Not built yet
-          </p>
-          <ul className="flex flex-col gap-0.5">
-            {SOON.map((item) => (
-              <li
-                key={item.label}
-                className="text-faint flex h-9 items-center gap-2.5 rounded-md px-2 text-sm"
-              >
-                <item.icon className="size-4 shrink-0" />
-                {item.label}
-              </li>
-            ))}
-          </ul>
         </nav>
 
-        <div className="border-border border-t p-3">
-          <Link href="/app" className="text-muted hover:text-accent text-xs transition-colors">
-            Back to my own shop
-          </Link>
-        </div>
+        {/*
+          * Only shown to an operator who actually has a shop. A bootstrapped
+          * operator has none, and for them this link went to /app, which sent
+          * them to onboarding — an invitation to open a shop, offered as a way
+          * back to one they never had.
+          */}
+        {actor.tenantId ? (
+          <div className="border-border border-t p-3">
+            <Link href="/app" className="text-muted hover:text-accent text-xs transition-colors">
+              Back to my own shop
+            </Link>
+          </div>
+        ) : null}
       </aside>
 
       <div className="flex min-w-0 flex-1 flex-col">

@@ -2,6 +2,7 @@ import "server-only";
 
 import { recordPayment } from "./orders";
 import type { PaymentIntent } from "@/lib/payments/provider";
+import { recordIncident } from "@/lib/platform/incidents";
 
 /*
  * Applying what a gateway told us, out of band.
@@ -25,6 +26,12 @@ export async function recordPaymentWebhook(intent: PaymentIntent): Promise<void>
      * ever succeed on a retry.
      */
     console.error("[razorpay] event with no BuilderHut ids:", intent.reference);
+    await recordIncident({
+      kind: "payment.webhook_unmatched",
+      severity: "error",
+      summary: "A payment webhook arrived that matches no order",
+      detail: { reference: intent.reference },
+    });
     return;
   }
 
@@ -50,7 +57,19 @@ export async function recordPaymentWebhook(intent: PaymentIntent): Promise<void>
     metadata: { source: "webhook", method: intent.metadata?.method },
   });
 
-  if (!result.ok) console.error("[razorpay] could not apply event:", result.message);
+  if (!result.ok) {
+    console.error("[razorpay] could not apply event:", result.message);
+    /*
+     * The worst kind of failure this platform has: the customer has paid and
+     * the shop does not know. Nothing else in the product will surface it.
+     */
+    await recordIncident({
+      kind: "payment.webhook_failed",
+      severity: "error",
+      summary: "A payment was taken but the order could not be updated",
+      detail: { reason: result.message, reference: intent.reference },
+    });
+  }
 }
 
 function asId(value: unknown): string | null {

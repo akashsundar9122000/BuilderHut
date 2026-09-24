@@ -9,6 +9,7 @@ export * from "./operations_commerce";
 export * from "./analytics";
 export * from "./domains";
 export * from "./operations";
+export * from "./incidents";
 
 /*
  * Every table must appear in exactly one of the three sets below. This is not
@@ -77,6 +78,9 @@ export const PLATFORM = new Set<string>([
   "tenant_invitations",
   "tenants",
   "audit_logs",
+  // Operational failures. Nullable tenant_id because the worst of them
+  // belong to no store at all — see incidents.ts.
+  "platform_incidents",
   // Authentication, owned by Better Auth. Not tenant-owned: a user exists
   // before any store does, and may belong to several.
   "users",

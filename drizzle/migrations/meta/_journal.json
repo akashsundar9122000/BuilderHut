@@ -148,6 +148,13 @@
       "when": 1790243182718,
       "tag": "0020_customer_identity_rls",
       "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "7",
+      "when": 1790271307060,
+      "tag": "0021_milky_vindicator",
+      "breakpoints": true
     }
   ]
 }

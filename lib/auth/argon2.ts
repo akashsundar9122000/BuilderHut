@@ -2,6 +2,8 @@ import "server-only";
 
 import { hash, verify } from "@node-rs/argon2";
 
+import { ARGON2_PARAMS } from "@/lib/auth/argon2-params";
+
 /*
  * Password hashing, in one place for both identity realms.
  *
@@ -14,9 +16,10 @@ import { hash, verify } from "@node-rs/argon2";
  * Merchants (lib/auth/merchant.ts, via Better Auth) and storefront customers
  * (lib/customers/auth.ts) share these parameters. Two copies would drift, and
  * the day they drift is the day every hash written under the old ones stops
- * verifying.
+ * verifying. The numbers themselves live in argon2-params.ts, which carries no
+ * `server-only`, so the bootstrap script can hash with them too.
  */
-export const ARGON2_PARAMS = { memoryCost: 19456, timeCost: 2, parallelism: 1 } as const;
+export { ARGON2_PARAMS };
 
 export function hashPassword(plain: string): Promise<string> {
   return hash(plain, ARGON2_PARAMS);

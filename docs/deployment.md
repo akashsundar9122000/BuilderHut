@@ -75,6 +75,7 @@ file.
 | `R2_*` | with `MEDIA_STORE=r2` | |
 | `RAZORPAY_KEY_ID`, `RAZORPAY_KEY_SECRET`, `RAZORPAY_WEBHOOK_SECRET` | to take real money | All three or none. Half-set makes the checkout refuse rather than fall back to the simulator. |
 | `NVIDIA_API_KEY`, `NVIDIA_MODEL` | optional | The builder's assistant falls back to a local rule-based planner without them, and says which answered. |
+| `SUPER_ADMIN_EMAIL`, `SUPER_ADMIN_PASSWORD` | **never here** | Read by `pnpm admin:bootstrap` only, from `.env.local`. See **The first operator**. |
 
 ## Deploying
 
@@ -100,6 +101,43 @@ Run it before the deployment that needs it. Every migration so far is additive,
 so the old code tolerates the new schema and the order is forgiving; that will
 not always be true.
 
+## The first operator
+
+A fresh production branch has nobody in it, and `/admin` is closed to everybody
+until somebody is a platform operator. `pnpm admin:grant` promotes an account
+that already signed up, which is the right tool once there are people and the
+wrong one when there are none.
+
+Put the credentials in `.env.local`:
+
+```
+SUPER_ADMIN_EMAIL="you@yourdomain"
+SUPER_ADMIN_PASSWORD="…at least ten characters…"
+SUPER_ADMIN_NAME="Platform operator"
+```
+
+Then, pointed at whichever database you mean:
+
+```bash
+pnpm admin:bootstrap                                    # this machine
+DATABASE_URL_UNPOOLED="…production…" pnpm admin:bootstrap
+```
+
+It creates the account, marks the address verified — there is no inbox round
+trip here, and an unverified operator cannot get past the verify screen — sets
+`is_platform_admin`, and writes an `admin.bootstrapped` row to the audit log.
+Idempotent: run it again to rotate the password, or against an existing account
+to promote that account rather than create a second one.
+
+**`SUPER_ADMIN_PASSWORD` does not belong in the Vercel environment.** Nothing at
+runtime reads it; only this script does. Putting it there would leave a
+plaintext administrator password in a dashboard for anyone with project access
+to read, in exchange for nothing.
+
+Signing in with that account lands on `/admin` rather than onboarding, because
+an operator created this way has no shop of their own and is not being asked to
+open one.
+
 ## After deploying
 
 Walk the journey the blueprint's §105 describes, on the deployed URL, because
@@ -115,7 +153,12 @@ several things only exist in production:
 5. Buy the product. *(With Razorpay configured, use its test mode — and check
    the order is marked paid, which proves the webhook is arriving.)*
 6. Refund it from the dashboard, and check the revenue figure is net.
-7. Open `/admin` as a platform operator (`pnpm admin:grant <email>`).
+7. Open `/admin` as a platform operator (`pnpm admin:bootstrap`, or
+   `pnpm admin:grant <email>` for somebody who already has an account). Walk
+   Overview, Stores, People, Traffic, Revenue, Domains, Incidents and the audit
+   log. *(Traffic reads nightly rollups plus today's raw events, and says so at
+   the top when the rollup is behind — a bare zero there means the cron has not
+   run, not that nobody visited.)*
 
 ## Restoring
 
