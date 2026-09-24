@@ -110,3 +110,76 @@ test.describe("the contents on a phone", () => {
     await expect(toggle).toHaveAttribute("aria-expanded", "false");
   });
 });
+
+test.describe("the contents keep their place", () => {
+  test.skip(({ isMobile }) => isMobile, "the drawer closes on navigate, so it has no place to keep");
+
+  test("stays where the reader scrolled it when they choose a page", async ({ page }) => {
+    await page.goto("/guide/start/welcome");
+    const nav = page.locator("#guide-nav-desktop");
+    await expect(nav).toBeVisible();
+
+    /*
+     * Every guide page is its own route, so choosing one unmounts this list and
+     * builds a new one. Without somewhere to put the position back, a reader
+     * twenty links down was returned to the top on every single navigation.
+     */
+    /*
+     * Scroll the target into view explicitly before measuring. Clicking would
+     * do it anyway — a reader scrolls until they can see the link — but doing
+     * it here means the position is settled when it is read, rather than
+     * changing between the measurement and the click.
+     */
+    const link = nav.getByRole("link", { name: "Orders and refunds" });
+    await link.scrollIntoViewIfNeeded();
+    await page.waitForTimeout(150);
+
+    const before = await nav.evaluate((el) => el.scrollTop);
+    expect(before, "the list should have scrolled to reach the link").toBeGreaterThan(0);
+
+    await link.click();
+    await page.waitForURL(/\/guide\/running\/orders$/);
+
+    const after = await page.locator("#guide-nav-desktop").evaluate((el) => el.scrollTop);
+    expect(Math.abs(after - before)).toBeLessThan(40);
+  });
+
+  test("scrolls a deep page into view when there is nothing to restore", async ({ page }) => {
+    // A fresh session arriving from a search result, rather than from the index.
+    await page.goto("/guide/help/how-do-i");
+    const nav = page.locator("#guide-nav-desktop");
+    await expect(nav).toBeVisible();
+    expect(await nav.evaluate((el) => el.scrollTop)).toBeGreaterThan(0);
+  });
+});
+
+test.describe("the theme toggle", () => {
+  /*
+   * One shared component, used by the marketing header, the dashboard, the
+   * admin console, onboarding and the auth pages — so this covers all of them.
+   */
+  for (const theme of ["light", "dark"] as const) {
+    test(`in ${theme} mode it offers the other one`, async ({ page }) => {
+      await page.addInitScript((value) => {
+        try {
+          localStorage.setItem("bh-theme", value as string);
+        } catch {}
+      }, theme);
+      await page.goto("/guide");
+      await expect(page.locator("html")).toHaveAttribute("data-theme", theme);
+
+      const other = theme === "dark" ? "light" : "dark";
+      const button = page.getByRole("button", { name: `Switch to ${other} mode` }).first();
+      await expect(button).toBeVisible();
+
+      /*
+       * And the icon must agree with the label. It used to show the mode you
+       * were already in, so in dark mode it drew a moon while announcing
+       * "switch to light mode" — a control describing its state rather than
+       * what pressing it does.
+       */
+      const icon = await button.locator("svg").getAttribute("class");
+      expect(icon).toContain(other === "light" ? "sun" : "moon");
+    });
+  }
+});

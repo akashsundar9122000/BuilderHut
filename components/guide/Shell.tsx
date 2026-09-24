@@ -24,9 +24,16 @@ export function GuideShell({
   return (
     <div className="mx-auto max-w-7xl gap-10 px-5 py-8 sm:px-8 lg:grid lg:grid-cols-[15rem_minmax(0,1fr)] lg:py-14 xl:grid-cols-[15rem_minmax(0,1fr)_13rem]">
       <aside className="hidden lg:block">
-        <div className="sticky top-24 max-h-[calc(100dvh-8rem)] overflow-y-auto pb-8">
-          <GuideNav id="guide-nav-desktop" />
-        </div>
+        {/*
+          The sticky, scrolling box is the <nav> itself rather than a wrapper
+          around it. Choosing a page re-mounts this whole shell, so whatever
+          holds the scroll position has to be the client component that can put
+          it back — see GuideNav.
+        */}
+        <GuideNav
+          id="guide-nav-desktop"
+          className="sticky top-24 max-h-[calc(100dvh-8rem)] overflow-y-auto pb-8"
+        />
       </aside>
 
       <GuideDrawer className="lg:hidden" />

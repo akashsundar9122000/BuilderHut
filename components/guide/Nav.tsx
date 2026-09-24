@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useLayoutEffect, useMemo, useRef, useState } from "react";
 
 import {
   GUIDE_AUDIENCES,
@@ -45,6 +45,89 @@ const matches = (needle: string) => {
 export function GuideNav({ id, className }: { id: string; className?: string }) {
   const pathname = usePathname();
   const [query, setQuery] = useState("");
+  const box = useRef<HTMLElement>(null);
+  /* True while the restore is being applied, so it cannot save over itself. */
+  const restoring = useRef(false);
+
+  /*
+   * Put the contents back where the reader left them.
+   *
+   * Every guide page is its own route, so choosing one from this list unmounts
+   * the list and builds a new one — scrolled to the top. Somebody reading about
+   * refunds, twenty links down, was thrown back to "What BuilderHut is" every
+   * single time they moved to the next page.
+   *
+   * useLayoutEffect, not useEffect: the scroll is restored before the browser
+   * paints, so there is no visible jump from the top to where it belongs.
+   */
+  useLayoutEffect(() => {
+    const element = box.current;
+    if (!element || element.scrollHeight <= element.clientHeight) return;
+
+    let saved: string | null = null;
+    try {
+      saved = sessionStorage.getItem(`bh-guide-scroll-${id}`);
+    } catch {
+      // Private mode, or storage refused. Falling through is correct.
+    }
+
+    const target =
+      saved !== null
+        ? Number(saved)
+        : /*
+           * Nothing saved means this is the first page of the visit — arriving
+           * from a search result, say. Bring the current page into view rather
+           * than leaving the reader at the top of a list their page is not on.
+           */
+          (() => {
+            const active = element.querySelector('[aria-current="page"]');
+            return active instanceof HTMLElement
+              ? Math.max(0, active.offsetTop - element.clientHeight / 2)
+              : 0;
+          })();
+
+    restoring.current = true;
+    element.scrollTop = target;
+
+    /*
+     * And again on the next frame.
+     *
+     * After a navigation the browser moves focus, and moving focus scrolls the
+     * focused element into view — which happens AFTER this effect and dragged
+     * the list to its bottom every time. Re-applying once the browser has
+     * finished is what makes the restore stick.
+     */
+    const again = requestAnimationFrame(() => {
+      if (box.current) box.current.scrollTop = target;
+      restoring.current = false;
+    });
+    return () => {
+      cancelAnimationFrame(again);
+      restoring.current = false;
+    };
+  }, [id, pathname]);
+
+  /*
+   * Saved on scroll and on the way out of a link.
+   *
+   * Scroll alone was not enough: after a navigation the browser moves focus,
+   * and moving focus scrolls the focused element into view, which fires scroll
+   * and overwrote the reader's position with wherever focus had landed. Hence
+   * the guard — while the restore is being applied, nothing is written.
+   *
+   * Click alone was not enough either: a reader can leave this page from the
+   * previous/next links at the foot of the article, and then nothing in here
+   * was ever clicked.
+   */
+  const remember = () => {
+    const element = box.current;
+    if (!element || restoring.current) return;
+    try {
+      sessionStorage.setItem(`bh-guide-scroll-${id}`, String(element.scrollTop));
+    } catch {
+      // Not worth failing a navigation over.
+    }
+  };
 
   /*
    * The audience follows the URL rather than living in state. A reader who
@@ -80,7 +163,14 @@ export function GuideNav({ id, className }: { id: string; className?: string }) 
   const searchId = `${id}-search`;
 
   return (
-    <nav id={id} className={cn("text-sm", className)} aria-label="Guide">
+    <nav
+      id={id}
+      ref={box}
+      onScroll={remember}
+      onClickCapture={remember}
+      className={cn("text-sm", className)}
+      aria-label="Guide"
+    >
       {/* Three in-flow links, not a select: they are three destinations. */}
       <ul className="border-border flex flex-col gap-0.5 border-b pb-4">
         {GUIDE_AUDIENCES.map((audience) => {
