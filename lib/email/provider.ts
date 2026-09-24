@@ -75,10 +75,15 @@ export async function sendEmail(message: EmailMessage): Promise<void> {
      *
      * "Did it send?" was unanswerable from the logs the first time a code did
      * not arrive: a successful SMTP handoff and a silent misconfiguration
-     * looked identical. The recipient and the subject are enough to tell those
-     * apart, and the body — which carries the code — is deliberately not here.
+     * looked identical.
+     *
+     * The recipient is enough to tell those apart. The subject is NOT logged,
+     * and that is not squeamishness — the verification subject line is
+     * "123456 is your BuilderHut verification code", so logging it put live
+     * one-time codes into the platform's log stream, readable by anyone with
+     * deployment access. It did, for about ten minutes, until this was written.
      */
-    if (provider.name === "smtp") console.log(`[email] sent via smtp to ${message.to}: ${message.subject}`);
+    if (provider.name === "smtp") console.log(`[email] sent via smtp to ${message.to}`);
   } catch (error) {
     // Never let a mail outage take down signup. The caller decides what to tell
     // the user; what must not happen is an unhandled rejection in a route.
