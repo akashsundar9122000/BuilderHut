@@ -168,7 +168,7 @@ interface BuilderContextValue extends State {
   select: (id: string | null) => void;
   setPage: (pageId: string) => void;
   saveState: SaveState;
-  saveNow: () => void;
+  saveNow: () => Promise<void>;
   device: Device;
   setDevice: (device: Device) => void;
 }
@@ -220,30 +220,45 @@ export function BuilderProvider({
     latest.current = { doc: state.doc, revision: state.revision, dirty: state.dirty };
   });
 
-  const inFlight = useRef(false);
+  /*
+   * Saves run one at a time, in order.
+   *
+   * A save in flight used to make the next request a no-op, which was fine
+   * while the only caller was a debounced timer and wrong the moment anything
+   * waited on the result: pressing Preview during an autosave returned
+   * immediately, and the preview tab opened on the document from before the
+   * last thing typed. Chaining makes `persist()` mean "saved by the time this
+   * resolves" — and the dirty check inside the link means a queued save that
+   * has been overtaken costs nothing.
+   */
+  const queue = useRef<Promise<void>>(Promise.resolve());
 
-  const persist = useCallback(async () => {
-    if (inFlight.current || !latest.current.dirty) return;
-    inFlight.current = true;
-    setSaveState("saving");
-    try {
-      const result = await save(latest.current.doc, latest.current.revision);
-      if (result.ok && result.revision !== undefined) {
-        dispatch({ type: "saved", revision: result.revision });
-        setSaveState("saved");
-      } else if (result.conflict && result.serverDoc) {
-        // Someone else saved first. Their version is authoritative; the editor
-        // reloads onto it rather than overwriting work it never saw.
-        dispatch({ type: "replace", doc: result.serverDoc, revision: result.revision ?? 0 });
-        setSaveState("conflict");
-      } else {
+  const persist = useCallback((): Promise<void> => {
+    const next = queue.current.then(async () => {
+      if (!latest.current.dirty) return;
+      setSaveState("saving");
+      try {
+        const result = await save(latest.current.doc, latest.current.revision);
+        if (result.ok && result.revision !== undefined) {
+          dispatch({ type: "saved", revision: result.revision });
+          setSaveState("saved");
+        } else if (result.conflict && result.serverDoc) {
+          // Someone else saved first. Their version is authoritative; the editor
+          // reloads onto it rather than overwriting work it never saw.
+          dispatch({ type: "replace", doc: result.serverDoc, revision: result.revision ?? 0 });
+          setSaveState("conflict");
+        } else {
+          setSaveState("error");
+        }
+      } catch {
         setSaveState("error");
       }
-    } catch {
-      setSaveState("error");
-    } finally {
-      inFlight.current = false;
-    }
+    });
+
+    // The chain must not stay rejected, or one failure would stop every save
+    // after it. The caller still sees its own failure through `next`.
+    queue.current = next.catch(() => {});
+    return next;
   }, [save]);
 
   // Debounced autosave. 1.2s is long enough that a sentence is one save and
@@ -313,7 +328,7 @@ export function BuilderProvider({
       select,
       setPage,
       saveState: state.dirty && saveState === "saved" ? "idle" : saveState,
-      saveNow: () => void persist(),
+      saveNow: persist,
       device,
       setDevice,
     }),

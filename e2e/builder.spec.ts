@@ -21,6 +21,17 @@ import { MAIL_LOG } from "./support/paths";
  */
 
 
+/*
+ * "Saved", and only "Saved".
+ *
+ * getByText matches a case-insensitive SUBSTRING, so getByText("Saved") also
+ * matches "Unsaved changes" — the state immediately before a save, which is on
+ * screen the instant anything is typed. Every wait-for-the-save in this file
+ * was therefore passing at once and asserting nothing, and a test that then
+ * reloaded lost the edit it had just made and blamed the editor for it.
+ */
+const SAVED = (page: Page) => page.getByText("Saved", { exact: true });
+
 test.describe("visual builder", () => {
   test.describe.configure({ mode: "serial" });
 
@@ -112,13 +123,72 @@ test.describe("visual builder", () => {
     await page.fill("#ctrl-heading", "Warm things for cold rooms");
 
     await expect(page.getByText("Warm things for cold rooms").first()).toBeVisible();
-    await expect(page.getByText("Saved")).toBeVisible({ timeout: 20_000 });
+    await expect(SAVED(page)).toBeVisible({ timeout: 20_000 });
 
     await page.keyboard.press("Control+z");
     await expect(page.getByText("Warm things for cold rooms")).toHaveCount(0);
 
     await page.keyboard.press("Control+Shift+z");
     await expect(page.getByText("Warm things for cold rooms").first()).toBeVisible();
+  });
+
+  test("a new section lands below the selection, and the canvas goes to it", async () => {
+    await page.goto("/app/builder");
+
+    // Select something in the middle of the page, then add below it.
+    await openBuilderPanel(page);
+    await page.click('button[role="tab"]:has-text("Layers")');
+    await page.click('button:has-text("Hero")');
+
+    /*
+     * On a phone, selecting a section swaps the sheet from the section list to
+     * that section's settings — which is the right behaviour and means the Add
+     * tab is no longer on screen. Both are reopened rather than assumed; at
+     * desktop width these are no-ops.
+     */
+    await closeBuilderPanel(page);
+    await openBuilderPanel(page);
+    await page.click('button[role="tab"]:has-text("Add")');
+    await page.click('button:has-text("Testimonials")');
+    await closeBuilderPanel(page);
+
+    const order = await page.evaluate(() =>
+      [...document.querySelectorAll("[data-section-id]")].map(
+        (el) => (el as HTMLElement).dataset.sectionId,
+      ),
+    );
+    const hero = order.findIndex((id) => id?.startsWith("home-hero"));
+    const added = order.findIndex((id) => id?.startsWith("testimonials-"));
+    expect(hero, "the hero should still be on the page").toBeGreaterThanOrEqual(0);
+    // Directly below what was selected, not at the far end of the page.
+    expect(added).toBe(hero + 1);
+
+    /*
+     * And it is on screen.
+     *
+     * This is the bug that made the whole editor look broken: adding a section
+     * selected it and filled the inspector with its settings, but the canvas
+     * stayed where it was — so typing a heading changed something three
+     * screens down and nothing a merchant could see.
+     */
+    await expect
+      .poll(
+        () =>
+          page.evaluate(() => {
+            const shell = [...document.querySelectorAll("[data-section-id]")].find((el) =>
+              (el as HTMLElement).dataset.sectionId?.startsWith("testimonials-"),
+            );
+            if (!shell) return false;
+            const scroller = shell.closest(".overflow-y-auto")!;
+            const box = shell.getBoundingClientRect();
+            const frame = scroller.getBoundingClientRect();
+            return box.top < frame.bottom && box.bottom > frame.top;
+          }),
+        // Polled rather than read once: the scroll is smooth, so it is still
+        // travelling when the click returns.
+        { message: "the new section should have been scrolled into view" },
+      )
+      .toBe(true);
   });
 
   test("a newly added section is visible and fillable", async () => {
@@ -174,6 +244,46 @@ test.describe("visual builder", () => {
     expect(headingAfter).toMatch(/Archivo/i);
   });
 
+  /*
+   * The Preview button used to open /s/<slug> — the PUBLISHED store — so a
+   * merchant who had just spent ten minutes editing opened it and found none
+   * of their work there, which reads as the editor having thrown it away.
+   */
+  test("preview shows the unpublished draft", async () => {
+    await page.goto("/app/builder");
+    await openBuilderPanel(page);
+    await page.click('button[role="tab"]:has-text("Layers")');
+    await page.click('button:has-text("Hero")');
+    await page.fill("#ctrl-heading", "Not published yet");
+    // The canvas is live, and then the draft is stored: the preview renders
+    // what was stored, so both have to be true before it is worth looking at.
+    await expect(page.getByText("Not published yet").first()).toBeVisible();
+    await expect(SAVED(page)).toBeVisible({ timeout: 20_000 });
+    // It survives a reload, so it really is in the draft the preview reads.
+    await page.reload();
+    await expect(page.getByText("Not published yet").first()).toBeVisible();
+    await closeBuilderPanel(page);
+
+    /*
+     * The route rather than the button, because the button opens a tab and a
+     * popup is awkward to drive at two viewports. What the button does beyond
+     * this is flush the save, which the assertion above has already waited for.
+     */
+    await page.goto("/app/builder/preview");
+    await expect(page.getByText("Draft preview")).toBeVisible();
+    await expect(page.getByText("Not published yet").first()).toBeVisible();
+
+    // Links inside the preview stay inside the preview rather than jumping to
+    // the published store halfway through a look around.
+    const shopLink = page.locator('a[href="/app/builder/preview/shop"]').first();
+    await expect(shopLink).toHaveCount(1);
+
+    // A path the draft has no page for says so, rather than dropping the
+    // merchant onto BuilderHut's own 404 in the middle of their shop.
+    await page.goto("/app/builder/preview/cart");
+    await expect(page.getByText("Not part of your draft")).toBeVisible();
+  });
+
   test("publishing makes the draft live, and history records it", async () => {
     await page.goto("/app/builder");
     /*
@@ -185,7 +295,7 @@ test.describe("visual builder", () => {
     await page.click('button[role="tab"]:has-text("Layers")');
     await page.click('button:has-text("Hero")');
     await page.fill("#ctrl-heading", "Warm things for cold rooms, published");
-    await expect(page.getByText("Saved")).toBeVisible({ timeout: 20_000 });
+    await expect(SAVED(page)).toBeVisible({ timeout: 20_000 });
     await closeBuilderPanel(page);
 
     /*

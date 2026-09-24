@@ -20,7 +20,7 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { Copy, Eye, EyeOff, GripVertical, Lock, Trash2 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { cn } from "@/lib/cn";
 import { insertableRange } from "@/lib/builder/commands";
@@ -53,6 +53,46 @@ const DEVICE_WIDTH: Record<Device, number | null> = {
 export function Canvas({ products }: { products: ProductCard[] }) {
   const { doc, page, selectedId, select, run, device } = useBuilder();
   const [dragging, setDragging] = useState<Section | null>(null);
+  const scroller = useRef<HTMLDivElement>(null);
+
+  /*
+   * The canvas follows the selection.
+   *
+   * Not every selection comes from the canvas. Adding a section from the left
+   * panel selects it, and so does clicking a row in the layer tree — and both
+   * of those can be a long way outside the visible band. Without this the
+   * inspector filled with a section's settings while the canvas stayed where
+   * it was, so typing a heading appeared to change nothing at all. It was
+   * changing something; it was three screens down.
+   *
+   * `block: "nearest"` scrolls the least it can, which makes this a no-op for
+   * a section clicked on the canvas — it is already in view. A section taller
+   * than the viewport is aligned to its top instead, because the nearest edge
+   * of a full-height hero is its bottom, and landing there shows the seam
+   * below it rather than the thing just selected.
+   */
+  useEffect(() => {
+    const view = scroller.current;
+    if (!selectedId || !view) return;
+
+    const node = Array.from(view.querySelectorAll("[data-section-id]")).find(
+      (el) => el.getAttribute("data-section-id") === selectedId,
+    );
+    if (!node) return;
+
+    const box = node.getBoundingClientRect();
+    const frame = view.getBoundingClientRect();
+    if (box.top >= frame.top && box.bottom <= frame.bottom) return;
+
+    node.scrollIntoView({
+      // Someone who has asked for less motion is asking not to be thrown
+      // across a document they are trying to read.
+      behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches
+        ? "auto"
+        : "smooth",
+      block: box.height > frame.height ? "start" : "nearest",
+    });
+  }, [selectedId]);
 
   const sensors = useSensors(
     // A small distance before a drag starts, so clicking to select a section
@@ -83,7 +123,11 @@ export function Canvas({ products }: { products: ProductCard[] }) {
   const width = DEVICE_WIDTH[device];
 
   return (
-    <div className="bg-sunken flex-1 overflow-y-auto p-4 sm:p-6" onClick={() => select(null)}>
+    <div
+      ref={scroller}
+      className="bg-sunken flex-1 overflow-y-auto p-4 sm:p-6"
+      onClick={() => select(null)}
+    >
       <div
         className="mx-auto transition-[max-width] duration-(--bh-duration-base) ease-(--ease-out)"
         style={{ maxWidth: width ? `${width}px` : "1280px" }}
@@ -188,6 +232,7 @@ function SectionShell({
 
   return (
     <div
+      data-section-id={section.id}
       className="group relative"
       onClick={(event) => {
         event.stopPropagation();

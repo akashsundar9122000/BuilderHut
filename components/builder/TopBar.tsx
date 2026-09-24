@@ -1,12 +1,14 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   AlertTriangle,
   ArrowLeft,
   Check,
   Cloud,
   CloudOff,
+  ExternalLink,
   History,
   Loader2,
   Monitor,
@@ -37,7 +39,44 @@ export function TopBar({
   publishing: boolean;
   onOpenHistory: () => void;
 }) {
-  const { undo, redo, canUndo, canRedo, saveState, device, setDevice, dirty } = useBuilder();
+  const { undo, redo, canUndo, canRedo, saveState, device, setDevice, dirty, saveNow } =
+    useBuilder();
+  const router = useRouter();
+
+  /*
+   * Preview shows the DRAFT, which is the only thing a merchant mid-edit
+   * wants to see. It used to open /s/<slug> — the published store — so
+   * someone who had just spent ten minutes redesigning a page opened it and
+   * found none of their work there. The published store is still one click
+   * away, next to it, and labelled as what it is.
+   *
+   * The tab is opened before the save rather than after it, because a window
+   * opened from inside an await is no longer attributable to the click and
+   * every browser blocks it as a popup. It sits blank for as long as the save
+   * takes, which is why the draft is saved first at all: the preview renders
+   * what is stored, so opening it before the save would show the document
+   * from before the last thing typed.
+   */
+  async function openPreview() {
+    /*
+     * No "noopener" here, deliberately: with it, window.open returns null by
+     * specification, and the handle is the entire point — there would be
+     * nothing left to point at the preview once the save came back. The tab is
+     * same-origin and goes to a route this app owns, so the opener reference
+     * it keeps is not a window onto anything it could not already reach.
+     */
+    const tab = window.open("", "_blank");
+    try {
+      await saveNow();
+    } finally {
+      // Even a failed save opens the preview: it then shows the last thing
+      // that did save, which is more use than a tab left blank.
+      // A blocked popup still gets the merchant to the preview, in this tab.
+      // The draft is saved, so Back returns them to the editor intact.
+      if (tab) tab.location.href = "/app/builder/preview";
+      else router.push("/app/builder/preview");
+    }
+  }
 
   return (
     <header className="border-border bg-surface flex h-14 shrink-0 items-center gap-2 border-b px-3">
@@ -95,10 +134,25 @@ export function TopBar({
         <IconButton label="Version history" onClick={onOpenHistory}>
           <History className="size-4" />
         </IconButton>
-        <Button asChild variant="secondary" size="sm" className="hidden sm:inline-flex">
+        {/*
+          * The live store, kept as its own link rather than folded into
+          * Preview. They answer different questions — "how does this look?"
+          * and "what can my customers see right now?" — and a merchant
+          * checking whether an edit went out needs the second one.
+          */}
+        <Button asChild variant="ghost" size="sm" className="hidden md:inline-flex">
           <a href={`/s/${storeSlug}`} target="_blank" rel="noreferrer">
-            Preview
+            <ExternalLink className="size-3.5" />
+            Live store
           </a>
+        </Button>
+        <Button
+          variant="secondary"
+          size="sm"
+          className="hidden sm:inline-flex"
+          onClick={openPreview}
+        >
+          Preview
         </Button>
         <Button size="sm" onClick={onPublish} disabled={publishing}>
           {publishing ? <Loader2 className="size-3.5 animate-spin" /> : null}

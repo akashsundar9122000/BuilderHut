@@ -69,8 +69,27 @@ export function LeftPanel() {
 }
 
 function AddPanel() {
-  const { page, run, select } = useBuilder();
-  const { max } = insertableRange(page);
+  const { page, run, select, selectedId } = useBuilder();
+  const { min, max } = insertableRange(page);
+
+  /*
+   * A new section lands immediately below whatever is selected.
+   *
+   * It used to go to the end of the page every time, which is defensible until
+   * you watch someone use it: they are looking at the middle of a long page,
+   * they add a product grid, and the thing they just added is three screens
+   * below the fold. The inspector fills with its settings, they type a
+   * heading, and nothing they can see changes — so the editor looks broken
+   * when it is working exactly as told.
+   *
+   * With nothing selected there is no "here", so the end of the page is still
+   * the right answer. The clamp keeps a new section inside the editable range
+   * whatever is selected: adding while the header is selected puts it at the
+   * top of the page rather than above the header.
+   */
+  const selectedIndex = page.sections.findIndex((s) => s.id === selectedId);
+  const index =
+    selectedIndex === -1 ? max : Math.min(Math.max(selectedIndex + 1, min), max);
 
   // Structural sections cannot be added: a page has exactly one header and one
   // footer, and they arrive with the template.
@@ -95,17 +114,16 @@ function AddPanel() {
                   key={type}
                   onClick={() => {
                     /*
-                     * New sections land at the end of the editable range, just
-                     * above the footer, which is where people expect them —
-                     * and the new one is selected, so its settings are right
+                     * The new section is selected, so its settings are right
                      * there rather than needing to be hunted for on the
-                     * canvas. On a phone that is what swaps the sheet from the
-                     * section list to the settings for what was just added;
-                     * before this, adding a section left the list sitting over
-                     * the canvas with nothing to show for it.
+                     * canvas, and the canvas scrolls to meet it. On a phone
+                     * that is what swaps the sheet from the section list to
+                     * the settings for what was just added; before this,
+                     * adding a section left the list sitting over the canvas
+                     * with nothing to show for it.
                      */
                     const sectionId = newSectionId(type, page.sections);
-                    run({ type: "addSection", pageId: page.id, index: max, sectionType: type, sectionId });
+                    run({ type: "addSection", pageId: page.id, index, sectionType: type, sectionId });
                     select(sectionId);
                   }}
                   className="border-border hover:border-accent hover:bg-accent-soft group rounded-md border px-3 py-2.5 text-left transition-all duration-(--bh-duration-fast)"

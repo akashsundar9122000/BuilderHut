@@ -1,5 +1,6 @@
 import "server-only";
 
+import { cache } from "react";
 import { eq } from "drizzle-orm";
 import { updateTag } from "next/cache";
 import { uuidv7 } from "uuidv7";
@@ -27,7 +28,14 @@ export interface DraftState {
   publishedAt: Date | null;
 }
 
-export async function loadDraft(): Promise<DraftState | null> {
+/*
+ * Memoised for the length of one request.
+ *
+ * The draft preview reads it twice — the layout for the theme, the page for
+ * the document — and neither should mean a second round trip to Neon for a row
+ * that cannot have changed between them.
+ */
+export const loadDraft = cache(async function loadDraft(): Promise<DraftState | null> {
   return runForTenant(async (db) => {
     const rows = await db.select(websites).limit(1);
     const site = rows[0];
@@ -65,7 +73,7 @@ export async function loadDraft(): Promise<DraftState | null> {
       publishedAt: site.publishedAt,
     };
   });
-}
+});
 
 export type SaveDraftResult =
   | { ok: true; revision: number }
