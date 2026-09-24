@@ -3,9 +3,16 @@
     The BuilderHut mark: a roof over a B, with a lit window in its counter.
 
     Redrawn in the product's own palette rather than the neon gradient it was
-    sketched in. Warm near-black tile (--bh-canvas, dark), clay roof, bone
-    letterform, a single green jewel for the window — the same clay-and-green
-    pairing the whole product uses, so the tab matches the page it opens.
+    sketched in. Warm near-black tile, clay roof, bone letterform, a single
+    green jewel for the window — the same clay-and-green pairing the whole
+    product uses, so the tab matches the page it opens. The values are the
+    dark theme's canvas, accent and accent-2, written as hex because an SVG
+    loaded as an image has no stylesheet to read tokens from.
+
+    Note for anyone editing this: an XML comment may not contain a double
+    hyphen. Writing a token name here the way it appears in CSS makes the
+    whole file fail to parse, and a favicon that fails to parse simply does
+    not appear — no error anywhere. tests/unit/svg-assets.test.ts guards it.
 
     Geometry is stroked rather than filled on purpose: strokes survive being
     scaled down to 16px, where a filled letterform of this weight fills in and

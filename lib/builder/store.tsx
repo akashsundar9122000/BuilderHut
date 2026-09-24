@@ -57,7 +57,7 @@ type Action =
   | { type: "redo" }
   | { type: "select"; id: string | null }
   | { type: "setPage"; pageId: string }
-  | { type: "saved"; revision: number }
+  | { type: "saved"; doc: SiteDocument; revision: number }
   | { type: "replace"; doc: SiteDocument; revision: number };
 
 function reducer(state: State, action: Action): State {
@@ -139,7 +139,17 @@ function reducer(state: State, action: Action): State {
       return { ...state, pageId: action.pageId, selectedId: null };
 
     case "saved":
-      return { ...state, revision: action.revision, dirty: false };
+      return {
+        ...state,
+        revision: action.revision,
+        /*
+         * Clean only if the document has not moved on since the request went
+         * out. Clearing this unconditionally is what made a keystroke typed
+         * during a save disappear underneath a "Saved" badge: the reply
+         * marked a draft clean that no longer matched what was on screen.
+         */
+        dirty: state.doc !== action.doc,
+      };
 
     case "replace":
       // Used to resolve a conflict: the server's version wins and history is
@@ -235,23 +245,54 @@ export function BuilderProvider({
 
   const persist = useCallback((): Promise<void> => {
     const next = queue.current.then(async () => {
-      if (!latest.current.dirty) return;
-      setSaveState("saving");
-      try {
-        const result = await save(latest.current.doc, latest.current.revision);
+      /*
+       * Keep going until what is on screen is what is on the server.
+       *
+       * A round trip is not instant, and a merchant types straight through it.
+       * Everything typed during one used to be left behind: the reply marked
+       * the draft clean, so those keystrokes were never sent, and the badge
+       * said "Saved" over a document that was not. Over a connection with a
+       * couple of hundred milliseconds in it, that is most of a sentence.
+       *
+       * The revision is carried in this loop rather than re-read from the ref
+       * between passes, because a dispatch does not reach the ref until React
+       * has rendered. A second pass that re-read it would send the revision it
+       * started with and the server would reject it as a conflict against the
+       * save this very loop had just made — and the editor would then "resolve"
+       * that conflict by replacing the merchant's newer text with the older
+       * copy it had just sent. That is a good deal worse than not saving.
+       */
+      let revision = latest.current.revision;
+      let sent: SiteDocument | null = null;
+
+      while (latest.current.dirty && latest.current.doc !== sent) {
+        const doc: SiteDocument = latest.current.doc;
+        sent = doc;
+        setSaveState("saving");
+
+        let result: SaveResult;
+        try {
+          result = await save(doc, revision);
+        } catch {
+          setSaveState("error");
+          return;
+        }
+
         if (result.ok && result.revision !== undefined) {
-          dispatch({ type: "saved", revision: result.revision });
+          revision = result.revision;
+          dispatch({ type: "saved", doc, revision });
           setSaveState("saved");
         } else if (result.conflict && result.serverDoc) {
-          // Someone else saved first. Their version is authoritative; the editor
-          // reloads onto it rather than overwriting work it never saw.
+          // A real one: someone else saved first. Their version is
+          // authoritative; the editor reloads onto it rather than overwriting
+          // work it never saw.
           dispatch({ type: "replace", doc: result.serverDoc, revision: result.revision ?? 0 });
           setSaveState("conflict");
+          return;
         } else {
           setSaveState("error");
+          return;
         }
-      } catch {
-        setSaveState("error");
       }
     });
 
