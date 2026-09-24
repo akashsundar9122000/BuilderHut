@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Wordmark } from "@/components/brand/Mark";
 import { ThemeToggle } from "@/components/ui";
 
 /*
@@ -14,11 +15,8 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
     <div className="flex min-h-dvh">
       <div className="flex w-full flex-col lg:w-[52%]">
         <header className="flex items-center justify-between px-6 py-5 sm:px-10">
-          <Link
-            href="/"
-            className="font-display text-text hover:text-accent text-lg transition-colors"
-          >
-            BuilderHut
+          <Link href="/" className="text-text hover:text-accent transition-colors">
+            <Wordmark className="text-lg" />
           </Link>
           <ThemeToggle />
         </header>

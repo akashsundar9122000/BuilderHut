@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Wordmark } from "@/components/brand/Mark";
 import { RevealNoScript } from "@/components/marketing/Reveal";
 import { Button, ThemeToggle } from "@/components/ui";
 
@@ -8,8 +9,8 @@ export default function MarketingLayout({ children }: { children: React.ReactNod
       <RevealNoScript />
       <header className="border-border/70 bg-canvas/80 sticky top-0 z-40 border-b backdrop-blur">
         <div className="mx-auto flex h-16 max-w-6xl items-center gap-6 px-5 sm:px-8">
-          <Link href="/" className="font-display text-lg">
-            BuilderHut
+          <Link href="/" className="text-text hover:text-accent transition-colors">
+            <Wordmark className="text-lg" />
           </Link>
           <nav className="text-text-secondary ml-6 hidden items-center gap-6 text-sm md:flex">
             <Link href="/templates" className="hover:text-accent transition-colors">
@@ -39,7 +40,7 @@ export default function MarketingLayout({ children }: { children: React.ReactNod
       <footer className="border-border bg-raised mt-24 border-t">
         <div className="mx-auto flex max-w-6xl flex-col gap-10 px-5 py-14 sm:px-8 md:flex-row md:justify-between">
           <div className="max-w-xs">
-            <p className="font-display text-lg">BuilderHut</p>
+            <Wordmark className="text-lg" />
             <p className="text-muted mt-2 text-sm leading-relaxed">
               A shop for people who make things. Built in Chennai.
             </p>

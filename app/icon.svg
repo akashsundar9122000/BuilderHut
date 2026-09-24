@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="BuilderHut">
+  <!--
+    The BuilderHut mark: a roof over a B, with a lit window in its counter.
+
+    Redrawn in the product's own palette rather than the neon gradient it was
+    sketched in. Warm near-black tile (--bh-canvas, dark), clay roof, bone
+    letterform, a single green jewel for the window — the same clay-and-green
+    pairing the whole product uses, so the tab matches the page it opens.
+
+    Geometry is stroked rather than filled on purpose: strokes survive being
+    scaled down to 16px, where a filled letterform of this weight fills in and
+    turns into a blob.
+  -->
+  <defs>
+    <linearGradient id="roof" x1="13" y1="31" x2="51" y2="16" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#e8845c" />
+      <stop offset="1" stop-color="#a84c32" />
+    </linearGradient>
+    <linearGradient id="letter" x1="22" y1="26" x2="44" y2="54" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#fbf8f3" />
+      <stop offset="1" stop-color="#ddd2c5" />
+    </linearGradient>
+  </defs>
+
+  <rect width="64" height="64" rx="14" fill="#17130f" />
+
+  <!-- The B, drawn as a skeleton so the counters stay open when it is tiny. -->
+  <g fill="none" stroke="url(#letter)" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M23 26 V53" />
+    <path d="M23 26 H32.5 C38.5 26 38.5 38 32.5 38 H23" />
+    <path d="M23 38 H34.5 C41.5 38 41.5 53 34.5 53 H23" />
+  </g>
+
+  <!-- The roof, over the letter, as in the sketch. -->
+  <path
+    d="M13 31 L32 14 L51 31"
+    fill="none"
+    stroke="url(#roof)"
+    stroke-width="6.5"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
+
+  <!-- The lit window, in the upper counter. One jewel, the accent green. -->
+  <g fill="#58c2a2">
+    <rect x="26.4" y="29" width="2.9" height="2.9" rx="0.7" />
+    <rect x="30.2" y="29" width="2.9" height="2.9" rx="0.7" />
+    <rect x="26.4" y="32.8" width="2.9" height="2.9" rx="0.7" />
+    <rect x="30.2" y="32.8" width="2.9" height="2.9" rx="0.7" />
+  </g>
+</svg>
