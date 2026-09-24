@@ -6,7 +6,7 @@
  * a second use, an expired one, and a plan with no room. Those are the paths
  * that matter, and none of them can be checked without the real tables.
  */
-import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import { eq } from "drizzle-orm";
 import { uuidv7 } from "uuidv7";
 
@@ -22,6 +22,18 @@ import {
   removeMember,
   setMemberRole,
 } from "@/lib/team/service";
+
+/*
+ * The email provider is replaced, not the transport.
+ *
+ * Inviting sends mail, and a developer with real SMTP in their .env.local
+ * would otherwise have this suite posting invitations to addresses at
+ * builderhut.test — a domain that does not exist — and collecting the bounces
+ * on their own account. A test suite must not be able to send email.
+ */
+vi.mock("@/lib/email/provider", () => ({
+  sendEmail: async () => {},
+}));
 
 const suffix = Date.now().toString(36);
 const tenantId = uuidv7();
