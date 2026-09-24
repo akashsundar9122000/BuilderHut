@@ -1,0 +1,9 @@
+{
+  "builderhut-demo": {
+    "w": 1280,
+    "h": 720,
+    "seconds": 653,
+    "poster": "builderhut-demo-poster.jpg",
+    "captions": "builderhut-demo.vtt"
+  }
+}

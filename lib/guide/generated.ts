@@ -135,6 +135,33 @@ export const GUIDE_PAGES: GuidePage[] = [
     ]
   },
   {
+    "slug": "watch-it-built",
+    "group": "start",
+    "audience": "merchant",
+    "order": 15,
+    "title": "Watch it built",
+    "summary": "Eleven minutes of the real product, from an empty account to a paid order and the customer signing in to find it.",
+    "who": "Everyone",
+    "icon": "image",
+    "noindex": false,
+    "related": [
+      "what-you-need"
+    ],
+    "html": "<p>If you would rather see the whole thing than read about it, this is a recording of the\nproduct doing everything this guide describes. Nothing in it is a mock-up or a storyboard:\nit signs up, answers the onboarding questions, adds a catalogue, builds a home page section\nby section, publishes, and then buys something from the shop it just made.</p>\n<figure class=\"gd-video\"><video controls playsinline preload=\"metadata\" poster=\"/guide-video/builderhut-demo-poster.jpg\" width=\"1280\" height=\"720\" aria-label=\"A recording of BuilderHut, from signing up to a customer signing in to find their order.\"><source src=\"/guide-video/builderhut-demo.mp4\" type=\"video/mp4\"><track kind=\"captions\" srclang=\"en\" label=\"English\" src=\"/guide-video/builderhut-demo.vtt\" default><p>Your browser cannot play this recording. <a href=\"/guide-video/builderhut-demo.mp4\">Download it instead</a>.</p></video><figcaption>The whole product, in one run. Subtitles are on by default — the narration and the captions are the same words.</figcaption></figure>\n<h2 id=\"what-happens-and-roughly-when\">What happens, and roughly when</h2>\n<p>It runs in order, so you can start anywhere that interests you.</p>\n<div class=\"gd-table\"><table><thead><tr><th>Minutes</th><th>What you are watching</th></tr></thead><tbody><tr><td>0:00</td><td>Signing up, and the six-digit code that proves the address works</td></tr><tr><td>0:25</td><td>Onboarding: what you make, the name, and the address that comes with it</td></tr><tr><td>1:40</td><td>Adding products, with a compare-at price that becomes a discount</td></tr><tr><td>2:40</td><td>The builder — three columns, and why the middle is not a preview</td></tr><tr><td>3:10</td><td>Building a home page: hero, products, text, gallery, questions, contact</td></tr><tr><td>7:30</td><td>The theme — colour as nine roles, and type</td></tr><tr><td>8:10</td><td>Layers, pages, and the phone and tablet widths</td></tr><tr><td>8:40</td><td>Publishing, and what it checks before it lets you</td></tr><tr><td>9:10</td><td>The shop a customer gets, the basket, and the checkout</td></tr><tr><td>9:50</td><td>A refused card, then a paid order, a refund, and the books</td></tr><tr><td>10:15</td><td>Customer accounts: the settings, and a guest claiming the order they placed</td></tr></tbody></table></div>\n<h2 id=\"a-note-on-the-last-chapter\">A note on the last chapter</h2>\n<p>The end is worth watching even if you skip the middle. Somebody checks out as a guest, with\nno account — which is what most people do. Later they come back and make an account with the\nsame email address, and the shop does <strong>not</strong> simply hand over what it is holding. It asks\nfor a code first, because that record already has their address, their phone number and what\nthey bought on it, and typing an email address is not proof that it is yours.</p>\n<p>That rule holds whatever you set under <a href=\"/guide/running/the-dashboard\">Store settings</a>; it is\nnot a preference. Everything else about accounts is yours to choose — whether people sign in\nwith an email address or a mobile number, whether they use a password or a code, and when you\nwant their details confirmed.</p>\n",
+    "toc": [
+      {
+        "id": "what-happens-and-roughly-when",
+        "text": "What happens, and roughly when",
+        "depth": 2
+      },
+      {
+        "id": "a-note-on-the-last-chapter",
+        "text": "A note on the last chapter",
+        "depth": 2
+      }
+    ]
+  },
+  {
     "slug": "what-you-need",
     "group": "start",
     "audience": "merchant",

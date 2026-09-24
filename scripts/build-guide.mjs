@@ -38,6 +38,8 @@ import { fileURLToPath } from "node:url";
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const SRC = path.join(ROOT, "docs", "guide");
 const SHOTS = path.join(ROOT, "public", "guide-shots");
+const VIDEOS = path.join(ROOT, "public", "guide-video");
+const VIDEO_MANIFEST = path.join(VIDEOS, "manifest.json");
 const MANIFEST = path.join(SHOTS, "manifest.json");
 const OPENAPI = path.join(ROOT, "public", "openapi.json");
 const OUT_FULL = path.join(ROOT, "lib", "guide", "generated.ts");
@@ -196,6 +198,9 @@ function uniqueId(ctx, id) {
 }
 
 const shotManifest = fs.existsSync(MANIFEST) ? JSON.parse(fs.readFileSync(MANIFEST, "utf8")) : {};
+const videoManifest = fs.existsSync(VIDEO_MANIFEST)
+  ? JSON.parse(fs.readFileSync(VIDEO_MANIFEST, "utf8"))
+  : {};
 
 /**
  * One screenshot, in up to four variants.
@@ -217,6 +222,54 @@ const shotManifest = fs.existsSync(MANIFEST) ? JSON.parse(fs.readFileSync(MANIFE
  * A shot that was never captured renders as a visible gap, never a broken
  * image: a partial capture must not read as a complete one.
  */
+/*
+ * An inline recording, written in Markdown the same way a screenshot is:
+ *
+ *   ![alt](video:builderhut-demo "caption")
+ *
+ * Plays in the page rather than linking out. No autoplay and no loop: this is
+ * eleven minutes of narration, and a page that starts talking at somebody who
+ * came to read is a page they close. preload="metadata" fetches a few KB for the
+ * duration and scrubber, not the twelve megabytes behind it — the file is only
+ * downloaded once a reader presses play.
+ *
+ * The subtitle track is the same WebVTT the mixer wrote from the narration, so
+ * the words are available muted, in a noisy room, or to anyone who cannot hear
+ * them. A recording that only works with sound is a recording half the readers
+ * cannot use.
+ */
+function video(ctx, id, alt, caption) {
+  const meta = videoManifest[id];
+  const file = meta && path.join(VIDEOS, `${id}.mp4`);
+
+  if (!meta || !fs.existsSync(file)) {
+    ctx.missingVideos.push(id);
+    return (
+      `<figure class="gd-video gd-video-missing">` +
+      `<div class="gd-missing">Recording &ldquo;${esc(id)}&rdquo; has not been captured yet</div>` +
+      `${caption ? `<figcaption>${esc(caption)}</figcaption>` : ""}</figure>`
+    );
+  }
+
+  ctx.videos.push(id);
+  const poster = meta.poster ? ` poster="/guide-video/${esc(meta.poster)}"` : "";
+  const track = meta.captions
+    ? `<track kind="captions" srclang="en" label="English" src="/guide-video/${esc(meta.captions)}" default>`
+    : "";
+
+  return (
+    `<figure class="gd-video">` +
+    `<video controls playsinline preload="metadata"${poster} ` +
+    `width="${meta.w}" height="${meta.h}" aria-label="${esc(alt)}">` +
+    `<source src="/guide-video/${esc(id)}.mp4" type="video/mp4">` +
+    `${track}` +
+    `<p>Your browser cannot play this recording. ` +
+    `<a href="/guide-video/${esc(id)}.mp4">Download it instead</a>.</p>` +
+    `</video>` +
+    `${caption ? `<figcaption>${esc(caption)}</figcaption>` : ""}</figure>`
+  );
+}
+
 function shot(ctx, id, alt, caption) {
   const meta = shotManifest[id];
   /*
@@ -279,6 +332,7 @@ function makeMarked(ctx) {
       },
       image({ href, title, text }) {
         if (href && href.startsWith("shot:")) return shot(ctx, href.slice(5), text, title);
+        if (href && href.startsWith("video:")) return video(ctx, href.slice(6), text, title);
         return `<img src="${esc(href)}" alt="${esc(text)}" loading="lazy">`;
       },
       link({ href, title, tokens }) {
@@ -519,9 +573,21 @@ for (const group of GROUPS) {
       if (!meta[key]) throw new Error(`${rel}: front matter is missing "${key}"`);
     }
 
-    const ctx = { ids: new Set(), toc: [], links: [], shots: [], missingShots: [], missingOps: [] };
+    const ctx = {
+      ids: new Set(),
+      toc: [],
+      links: [],
+      shots: [],
+      videos: [],
+      missingShots: [],
+      missingVideos: [],
+      missingOps: [],
+    };
     const html = render(ctx, body, rel);
     allMissing.push(...ctx.missingShots.map((id) => `${id}  (${rel})`));
+    // A recording is held to the same standard as a screenshot: GUIDE_STRICT_SHOTS
+    // fails the build rather than shipping a page with a hole where it should be.
+    allMissing.push(...ctx.missingVideos.map((id) => `${id}  (${rel}, video)`));
     allMissingOps.push(...ctx.missingOps.map((t) => `${t}  (${rel})`));
 
     pages.push({

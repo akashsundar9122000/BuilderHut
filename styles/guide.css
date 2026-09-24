@@ -41,7 +41,7 @@
 }
 
 /* Tables and pictures get the room they need, up to the column itself. */
-.gd-prose > :is(.gd-table, .gd-shot) {
+.gd-prose > :is(.gd-table, .gd-shot, .gd-video) {
   max-width: 62rem;
 }
 
@@ -368,6 +368,39 @@
 
 .gd-prose .gd-faq details > div > :first-child {
   margin-top: 0;
+}
+
+/* ---------------------------------------------------------------- recordings */
+
+/*
+ * A recording sits in the column like a screenshot, because that is what it is:
+ * a picture of the product that happens to move. Same margins, same caption,
+ * same border — so a page with both does not look like two designs.
+ */
+.gd-prose .gd-video {
+  margin-block: 1.75rem;
+}
+
+.gd-prose .gd-video video {
+  display: block;
+  width: 100%;
+  height: auto;
+  /*
+   * From the manifest, so the column does not collapse and then jump when the
+   * poster arrives. The same reasoning as the width/height on a screenshot.
+   */
+  aspect-ratio: 16 / 9;
+  border: 1px solid var(--bh-border);
+  border-radius: var(--bh-radius-md);
+  box-shadow: var(--bh-shadow-sm);
+  background: var(--bh-sunken);
+}
+
+.gd-prose .gd-video figcaption {
+  margin-top: 0.55rem;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: var(--bh-text-secondary);
 }
 
 /* --------------------------------------------------------------- screenshots */

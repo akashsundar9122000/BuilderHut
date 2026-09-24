@@ -139,6 +139,18 @@ export const GUIDE_NAV: GuideNavPage[] = [
     ]
   },
   {
+    "slug": "watch-it-built",
+    "group": "start",
+    "audience": "merchant",
+    "order": 15,
+    "title": "Watch it built",
+    "summary": "Eleven minutes of the real product, from an empty account to a paid order and the customer signing in to find it.",
+    "headings": [
+      "What happens, and roughly when",
+      "A note on the last chapter"
+    ]
+  },
+  {
     "slug": "what-you-need",
     "group": "start",
     "audience": "merchant",

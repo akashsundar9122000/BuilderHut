@@ -1,0 +1,322 @@
+WEBVTT
+
+00:00:01.800 --> 00:00:05.783
+It starts with an email address
+No card, no sales call.
+
+00:00:07.291 --> 00:00:14.371
+A six-digit code, to prove the address works
+An address nobody can reach is an account nobody can recover.
+
+00:00:14.411 --> 00:00:19.415
+What do you make?
+This decides which templates come up — it is not a category you are stuck in.
+
+00:00:19.455 --> 00:00:24.718
+The name, and the address that comes with it
+The web address is checked as you type.
+
+00:00:33.924 --> 00:00:38.073
+How you sell today
+So the setup starts from where you already are.
+
+00:00:38.113 --> 00:00:42.347
+And what you want to end up with
+Not every shop needs a checkout.
+
+00:00:42.387 --> 00:00:45.772
+Where you sell
+Sets the currency and the tax rules.
+
+00:00:45.812 --> 00:00:55.485
+Templates are a direction, not a cage
+Each one is a full document — palette, type, page structure — and every part of it is editable.
+
+00:00:55.525 --> 00:01:00.355
+A shop exists now
+Draft, unpublished, and already a complete site.
+
+00:01:00.395 --> 00:01:04.798
+A shop needs something to sell
+Four pieces, with their photographs.
+
+00:01:04.838 --> 00:01:10.183
+Name, description, price
+The description is what the product page reads from.
+
+00:01:10.223 --> 00:01:16.701
+A compare-at price makes a discount
+The storefront works out the percentage and strikes the old figure through.
+
+00:01:16.741 --> 00:01:24.223
+Pictures are resized in the browser
+A photo straight off a phone is four megabytes; it is shrunk before it is ever sent.
+
+00:01:31.199 --> 00:01:37.401
+Four products, live
+Nothing is on the internet yet — the shop has not been published.
+
+00:01:37.679 --> 00:01:44.329
+Three columns
+Sections on the left, the page in the middle, the settings for whatever is selected on the right.
+
+00:01:44.369 --> 00:01:51.963
+The middle is not a preview
+It renders the same components the live storefront renders. There is no second implementation to drift.
+
+00:01:52.003 --> 00:02:00.369
+The header is structural
+It cannot be deleted or dragged out of place — a shop with no navigation is not a state worth being able to reach.
+
+00:02:00.409 --> 00:02:05.031
+An announcement bar
+Leave it empty and the bar does not render at all.
+
+00:02:05.071 --> 00:02:10.076
+What the header carries
+Search, account and basket, each optional.
+
+00:02:10.116 --> 00:02:12.819
+And whether it follows you down the page
+
+00:02:14.666 --> 00:02:21.636
+The first thing a visitor sees
+Every word of it is a field on the right, and the page updates as you type.
+
+00:02:23.037 --> 00:02:28.757
+Buttons, and where they go
+An internal path like /shop, or a full web address.
+
+00:02:28.797 --> 00:02:36.279
+A picture, resized on the way in
+Dropped in, chosen from a file, or picked out of what this shop has already uploaded.
+
+00:02:36.637 --> 00:02:42.924
+Three arrangements
+Picture beside the text, text over the picture, or no picture at all.
+
+00:02:44.325 --> 00:02:50.101
+How tall it stands
+Full screen is a statement; compact gets people to the products sooner.
+
+00:02:52.480 --> 00:02:57.232
+And the band it sits on
+Four tones, all drawn from the shop's own palette.
+
+00:02:59.143 --> 00:03:06.366
+A new section lands below the one selected
+And the canvas scrolls to meet it, so what you type next is something you can see.
+
+00:03:06.406 --> 00:03:10.133
+Two to six short points
+Each is a title and a line.
+
+00:03:11.534 --> 00:03:14.494
+Across two, three or four columns
+
+00:03:15.894 --> 00:03:23.291
+A picture beside a paragraph
+The workhorse of an about page, and of any shop that sells on how a thing is made.
+
+00:03:24.691 --> 00:03:30.296
+The picture can swap sides
+Alternating them down a page is what stops it reading as a list.
+
+00:03:31.518 --> 00:03:38.881
+The catalogue, on the page
+These are the four real products added earlier — their photographs, their prices, their discount.
+
+00:03:38.921 --> 00:03:44.133
+Which products, and how many
+Newest first, featured only, or everything.
+
+00:03:44.173 --> 00:03:49.607
+The cards themselves
+Columns, picture shape, and whether the card has an edge.
+
+00:03:51.007 --> 00:03:57.039
+Prices can come off entirely
+Which is what a catalogue that takes enquiries rather than orders wants.
+
+00:03:58.440 --> 00:04:02.936
+Your story, in your own words
+Blank lines make paragraphs.
+
+00:04:06.427 --> 00:04:13.141
+Narrow, because lines that long are hard to read
+Sixty characters, which is where the eye stops tracking.
+
+00:04:14.179 --> 00:04:21.604
+A grid of photographs
+Pictures are uploaded here, reordered with the arrows, and each one gets a line of alt text.
+
+00:04:21.644 --> 00:04:27.078
+Several at once
+Dropped in, or chosen from a file — and resized before they are sent.
+
+00:04:28.479 --> 00:04:34.519
+Alt text, beside the picture
+A gallery with none is a wall of nothing to a screen reader.
+
+00:04:34.559 --> 00:04:38.542
+Order is the feature
+The arrows move a picture forward or back.
+
+00:04:39.943 --> 00:04:44.439
+What customers have said
+A quote, a name, and where they are from.
+
+00:04:46.390 --> 00:04:49.606
+Several side by side, or one held up large
+
+00:04:51.006 --> 00:04:57.635
+The questions you keep getting
+Answering them on the page is cheaper than answering them one at a time in a chat window.
+
+00:05:00.305 --> 00:05:07.190
+Collecting email addresses
+The form is real: addresses land in the dashboard, not in a third-party widget.
+
+00:05:08.590 --> 00:05:15.731
+WhatsApp, Instagram and email
+Three buttons that open the apps people already use, rather than a form nobody trusts.
+
+00:05:17.131 --> 00:05:24.250
+Each can be switched off
+The numbers themselves live in Store settings, once, rather than on every section.
+
+00:05:24.290 --> 00:05:32.199
+And the small print
+Structural, like the header — links, socials and the policies a shop is required to publish.
+
+00:05:33.600 --> 00:05:42.234
+Click away from everything, and the panel becomes the theme
+One palette, one type pairing, one set of shapes — applied to every page at once.
+
+00:05:42.274 --> 00:05:51.105
+Colour, as nine roles
+Not a free-for-all: “Buttons” and “Highlights” mean something, so changing one stays coherent everywhere it lands.
+
+00:05:51.145 --> 00:05:57.980
+Type
+Nine faces, self-hosted — a shopper's browser never has to tell a font CDN who they are.
+
+00:05:58.020 --> 00:06:03.710
+And shape
+Corner rounding, button rounding, and how much air sits between sections.
+
+00:06:05.110 --> 00:06:11.696
+The whole page, as a list
+Reorder it, hide a section without deleting it, or jump straight to one.
+
+00:06:11.736 --> 00:06:20.548
+Phone and tablet are widths, not emulations
+The storefront is responsive, so narrowing the canvas shows exactly what a phone shows.
+
+00:06:20.588 --> 00:06:25.550
+And every change is undoable
+Typing a heading is one step, not forty.
+
+00:06:25.590 --> 00:06:34.936
+None of this is public yet
+Preview saves the draft first, then opens it in a tab — so what you look at is what is stored, not what happened to be on screen.
+
+00:06:34.976 --> 00:06:44.762
+The draft, as a customer would get it
+No outlines, no panels, links between pages working. The band across the top is the only thing that is not the shop.
+
+00:06:46.163 --> 00:06:55.394
+Publishing checks the shop is fit to open
+A shop with no delivery option has a checkout that cannot complete; it says so rather than letting it go live.
+
+00:06:55.434 --> 00:07:02.660
+Live
+Published versions are immutable snapshots — rolling back is choosing an earlier one, not undoing anything.
+
+00:07:02.711 --> 00:07:08.231
+And this is what a customer gets
+The same components, the same document, none of the editor.
+
+00:07:09.631 --> 00:07:16.599
+Product pages are generated, not built
+They come from the catalogue, so a new product needs no layout work at all.
+
+00:07:16.639 --> 00:07:25.695
+Adding something to a basket
+The button says what happened, then goes back to being a button. No modal, no interstitial, nothing to dismiss.
+
+00:07:25.735 --> 00:07:31.736
+The basket itself
+Quantities, line totals, and a discount code if the shop is running one.
+
+00:07:31.776 --> 00:07:43.183
+Totals come back from the server
+Never worked out in the browser. A basket showing a figure the server would not agree with only reveals itself at the payment step, which is the worst place to find out.
+
+00:07:44.553 --> 00:07:57.496
+One page, and no account unless the shop wants one
+Guest checkout is the default, and nobody ever abandoned a basket because they were not asked to invent a password first. Whether to insist is the merchant’s to decide.
+
+00:07:58.897 --> 00:08:05.953
+Where it is going
+Only the fields the order actually needs — a digital product would not ask for any of this.
+
+00:08:05.999 --> 00:08:13.737
+Delivery, priced by the shop
+These come from the rates the merchant set up; the total re-adds itself as the choice changes.
+
+00:08:14.840 --> 00:08:25.223
+This card is going to be refused
+Four thousand, then zeroes, then two: the number every provider reserves for a decline. Worth watching what the shop does with it.
+
+00:08:27.107 --> 00:08:39.539
+A refused card leaves a payable order, not an empty basket
+The order exists and the basket is closed. The customer pays against the order rather than building it a second time and hoping the stock held.
+
+00:08:39.669 --> 00:08:44.591
+So the card is the only thing to try again
+Everything already typed stays typed.
+
+00:08:46.944 --> 00:08:57.925
+Paid
+Payments are simulated in this build — the order, its states and the refund that follows are all real, but no money has moved. A live provider replaces this one step.
+
+00:08:58.063 --> 00:09:03.668
+And a moment later, on the shop's side
+The same order, in the merchant's dashboard.
+
+00:09:05.068 --> 00:09:15.964
+An order is a state machine, not a status field
+It can only move to a state that follows the one it is in, so “delivered” is not even offered until it has been sent.
+
+00:09:17.364 --> 00:09:25.956
+Refunds are partial by default
+A chipped piece is worth a thousand rupees back, not the whole order and a return postage argument.
+
+00:09:27.535 --> 00:09:37.577
+And the figure on the dashboard is net
+Paid, less what went back. A revenue number that counts refunded money is a number that lies to the person relying on it.
+
+00:09:38.977 --> 00:09:49.104
+Who can have an account, and how
+Three separate decisions, because a bakery taking orders over WhatsApp and a seller of digital downloads do not want the same answer.
+
+00:09:50.505 --> 00:10:02.312
+An email address, a mobile number, or either
+Signing in by mobile sends a text message for every code, so it belongs to a paid plan — and the option says which one rather than sitting there dead.
+
+00:10:02.352 --> 00:10:15.455
+A password, a code, and when to insist
+Confirming before the first order rather than at sign-up: somebody browsing can fill a basket straight away, and the code is asked for when a wrong address would actually cost them something.
+
+00:10:15.495 --> 00:10:25.196
+The person who already ordered as a guest
+Harshini checked out without an account. The shop is already holding her address, her phone number and what she bought.
+
+00:10:27.605 --> 00:10:39.268
+So it asks for a code, not a password
+A record that has already ordered here is never handed over on the strength of typing the address. Otherwise anybody could read somebody else's orders.
+
+00:10:40.669 --> 00:10:51.309
+And the order she placed as a guest is hers
+The same record, claimed rather than duplicated — and the order itself was never moved. Proving the address is what earns the right to see it.
