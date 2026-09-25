@@ -6,6 +6,7 @@ import { ImageUp, Loader2, Trash2, X } from "lucide-react";
 import { Button } from "./Button";
 import { Input } from "./Input";
 import { cn } from "@/lib/cn";
+import { messageFor } from "@/lib/media/upload-error";
 import { uploadForm } from "@/lib/media/downscale";
 import { listMediaAction, uploadMediaAction, type SerialisableAsset } from "@/lib/media/actions";
 
@@ -41,13 +42,25 @@ export function ImagePicker({
   function upload(file: File) {
     setError(null);
     start(async () => {
-      const result = await uploadMediaAction(await uploadForm(file));
-      if (result.ok) {
-        onChange(result.asset.url);
-        // The library is stale the moment something is added to it.
-        setLibrary(null);
-      } else {
-        setError(result.message);
+      try {
+        const result = await uploadMediaAction(await uploadForm(file));
+        if (result.ok) {
+          onChange(result.asset.url);
+          // The library is stale the moment something is added to it.
+          setLibrary(null);
+        } else {
+          setError(result.message);
+        }
+      } catch (cause) {
+        /*
+         * Every failure ends here, including the ones that are not the
+         * server's answer. An oversized body makes a Server Action throw in
+         * its transport rather than return — and an uncaught throw inside a
+         * transition takes down the whole React tree, which in the builder
+         * means every edit since the last autosave. That is how a real draft
+         * was lost on 2026-09-25.
+         */
+        setError(messageFor(cause));
       }
     });
   }

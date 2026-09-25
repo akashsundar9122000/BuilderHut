@@ -5,6 +5,7 @@ import { ArrowLeft, ArrowRight, ImageUp, Loader2, Trash2 } from "lucide-react";
 
 import { Button } from "./Button";
 import { Input } from "./Input";
+import { messageFor } from "@/lib/media/upload-error";
 import { uploadForm } from "@/lib/media/downscale";
 import { uploadMediaAction } from "@/lib/media/actions";
 
@@ -55,13 +56,25 @@ export function ImagesPicker({
     start(async () => {
       const added: PickedImage[] = [];
       for (const file of chosen) {
-        const result = await uploadMediaAction(await uploadForm(file));
-        if (result.ok) {
-          added.push({ url: result.asset.url, alt: "" });
-        } else {
-          // Stop at the first refusal rather than firing the rest: if it was
-          // the storage limit, every one after it fails the same way.
-          setError(result.message);
+        /*
+         * try/catch per file, not around the loop. An oversized picture makes
+         * a Server Action throw in its transport rather than return, and an
+         * uncaught throw inside a transition unmounts the tree — taking every
+         * unsaved edit with it. Catching per file also means one bad photo in
+         * a selection of six does not discard the other five.
+         */
+        try {
+          const result = await uploadMediaAction(await uploadForm(file));
+          if (result.ok) {
+            added.push({ url: result.asset.url, alt: "" });
+          } else {
+            // Stop at the first refusal rather than firing the rest: if it was
+            // the storage limit, every one after it fails the same way.
+            setError(result.message);
+            break;
+          }
+        } catch (cause) {
+          setError(messageFor(cause));
           break;
         }
       }

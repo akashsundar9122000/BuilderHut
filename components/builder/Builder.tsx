@@ -53,8 +53,15 @@ export function Builder({
   );
 
   return (
-    <BuilderProvider initialDoc={initialDoc} initialRevision={initialRevision} save={save}>
+    <BuilderProvider
+      initialDoc={initialDoc}
+      initialRevision={initialRevision}
+      save={save}
+      // One store per tenant, so the slug identifies this draft's local snapshot.
+      storageKey={storeSlug}
+    >
       <div className="flex h-dvh flex-col overflow-hidden">
+        <RecoveryNotice />
         <TopBar
           storeSlug={storeSlug}
           publishing={false}
@@ -110,6 +117,36 @@ export function Builder({
  * decides whether the phone's settings sheet opens, and that lives inside the
  * provider Builder itself renders.
  */
+/*
+ * Said out loud, because a silent recovery is indistinguishable from the bug
+ * it fixes: the merchant arrives expecting to have lost work, and needs to be
+ * told that what is on screen is the newer copy rather than the old one they
+ * were braced for. It also explains that the work is not saved yet, which is
+ * true until the next autosave completes a moment later.
+ */
+function RecoveryNotice() {
+  const { recovered, acknowledgeRecovery } = useBuilder();
+  if (!recovered) return null;
+
+  return (
+    <div
+      role="status"
+      className="border-warning/30 bg-warning-soft flex shrink-0 items-center gap-3 border-b px-4 py-2"
+    >
+      <p className="text-text-secondary flex-1 text-xs">
+        Unsaved changes from your last visit were restored. They are saving now.
+      </p>
+      <button
+        type="button"
+        onClick={acknowledgeRecovery}
+        className="text-muted hover:text-text text-xs underline underline-offset-4"
+      >
+        Dismiss
+      </button>
+    </div>
+  );
+}
+
 function BuilderBody({ products }: { products: ProductCard[] }) {
   const phone = useIsPhone();
   const { selectedId } = useBuilder();

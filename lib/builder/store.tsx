@@ -13,6 +13,7 @@ import {
 
 import { applyCommand, coalesceKey, describeCommand, type Command } from "./commands";
 import type { Page, SiteDocument } from "@/lib/schema/page";
+import { clearSnapshot, readSnapshot, writeSnapshot } from "@/lib/builder/recovery";
 
 /*
  * The builder's state.
@@ -47,6 +48,15 @@ interface State {
   future: HistoryEntry[];
   /** Server revision this document is based on. Sent with every save. */
   revision: number;
+  /**
+   * This session opened onto work recovered from localStorage.
+   *
+   * Reducer state rather than useState so the mount effect only dispatches.
+   * A setState called straight from an effect body is a cascading render, and
+   * the recovery already has to dispatch to install the document — carrying
+   * the flag along with it costs nothing and keeps the effect to one update.
+   */
+  recovered: boolean;
   dirty: boolean;
 }
 
@@ -58,7 +68,9 @@ type Action =
   | { type: "select"; id: string | null }
   | { type: "setPage"; pageId: string }
   | { type: "saved"; doc: SiteDocument; revision: number }
-  | { type: "replace"; doc: SiteDocument; revision: number };
+  | { type: "replace"; doc: SiteDocument; revision: number }
+  | { type: "recover"; doc: SiteDocument }
+  | { type: "dismissRecovery" };
 
 function reducer(state: State, action: Action): State {
   switch (action.type) {
@@ -151,6 +163,31 @@ function reducer(state: State, action: Action): State {
         dirty: state.doc !== action.doc,
       };
 
+    case "recover":
+      /*
+       * Unsaved work found in localStorage, built on the revision the server
+       * just handed us. It is installed dirty on purpose: the whole reason it
+       * is here is that it never reached the server, so the autosave loop has
+       * to see it as something still owed.
+       *
+       * History is dropped. The snapshot is a document, not a command log, so
+       * there is nothing to undo back through — and offering an undo that
+       * jumped to the last server state would look like the recovery being
+       * reverted.
+       */
+      return {
+        ...state,
+        doc: action.doc,
+        past: [],
+        future: [],
+        dirty: true,
+        selectedId: null,
+        recovered: true,
+      };
+
+    case "dismissRecovery":
+      return { ...state, recovered: false };
+
     case "replace":
       // Used to resolve a conflict: the server's version wins and history is
       // dropped, because undoing onto a document that no longer exists upstream
@@ -181,6 +218,8 @@ interface BuilderContextValue extends State {
   saveNow: () => Promise<void>;
   device: Device;
   setDevice: (device: Device) => void;
+  /** Dismiss the recovery notice. The work stays; only the message goes. */
+  acknowledgeRecovery: () => void;
 }
 
 export type Device = "desktop" | "tablet" | "mobile";
@@ -198,11 +237,14 @@ export function BuilderProvider({
   initialDoc,
   initialRevision,
   save,
+  storageKey,
   children,
 }: {
   initialDoc: SiteDocument;
   initialRevision: number;
   save: (doc: SiteDocument, expectedRevision: number) => Promise<SaveResult>;
+  /** Identifies this draft's local snapshot. The store's slug. */
+  storageKey: string;
   children: React.ReactNode;
 }) {
   const [state, dispatch] = useReducer(reducer, {
@@ -213,6 +255,7 @@ export function BuilderProvider({
     future: [],
     revision: initialRevision,
     dirty: false,
+    recovered: false,
   });
 
   const [saveState, setSaveState] = useState<SaveState>("idle");
@@ -255,6 +298,44 @@ export function BuilderProvider({
   const savedDoc = useRef<SiteDocument>(initialDoc);
   const savedRevision = useRef(initialRevision);
 
+  /*
+   * Unsaved work from a previous visit, restored once on mount.
+   *
+   * readSnapshot only returns something built on the revision the server just
+   * gave us, so this can never overwrite a newer document somebody else saved
+   * — see lib/builder/recovery.ts. It runs before anything is edited, so the
+   * dropped history it causes costs nothing.
+   */
+  const restored = useRef(false);
+  useEffect(() => {
+    if (restored.current) return;
+    restored.current = true;
+
+    const snapshot = readSnapshot(storageKey, initialRevision);
+    if (!snapshot) return;
+    dispatch({ type: "recover", doc: snapshot.doc });
+  }, [storageKey, initialRevision]);
+
+  /*
+   * A local copy, written far more often than the server one.
+   *
+   * 400ms against the network save's 1.2s, because writing to localStorage
+   * costs nothing and the entire purpose is to be ahead of the server rather
+   * than behind it. Cleared the moment the server confirms the same document,
+   * so a stale snapshot never outlives the work it was protecting.
+   */
+  useEffect(() => {
+    if (!state.dirty) return;
+    const timer = setTimeout(() => {
+      writeSnapshot(storageKey, {
+        doc: state.doc,
+        revision: savedRevision.current,
+        savedAt: Date.now(),
+      });
+    }, 400);
+    return () => clearTimeout(timer);
+  }, [state.doc, state.dirty, storageKey]);
+
   const persist = useCallback((): Promise<void> => {
     const next = queue.current.then(async () => {
       /*
@@ -292,6 +373,8 @@ export function BuilderProvider({
           savedRevision.current = result.revision;
           dispatch({ type: "saved", doc, revision: result.revision });
           setSaveState("saved");
+          // The server has it; the local copy has nothing left to protect.
+          clearSnapshot(storageKey);
         } else if (result.conflict && result.serverDoc) {
           // A real one: someone else saved first. Their version is
           // authoritative; the editor reloads onto it rather than overwriting
@@ -312,7 +395,7 @@ export function BuilderProvider({
     // after it. The caller still sees its own failure through `next`.
     queue.current = next.catch(() => {});
     return next;
-  }, [save]);
+  }, [save, storageKey]);
 
   // Debounced autosave. 1.2s is long enough that a sentence is one save and
   // short enough that closing the tab rarely loses anything.
@@ -384,6 +467,7 @@ export function BuilderProvider({
       saveNow: persist,
       device,
       setDevice,
+      acknowledgeRecovery: () => dispatch({ type: "dismissRecovery" }),
     }),
     [state, page, run, runBatch, undo, redo, select, setPage, saveState, persist, device],
   );
