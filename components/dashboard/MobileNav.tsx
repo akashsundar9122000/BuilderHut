@@ -1,67 +1,22 @@
 "use client";
 
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { Globe, LayoutDashboard, Package, ShoppingBag } from "lucide-react";
-
-import { cn } from "@/lib/cn";
+import { MobileTabBar } from "@/components/ui/MobileTabBar";
+import { NAV_PRIMARY, navOverflow } from "./nav";
 
 /*
- * The phone's navigation. The sidebar is desktop-only, and blueprint section 54
- * is explicit that mobile is designed, not narrowed — so rather than cram
- * fourteen items into a drawer, this is the four things a merchant opens their
- * phone to do. The rest live on the desktop sidebar.
+ * The phone's navigation.
  *
- * Sits above the home indicator via the safe-area token, so the last row of a
- * list is never trapped under it.
+ * It used to hard-code four of the sidebar's fifteen items and silently drop
+ * the rest — Customers, Analytics, Discounts, Marketing, Payments, Delivery,
+ * Domains, Tax, Team, Plan and Settings were all unreachable on a phone. The
+ * original comment argued that was deliberate: "the four things a merchant
+ * opens their phone to do", with the rest left to the desktop sidebar. That is
+ * a defensible line for a bottom bar and not a defensible line for a whole
+ * product, because it makes the phone a strictly smaller version of the app
+ * rather than the same app on a smaller screen.
+ *
+ * Three now, plus More, which is everything else in the sidebar's own groups.
  */
-const ITEMS: { href: string; label: string; icon: typeof LayoutDashboard; soon?: boolean }[] = [
-  { href: "/app", label: "Home", icon: LayoutDashboard },
-  { href: "/app/products", label: "Products", icon: Package },
-  { href: "/app/orders", label: "Orders", icon: ShoppingBag },
-];
-
 export function MobileNav({ storeSlug }: { storeSlug: string }) {
-  const pathname = usePathname();
-
-  return (
-    <nav
-      className="bg-surface border-border fixed inset-x-0 bottom-0 z-30 flex border-t md:hidden"
-      style={{ paddingBottom: "var(--bh-safe-bottom)" }}
-    >
-      {ITEMS.map((item) => {
-        const active = pathname === item.href;
-        const Icon = item.icon;
-        const content = (
-          <>
-            <Icon className="size-5" />
-            <span className="text-[0.65rem]">{item.label}</span>
-          </>
-        );
-        const className = cn(
-          // 56px clears the 44px touch floor with room for the label.
-          "flex h-14 flex-1 flex-col items-center justify-center gap-1 transition-colors",
-          active ? "text-accent" : item.soon ? "text-faint" : "text-muted",
-        );
-        return item.soon ? (
-          <span key={item.href} className={className} aria-disabled="true">
-            {content}
-          </span>
-        ) : (
-          <Link key={item.href} href={item.href} className={className}>
-            {content}
-          </Link>
-        );
-      })}
-      <a
-        href={`/s/${storeSlug}`}
-        target="_blank"
-        rel="noreferrer"
-        className="text-muted flex h-14 flex-1 flex-col items-center justify-center gap-1"
-      >
-        <Globe className="size-5" />
-        <span className="text-[0.65rem]">Store</span>
-      </a>
-    </nav>
-  );
+  return <MobileTabBar primary={[...NAV_PRIMARY]} groups={navOverflow(storeSlug)} />;
 }

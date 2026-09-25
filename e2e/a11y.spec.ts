@@ -169,6 +169,25 @@ test.describe("signed-in surfaces", () => {
       const found: string[] = [];
       for (const path of MERCHANT_PAGES) found.push(...(await violationsOn(page, path, theme)));
 
+      /*
+       * On a phone eleven of the fifteen sections live behind "More", so the
+       * sheet and its links are not in the document until it is opened. Same
+       * treatment as the operator console's.
+       */
+      if ((page.viewportSize()?.width ?? 1280) < 768) {
+        await page.goto("/app");
+        await page.click('button:has-text("More")');
+        await page.waitForSelector('[role="dialog"]', { timeout: 30_000 });
+
+        const sheet = await new AxeBuilder({ page })
+          .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])
+          .analyze();
+        for (const v of sheet.violations) {
+          found.push(`/app [More sheet] [${theme}] ${v.id} (${v.impact}): ${v.nodes[0]?.target}`);
+        }
+        await page.keyboard.press("Escape");
+      }
+
       // The builder last: it is the heaviest page and the one whose chrome
       // changes most between widths.
       found.push(...(await violationsOn(page, "/app/builder", theme)));

@@ -9,3 +9,4 @@ export { PageSkeleton, DashboardSkeleton } from "./PageSkeleton";
 export { EmptyState, ErrorState } from "./States";
 export { ThemeToggle } from "./ThemeToggle";
 export { PanelSheet } from "./PanelSheet";
+export { MobileTabBar, type TabGroup, type TabItem } from "./MobileTabBar";

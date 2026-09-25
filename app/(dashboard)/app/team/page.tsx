@@ -36,7 +36,18 @@ export default async function TeamPage() {
             : `${seatsUsed} of ${seatLimit} on ${plan.name}.`}{" "}
           {seatLimit !== null && seatsUsed >= seatLimit ? (
             <>
-              <Link href="/app/plan" className="text-accent hover:underline">
+              {/*
+                * Underlined always, not on hover. A link sitting inside a
+                * sentence and marked only by colour is invisible to anyone who
+                * cannot see that colour, and a hover state does not help on a
+                * phone where there is no hover. axe calls this
+                * link-in-text-block, and it is the one violation the merchant
+                * sweep found the first time it ran with real credentials.
+                */}
+              <Link
+                href="/app/plan"
+                className="text-accent underline underline-offset-4 hover:no-underline"
+              >
                 A bigger plan
               </Link>{" "}
               makes room for more.

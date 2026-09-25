@@ -2,13 +2,11 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import {
-  BarChart3, BookOpen, Box, CreditCard, Globe, LayoutDashboard, Megaphone, Package,
-  Gem, PanelLeftClose, PanelLeft, Percent, Receipt, Settings, ShoppingBag, Truck, UserPlus, Users,
-} from "lucide-react";
+import { BookOpen, Globe, PanelLeft, PanelLeftClose } from "lucide-react";
 import { useState } from "react";
 
 import { cn } from "@/lib/cn";
+import { NAV_GROUPS } from "./nav";
 
 /*
  * Blueprint section 9's sidebar.
@@ -17,40 +15,13 @@ import { cn } from "@/lib/cn";
  * merchant seeing "Orders" greyed out understands the product has orders and
  * they haven't got there; a merchant seeing nothing assumes it cannot do it.
  */
-const GROUPS: { label: string; items: { href: string; label: string; icon: typeof Box; soon?: boolean }[] }[] = [
-  {
-    label: "Store",
-    items: [
-      { href: "/app", label: "Dashboard", icon: LayoutDashboard },
-      { href: "/app/builder", label: "Store builder", icon: PanelLeft },
-      { href: "/app/products", label: "Products", icon: Package },
-      { href: "/app/orders", label: "Orders", icon: ShoppingBag },
-      { href: "/app/customers", label: "Customers", icon: Users },
-    ],
-  },
-  {
-    label: "Grow",
-    items: [
-      { href: "/app/analytics", label: "Analytics", icon: BarChart3 },
-      { href: "/app/discounts", label: "Discounts", icon: Percent },
-      { href: "/app/marketing", label: "Marketing", icon: Megaphone },
-    ],
-  },
-  {
-    label: "Configure",
-    items: [
-      { href: "/app/payments", label: "Payments", icon: CreditCard },
-      { href: "/app/shipping", label: "Delivery", icon: Truck },
-      { href: "/app/domains", label: "Domains", icon: Globe },
-      { href: "/app/taxes", label: "Tax", icon: Receipt },
-      { href: "/app/team", label: "Team", icon: UserPlus },
-      { href: "/app/plan", label: "Plan", icon: Gem },
-      { href: "/app/settings", label: "Settings", icon: Settings },
-    ],
-  },
-];
-
-export function Sidebar({ storeName, storeSlug }: { storeName: string; storeSlug: string }) {
+export function Sidebar({
+  storeName,
+  storeSlug,
+}: {
+  storeName: string;
+  storeSlug: string;
+}) {
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(false);
 
@@ -72,12 +43,16 @@ export function Sidebar({ storeName, storeSlug }: { storeName: string; storeSlug
           aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
           className="text-muted hover:text-text hover:bg-raised ml-auto grid size-8 place-items-center rounded-md transition-colors"
         >
-          {collapsed ? <PanelLeft className="size-4" /> : <PanelLeftClose className="size-4" />}
+          {collapsed ? (
+            <PanelLeft className="size-4" />
+          ) : (
+            <PanelLeftClose className="size-4" />
+          )}
         </button>
       </div>
 
       <nav className="flex-1 overflow-y-auto px-2 py-4">
-        {GROUPS.map((group) => (
+        {NAV_GROUPS.map((group) => (
           <div key={group.label} className="mb-5">
             {!collapsed ? (
               <p className="text-faint px-2 pb-2 text-[0.65rem] font-medium tracking-[0.14em] uppercase">
@@ -91,7 +66,9 @@ export function Sidebar({ storeName, storeSlug }: { storeName: string; storeSlug
                 const content = (
                   <>
                     <Icon className="size-4 shrink-0" />
-                    {!collapsed ? <span className="truncate">{item.label}</span> : null}
+                    {!collapsed ? (
+                      <span className="truncate">{item.label}</span>
+                    ) : null}
                     {!collapsed && item.soon ? (
                       <span className="text-faint ml-auto text-[0.6rem] tracking-wide uppercase">
                         Soon
@@ -111,11 +88,19 @@ export function Sidebar({ storeName, storeSlug }: { storeName: string; storeSlug
                 return (
                   <li key={item.href}>
                     {item.soon ? (
-                      <span className={className} title="Coming in a later phase" aria-disabled="true">
+                      <span
+                        className={className}
+                        title="Coming in a later phase"
+                        aria-disabled="true"
+                      >
                         {content}
                       </span>
                     ) : (
-                      <Link href={item.href} className={className} title={collapsed ? item.label : undefined}>
+                      <Link
+                        href={item.href}
+                        className={className}
+                        title={collapsed ? item.label : undefined}
+                      >
                         {content}
                       </Link>
                     )}
