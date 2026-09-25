@@ -130,6 +130,16 @@
   --bh-topbar-h: 56px;
   --bh-bottom-nav-h: 56px;
   --bh-inspector-w: 304px;
+  /*
+   * The dashboard's measure.
+   *
+   * One value rather than a max-w- per page: the seventeen screens had grown
+   * five different widths between them, so moving between Products and
+   * Settings shifted the whole page sideways. Wide enough to fill a laptop and
+   * a normal desktop, capped so a 21:9 monitor does not stretch a table to a
+   * metre — past about this, the eye stops being able to follow a row across.
+   */
+  --bh-dash-w: 96rem;
 }
 
 /* System preference. Guarded so an explicit light choice still wins. */

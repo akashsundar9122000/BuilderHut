@@ -27,7 +27,7 @@ export default async function TeamPage() {
   const seatLimit = plan.limits.staff;
 
   return (
-    <div className="mx-auto max-w-3xl">
+    <div className="mx-auto max-w-(--bh-dash-w)">
       <header className="mb-7">
         <h1 className="font-display text-3xl leading-tight">Team</h1>
         <p className="text-muted mt-1.5 text-sm">

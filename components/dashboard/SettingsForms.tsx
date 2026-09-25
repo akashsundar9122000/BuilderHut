@@ -8,6 +8,7 @@ import {
   createDiscountAction,
   createShippingAction,
   createTaxAction,
+  saveContactDetailsAction,
   saveCustomerAccountsAction,
   saveSettingsAction,
   type SettingsState,
@@ -488,5 +489,96 @@ function Toggle({
         {hint ? <span className="text-faint block text-xs">{hint}</span> : null}
       </span>
     </label>
+  );
+}
+
+/*
+ * How people reach this shop.
+ *
+ * These four feed the Contact section and the footer directly — both read
+ * ctx.doc.settings.socials — so filling them in here is what makes a Contact
+ * section show anything at all. Until now there was no way to set them: the
+ * `setSocial` command existed and nothing called it, so a merchant could add
+ * the section and find it empty with no explanation.
+ *
+ * Every field is optional and every one that is blank simply produces no
+ * button. A shop that only wants WhatsApp gets one button, not three and two
+ * dead ones.
+ */
+export function ContactDetailsForm({
+  initial,
+}: {
+  initial: { whatsapp: string; instagram: string; email: string; phone: string };
+}) {
+  const [state, submit, pending] = useActionState<{ ok: boolean; error?: string }, FormData>(
+    saveContactDetailsAction,
+    { ok: false },
+  );
+
+  return (
+    <form action={submit} className="flex flex-col gap-5">
+      <div className="grid gap-5 sm:grid-cols-2">
+        <Field
+          label="WhatsApp number"
+          htmlFor="whatsapp"
+          hint="With the country code — 919876543210. The button opens a chat."
+        >
+          <Input
+            id="whatsapp"
+            name="whatsapp"
+            inputMode="tel"
+            defaultValue={initial.whatsapp}
+            placeholder="919876543210"
+          />
+        </Field>
+
+        <Field label="Instagram" htmlFor="instagram" hint="The full link to your profile.">
+          <Input
+            id="instagram"
+            name="instagram"
+            defaultValue={initial.instagram}
+            placeholder="https://instagram.com/yourshop"
+          />
+        </Field>
+
+        <Field label="Email" htmlFor="contact-email" hint="Where customers can write to you.">
+          <Input
+            id="contact-email"
+            name="email"
+            type="email"
+            defaultValue={initial.email}
+            placeholder="hello@yourshop.in"
+          />
+        </Field>
+
+        <Field label="Phone" htmlFor="contact-phone" hint="Optional. Shown as a call button.">
+          <Input
+            id="contact-phone"
+            name="phone"
+            inputMode="tel"
+            defaultValue={initial.phone}
+            placeholder="+91 98765 43210"
+          />
+        </Field>
+      </div>
+
+      {state.error ? (
+        <p role="alert" className="text-danger bg-danger-soft rounded-md px-3 py-2 text-sm">
+          {state.error}
+        </p>
+      ) : null}
+      {state.ok ? (
+        <p role="status" className="text-success text-sm">
+          Saved. Your Contact section and footer are using these now.
+        </p>
+      ) : null}
+
+      <div>
+        <Button type="submit" disabled={pending}>
+          {pending ? <Loader2 className="size-4 animate-spin" /> : null}
+          {pending ? "Saving" : "Save contact details"}
+        </Button>
+      </div>
+    </form>
   );
 }

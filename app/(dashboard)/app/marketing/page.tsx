@@ -37,7 +37,7 @@ export default async function MarketingPage() {
   const needed = cheapestPlanWith("marketingTools");
 
   return (
-    <div className="mx-auto max-w-3xl">
+    <div className="mx-auto max-w-(--bh-dash-w)">
       <header className="mb-7">
         <h1 className="font-display text-3xl leading-tight">Marketing</h1>
         <p className="text-muted mt-1.5 text-sm">

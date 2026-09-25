@@ -4,6 +4,8 @@ import { revalidatePath } from "next/cache";
 import { eq } from "drizzle-orm";
 
 import { requireActor } from "@/lib/auth/session";
+import { applyCommand } from "@/lib/builder/commands";
+import { loadDraft, saveDraft } from "@/lib/builder/service";
 import { getRootDb } from "@/lib/db/client";
 import { tenants } from "@/lib/db/schema";
 import {
@@ -165,5 +167,55 @@ export async function saveSettingsAction(
   });
   if (!result.ok) return { error: result.message, field: result.field };
   revalidatePath("/app/settings");
+  return { ok: true };
+}
+
+/*
+ * How people reach this shop: WhatsApp, Instagram, email, phone.
+ *
+ * These live in the site DOCUMENT rather than the store_settings table,
+ * because that is where the sections that render them read from — the Contact
+ * section and the footer both take ctx.doc.settings.socials. Putting them in a
+ * second place would mean two answers to "what is your WhatsApp number" and no
+ * rule for which wins.
+ *
+ * Which is also why this is worth doing at all: `setSocial` has existed as a
+ * command since the builder was written and nothing anywhere called it. A
+ * merchant could add a Contact section and then find no way to put their own
+ * number in it, so the section rendered with nothing in it and looked broken.
+ *
+ * Saved against the draft's current revision. If the builder is open in
+ * another tab and has moved on, the save is refused rather than clobbering it
+ * — the same rule every other write to this document follows.
+ */
+export async function saveContactDetailsAction(
+  _previous: unknown,
+  formData: FormData,
+): Promise<{ ok: boolean; error?: string }> {
+  await requireActor();
+
+  const draft = await loadDraft();
+  if (!draft) return { ok: false, error: "No store found." };
+
+  const read = (key: string) => String(formData.get(key) ?? "").trim().slice(0, 200);
+
+  let doc = draft.doc;
+  for (const key of ["whatsapp", "instagram", "email", "phone"] as const) {
+    doc = applyCommand(doc, { type: "setSocial", key, value: read(key) });
+  }
+
+  const result = await saveDraft(doc, draft.revision);
+  if (!result.ok) {
+    return {
+      ok: false,
+      error:
+        "conflict" in result && result.conflict
+          ? "Your store builder is open somewhere else and has newer changes. Close it and try again."
+          : "Those details could not be saved.",
+    };
+  }
+
+  revalidatePath("/app/settings");
+  revalidatePath("/app/builder");
   return { ok: true };
 }

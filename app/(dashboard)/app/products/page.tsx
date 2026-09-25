@@ -19,7 +19,7 @@ export default async function ProductsPage({
   const [items, { added, saved }] = await Promise.all([listProducts(), searchParams]);
 
   return (
-    <div className="mx-auto max-w-5xl">
+    <div className="mx-auto max-w-(--bh-dash-w)">
       <header className="mb-7 flex flex-wrap items-end justify-between gap-4">
         <div>
           <h1 className="font-display text-3xl leading-tight">Products</h1>

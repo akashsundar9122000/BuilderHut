@@ -50,7 +50,7 @@ export default async function DashboardPage({
   const complete = checklist.filter((c) => c.done).length;
 
   return (
-    <div className="mx-auto max-w-5xl">
+    <div className="mx-auto max-w-(--bh-dash-w)">
       {welcome ? (
         <div className="border-accent-border bg-accent-soft mb-6 flex flex-wrap items-center gap-3 rounded-lg border px-4 py-3">
           <p className="text-text text-sm">

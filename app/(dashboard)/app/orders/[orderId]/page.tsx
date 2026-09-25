@@ -42,7 +42,7 @@ export default async function OrderDetailPage({
   const remaining = Number(order.totalMinor) - Number(order.refundedMinor);
 
   return (
-    <div className="mx-auto max-w-4xl">
+    <div className="mx-auto max-w-(--bh-dash-w)">
       <Link
         href="/app/orders"
         className="text-muted hover:text-text mb-5 inline-flex items-center gap-1.5 text-sm transition-colors"

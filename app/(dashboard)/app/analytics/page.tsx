@@ -38,7 +38,7 @@ export default async function AnalyticsPage({
     t.visitors > 0 ? Math.round((t.orders / t.visitors) * 1000) / 10 : 0;
 
   return (
-    <div className="mx-auto max-w-5xl">
+    <div className="mx-auto max-w-(--bh-dash-w)">
       <header className="mb-7 flex flex-wrap items-end justify-between gap-4">
         <div>
           <h1 className="font-display text-3xl leading-tight">Analytics</h1>

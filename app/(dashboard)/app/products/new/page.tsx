@@ -19,7 +19,7 @@ export default async function NewProductPage() {
     .limit(1);
 
   return (
-    <div className="mx-auto max-w-2xl">
+    <div className="mx-auto max-w-(--bh-dash-w)">
       <Link
         href="/app/products"
         className="text-muted hover:text-text mb-5 inline-flex items-center gap-1.5 text-sm transition-colors"
