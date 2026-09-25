@@ -1,9 +1,9 @@
 import Link from "next/link";
-import {
-  BarChart3, Building2, FileClock, Globe, LayoutDashboard, Receipt, Shield, ShieldAlert, Users,
-} from "lucide-react";
+import { Shield } from "lucide-react";
 
-import { ThemeToggle } from "@/components/ui";
+import { AdminMobileNav } from "@/components/platform/AdminMobileNav";
+import { AdminTopBarActions } from "@/components/platform/AdminTopBarActions";
+import { ADMIN_NAV } from "@/components/platform/admin-nav";
 import { requirePlatformAdmin } from "@/lib/platform/guard";
 
 /*
@@ -19,17 +19,6 @@ import { requirePlatformAdmin } from "@/lib/platform/guard";
  * whose screen they are on.
  */
 
-const NAV = [
-  { href: "/admin", label: "Overview", icon: LayoutDashboard },
-  { href: "/admin/stores", label: "Stores", icon: Building2 },
-  { href: "/admin/users", label: "People", icon: Users },
-  { href: "/admin/traffic", label: "Traffic", icon: BarChart3 },
-  { href: "/admin/revenue", label: "Revenue", icon: Receipt },
-  { href: "/admin/domains", label: "Domains", icon: Globe },
-  { href: "/admin/incidents", label: "Incidents", icon: ShieldAlert },
-  { href: "/admin/audit", label: "Audit log", icon: FileClock },
-];
-
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const actor = await requirePlatformAdmin();
 
@@ -43,7 +32,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
 
         <nav className="flex-1 overflow-y-auto px-2 py-4">
           <ul className="flex flex-col gap-0.5">
-            {NAV.map((item) => (
+            {ADMIN_NAV.map((item) => (
               <li key={item.href}>
                 <Link
                   href={item.href}
@@ -82,21 +71,17 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         </div>
 
         <header className="border-border bg-canvas/85 sticky top-0 z-20 flex h-14 items-center gap-3 border-b px-4 backdrop-blur sm:px-6">
-          <nav className="flex gap-4 overflow-x-auto md:hidden">
-            {NAV.map((item) => (
-              <Link key={item.href} href={item.href} className="text-text-secondary text-sm whitespace-nowrap">
-                {item.label}
-              </Link>
-            ))}
-          </nav>
-          <div className="ml-auto flex items-center gap-3">
-            <p className="text-muted hidden text-xs sm:block">{actor.email}</p>
-            <ThemeToggle />
-          </div>
+          {/* The sections live in the bottom nav on a phone; this bar is just
+              who you are and the way out. */}
+          <span className="font-display text-base md:hidden">Operations</span>
+          <AdminTopBarActions email={actor.email} />
         </header>
 
-        <main className="flex-1 px-4 py-6 sm:px-6 sm:py-8">{children}</main>
+        {/* pb-24 keeps the last row of any list clear of the bottom nav. */}
+        <main className="flex-1 px-4 pt-6 pb-24 sm:px-6 sm:py-8 md:pb-8">{children}</main>
       </div>
+
+      <AdminMobileNav />
     </div>
   );
 }

@@ -6,10 +6,17 @@ import { X } from "lucide-react";
 /*
  * A panel as a bottom sheet, for phones.
  *
- * Blueprint section 54: the mobile builder needs its own pattern, not a
- * narrowed desktop one. Two 180px columns side by side is not a layout, it is
- * the desktop layout losing. So on a phone the canvas keeps the whole screen
- * and the panels come up over it, one at a time, when asked for.
+ * Blueprint section 54: a phone needs its own pattern, not a narrowed desktop
+ * one. Two 180px columns side by side is not a layout, it is the desktop
+ * layout losing. So on a phone the content keeps the whole screen and a panel
+ * comes up over it, one at a time, when asked for.
+ *
+ * Lives in components/ui rather than components/builder because it is a
+ * primitive with no builder in it — the operator console's "More" menu uses
+ * the same sheet, and a platform screen reaching into the builder's folder to
+ * borrow it would be the wrong shape twice over: misleading to read, and one
+ * careless import away from pulling builder code onto a page that must never
+ * carry it.
  *
  * The sheet takes focus when it opens and returns it when it closes, traps Tab
  * while it is up, and closes on Escape — everything a dialog owes a keyboard

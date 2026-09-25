@@ -234,6 +234,9 @@ test.describe("the operator console", () => {
   let context: BrowserContext;
 
   test.beforeAll(async ({ browser }, testInfo) => {
+    // A hook has its own timeout, and test.setTimeout above does not touch it.
+    testInfo.setTimeout(120_000);
+
     /*
      * An explicit context built from the project's own options, not
      * browser.newPage(). Two reasons: axe refuses to run in the default
@@ -247,14 +250,40 @@ test.describe("the operator console", () => {
     await page.fill("#email", ADMIN_EMAIL!);
     await page.fill("#password", ADMIN_PASSWORD!);
     await page.click('button[type="submit"]');
+
     /*
      * An operator with no shop of their own lands on /app and is then
-     * redirected to /admin; one who has a shop stays on /app. Waiting for the
-     * URL alone matched the first of those and raced the second — the first
-     * goto was interrupted mid-flight by the app's own redirect.
+     * redirected to /admin; one who has a shop stays on /app. So the landing
+     * URL is not a reliable signal on its own — go to /admin and wait for
+     * something only the signed-in console renders.
+     *
+     * Deliberately not waitForLoadState("networkidle"): the console streams,
+     * and while it is showing "Loading the console" the network never goes
+     * idle. That hung the hook for its full minute and reported as an
+     * accessibility failure, which it was not.
      */
-    await page.waitForURL(/\/(admin|app|onboarding)/, { timeout: 30_000 });
-    await page.waitForLoadState("networkidle");
+    await page.waitForURL(/\/(admin|app|onboarding)/, { timeout: 60_000 });
+
+    /*
+     * Then wait for the URL to STOP changing, rather than navigating somewhere
+     * ourselves. Sign-in here is a chain — /login to /app to /admin — and both
+     * earlier attempts raced it: a goto issued while the app's own redirect was
+     * in flight fails with "interrupted by another navigation", which reads as
+     * an accessibility failure and is nothing of the sort.
+     */
+    let previous = "";
+    await expect
+      .poll(
+        () => {
+          const settled = page.url() === previous;
+          previous = page.url();
+          return settled;
+        },
+        { timeout: 30_000, intervals: [500] },
+      )
+      .toBe(true);
+
+    await page.waitForSelector('button[aria-label="Sign out"]', { timeout: 60_000 });
   });
 
   test.afterAll(async () => {
@@ -268,11 +297,38 @@ test.describe("the operator console", () => {
    * console to complain about them.
    */
   for (const theme of ["light", "dark"] as const) {
-    test.setTimeout(180_000);
+    /*
+     * Eight pages plus the phone's More sheet, each with a scroll pass and an
+     * axe run. Three minutes was enough until the sheet was added and then was
+     * not, on a machine that happened to be busy — and a timeout here reads as
+     * an accessibility failure, which is the most misleading way for a test to
+     * go red.
+     */
+    test.setTimeout(300_000);
 
     test(`has no axe violations in ${theme}`, async () => {
       const found: string[] = [];
       for (const path of ADMIN_PAGES) found.push(...(await violationsOn(page, path, theme)));
+
+      /*
+       * On a phone the sections live behind "More", so the sheet and its links
+       * are not in the document until it is opened — which is the layout
+       * working, not a missing element. Open it and scan what is on screen,
+       * the same way the builder's panels are handled above.
+       */
+      if ((page.viewportSize()?.width ?? 1280) < 768) {
+        await page.goto("/admin");
+        await page.click('button:has-text("More")');
+        await page.waitForSelector('[role="dialog"]', { timeout: 30_000 });
+
+        const sheet = await new AxeBuilder({ page })
+          .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])
+          .analyze();
+        for (const v of sheet.violations) {
+          found.push(`/admin [More sheet] [${theme}] ${v.id} (${v.impact}): ${v.nodes[0]?.target}`);
+        }
+      }
+
       expect(found.join("\n  "), found.join("\n  ")).toBe("");
     });
   }

@@ -9,7 +9,7 @@ import { LeftPanel } from "./LeftPanel";
 import { TopBar } from "./TopBar";
 import { PublishPanel } from "./PublishPanel";
 import { VersionHistory } from "./VersionHistory";
-import { PanelSheet } from "./PanelSheet";
+import { PanelSheet } from "@/components/ui/PanelSheet";
 import { Button } from "@/components/ui";
 import { BuilderProvider, useBuilder, type SaveResult } from "@/lib/builder/store";
 import { useIsPhone } from "@/lib/use-media-query";
