@@ -5,25 +5,28 @@
  * dashboard, the builder and — the one that matters — every published
  * storefront never download a byte of it.
  *
- * Everything here is transform, opacity, scale or a scroll timeline. No
- * animation library: the effects this page wants are ones the browser can
- * drive on the compositor without React in the loop, and a 40KB dependency on
- * the critical path of the one route whose job is to render fast on a cold
- * visit is a poor trade.
+ * Everything here is transform, opacity, scale or a scroll timeline, and it
+ * is driven by the browser rather than by React. The `motion` library is on
+ * this surface too (see components/marketing/MotionRoot.tsx), but only for
+ * what CSS genuinely cannot do: springs that follow a pointer, and one element
+ * handing its place to another. Entrances, loops and anything tied to scroll
+ * position stay here — they run on the compositor from the first paint, and
+ * none of them should wait for a JavaScript bundle to arrive on a cold visit.
  *
  * ── The trap that shapes this whole file ──────────────────────────────────
  *
- * The global reduced-motion reset in tokens.css sets `animation-duration` to
- * 0.01ms. That neutralises a time-based animation completely and a
- * scroll-driven one NOT AT ALL: when `animation-timeline` is set, duration is
- * ignored outright and progress comes from the scroll position instead. A
- * scroll-driven effect therefore survives the reset untouched, which is the
- * opposite of what the reset is for.
+ * The reduced-motion backstop in tokens.css collapses `animation-duration`.
+ * That neutralises a time-based animation completely and a scroll-driven one
+ * NOT AT ALL: when `animation-timeline` is set, duration is ignored outright
+ * and progress comes from the scroll position instead. And it leaves an
+ * entrance's `from` state in place, so a hidden-then-revealed element written
+ * outside a guard stays hidden.
  *
- * So every scroll-driven rule below sits inside
- * `@media (prefers-reduced-motion: no-preference)` and is never written as
- * something to be undone later. tests/unit/marketing.test.ts asserts that,
- * because it is invisible in review.
+ * So every rule that moves or hides anything sits inside one scope,
+ * `:root[data-motion="full"]`, and is never written as something to be undone
+ * later. That attribute is the resolved answer to "does this reader get
+ * motion" — see lib/motion.ts. tests/unit/marketing.test.ts asserts the
+ * scoping, because it is invisible in review.
  *
  * House rule, same as everywhere: no raw hex. Tokens only.
  */
@@ -88,30 +91,12 @@
  * One observer on the container, N delays here. Not one observer per child:
  * six cards cross the threshold in the same frame, so six observers would
  * arrive as a single block and the stagger would not exist.
+ *
+ * The hidden states live in the motion scope below, never out here. Written
+ * out here they would hide content for every reader, and the reduced-motion
+ * backstop in tokens.css only shortens durations — it would leave the content
+ * at opacity 0.
  */
-.bh-mk-stagger > * {
-  transition:
-    opacity var(--bh-duration-deliberate) var(--bh-ease-out),
-    translate var(--bh-duration-deliberate) var(--bh-ease-out);
-}
-
-.bh-mk-stagger:not([data-shown]) > * {
-  opacity: 0;
-  translate: 0 1.25rem;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .bh-mk-stagger > *:nth-child(1) { transition-delay: 0ms; }
-  .bh-mk-stagger > *:nth-child(2) { transition-delay: 70ms; }
-  .bh-mk-stagger > *:nth-child(3) { transition-delay: 140ms; }
-  .bh-mk-stagger > *:nth-child(4) { transition-delay: 210ms; }
-  .bh-mk-stagger > *:nth-child(5) { transition-delay: 280ms; }
-  .bh-mk-stagger > *:nth-child(6) { transition-delay: 350ms; }
-  .bh-mk-stagger > *:nth-child(7) { transition-delay: 420ms; }
-  /* Capped. Past eight, a stagger stops reading as choreography and starts
-     reading as the page being slow. */
-  .bh-mk-stagger > *:nth-child(n + 8) { transition-delay: 490ms; }
-}
 
 /* ── Decoration ────────────────────────────────────────────────────────── */
 
@@ -132,75 +117,146 @@
   mask-image: radial-gradient(70% 60% at 50% 0%, #000, transparent);
 }
 
+/* ── Keyframes ─────────────────────────────────────────────────────────── */
+
+/*
+ * Defined unconditionally because a keyframes block does nothing until
+ * something names it, and every rule that names one is inside the motion
+ * scope that follows.
+ */
+
+@keyframes bh-mk-rise {
+  from { opacity: 0; translate: 0 var(--bh-reveal-rise); }
+  to   { opacity: 1; translate: none; }
+}
+
+@keyframes bh-mk-drift {
+  to { translate: 0 calc(var(--bh-parallax-drift) * -1); }
+}
+
+@keyframes bh-mk-progress {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}
+
+@keyframes bh-mk-marquee {
+  to { transform: translateX(-100%); }
+}
+
+@keyframes bh-mk-bob {
+  50% { translate: 0 -7px; }
+}
+
+@keyframes bh-mk-breathe {
+  50% { opacity: 0.55; scale: 1.06; }
+}
+
+/* A stage that is already on screen when the scene begins. */
+@keyframes bh-mk-stage-first {
+  0%,  72% { opacity: 1; scale: 1; }
+  100%     { opacity: 0; scale: 0.985; }
+}
+@keyframes bh-mk-stage {
+  0%        { opacity: 0; scale: 0.985; }
+  22%, 74%  { opacity: 1; scale: 1; }
+  100%      { opacity: 0; scale: 0.985; }
+}
+/* The one the scene rests on. It must not fade back out at the end. */
+@keyframes bh-mk-stage-last {
+  0%        { opacity: 0; scale: 0.985; }
+  26%, 100% { opacity: 1; scale: 1; }
+}
+
+@keyframes bh-mk-rail {
+  from { transform: scaleY(0); }
+  to   { transform: scaleY(1); }
+}
+
+/*
+ * The inactive step changes COLOUR, between two validated tokens — it does
+ * not fade. Dimming text with opacity is the classic way to invent a
+ * contrast failure that no token check can see, because the tokens are all
+ * still correct and it is the blend that fails. Both ends of this are
+ * `muted` and `text`, which clear AA on every surface by construction.
+ */
+@keyframes bh-mk-step {
+  0%, 100% { color: var(--bh-muted); }
+  22%, 74% { color: var(--bh-text); }
+}
+@keyframes bh-mk-step-first {
+  0%, 72% { color: var(--bh-text); }
+  100%    { color: var(--bh-muted); }
+}
+@keyframes bh-mk-step-last {
+  0%        { color: var(--bh-muted); }
+  26%, 100% { color: var(--bh-text); }
+}
+
 /* ── Motion, only where it was asked for ───────────────────────────────── */
 
-@media (prefers-reduced-motion: no-preference) {
-  @keyframes bh-mk-rise {
-    from { opacity: 0; translate: 0 1.25rem; }
-    to   { opacity: 1; translate: none; }
-  }
-
-  @keyframes bh-mk-drift {
-    to { translate: 0 -26px; }
-  }
-
-  @keyframes bh-mk-progress {
-    from { transform: scaleX(0); }
-    to   { transform: scaleX(1); }
-  }
-
-  @keyframes bh-mk-marquee {
-    to { transform: translateX(-100%); }
-  }
-
-  @keyframes bh-mk-bob {
-    50% { translate: 0 -7px; }
-  }
-
-  @keyframes bh-mk-breathe {
-    50% { opacity: 0.55; scale: 1.06; }
-  }
-
-  /* A stage that is already on screen when the scene begins. */
-  @keyframes bh-mk-stage-first {
-    0%,  72% { opacity: 1; scale: 1; }
-    100%     { opacity: 0; scale: 0.985; }
-  }
-  @keyframes bh-mk-stage {
-    0%        { opacity: 0; scale: 0.985; }
-    22%, 74%  { opacity: 1; scale: 1; }
-    100%      { opacity: 0; scale: 0.985; }
-  }
-  /* The one the scene rests on. It must not fade back out at the end. */
-  @keyframes bh-mk-stage-last {
-    0%        { opacity: 0; scale: 0.985; }
-    26%, 100% { opacity: 1; scale: 1; }
-  }
-
-  @keyframes bh-mk-rail {
-    from { transform: scaleY(0); }
-    to   { transform: scaleY(1); }
-  }
+/*
+ * Every rule that moves something, or hides something so that it can move,
+ * is inside this one scope. `data-motion` is resolved before first paint by
+ * the script in lib/motion.ts — the OS setting, overridden by the footer's
+ * motion control if the reader used it. No script, no attribute, no motion:
+ * the page the server sent is the page you get, all of it visible.
+ *
+ * tests/unit/marketing.test.ts holds this: every animation, every
+ * animation-timeline and every `opacity: 0` in this file must be inside it.
+ */
+:root[data-motion="full"] {
+  /* ── The hero's entrance ────────────────────────────────────────────── */
 
   /*
-   * The inactive step changes COLOUR, between two validated tokens — it does
-   * not fade. Dimming text with opacity is the classic way to invent a
-   * contrast failure that no token check can see, because the tokens are all
-   * still correct and it is the blend that fails. Both ends of this are
-   * `muted` and `text`, which clear AA on every surface by construction.
+   * Pure CSS, so it starts with the first paint rather than after hydration.
+   * `--i` is the position in the sequence, set inline in the markup.
+   *
+   * The headline itself never takes part. It is the page's largest element,
+   * and an element at opacity 0 is not painted as far as the browser's LCP
+   * measurement is concerned — fading it in would make the one number this
+   * page is judged on worse, by exactly the length of the fade.
    */
-  @keyframes bh-mk-step {
-    0%, 100% { color: var(--bh-muted); }
-    22%, 74% { color: var(--bh-text); }
+  .bh-mk-enter {
+    animation: bh-mk-rise var(--bh-duration-reveal) var(--bh-ease-out) both;
+    animation-delay: calc(var(--i, 0) * var(--bh-stagger-step));
   }
-  @keyframes bh-mk-step-first {
-    0%, 72% { color: var(--bh-text); }
-    100%    { color: var(--bh-muted); }
+
+  /* ── Reveal and Stagger, where there are no scroll timelines ────────── */
+
+  [data-reveal] {
+    transition:
+      opacity var(--bh-duration-reveal) var(--bh-ease-out),
+      translate var(--bh-duration-reveal) var(--bh-ease-out);
+    transition-delay: var(--bh-reveal-delay, 0ms);
   }
-  @keyframes bh-mk-step-last {
-    0%        { color: var(--bh-muted); }
-    26%, 100% { color: var(--bh-text); }
+  [data-reveal][data-pending] {
+    opacity: 0;
+    translate: 0 var(--bh-reveal-rise);
+    transition-delay: 0ms;
   }
+
+  .bh-mk-stagger > * {
+    transition:
+      opacity var(--bh-duration-reveal) var(--bh-ease-out),
+      translate var(--bh-duration-reveal) var(--bh-ease-out);
+  }
+  .bh-mk-stagger[data-pending] > * {
+    opacity: 0;
+    translate: 0 var(--bh-reveal-rise);
+    transition-delay: 0ms;
+  }
+
+  .bh-mk-stagger > *:nth-child(2) { transition-delay: calc(var(--bh-stagger-step) * 1); }
+  .bh-mk-stagger > *:nth-child(3) { transition-delay: calc(var(--bh-stagger-step) * 2); }
+  .bh-mk-stagger > *:nth-child(4) { transition-delay: calc(var(--bh-stagger-step) * 3); }
+  .bh-mk-stagger > *:nth-child(5) { transition-delay: calc(var(--bh-stagger-step) * 4); }
+  .bh-mk-stagger > *:nth-child(6) { transition-delay: calc(var(--bh-stagger-step) * 5); }
+  .bh-mk-stagger > *:nth-child(7) { transition-delay: calc(var(--bh-stagger-step) * 6); }
+  /* Capped. Past eight, a stagger stops reading as choreography and starts
+     reading as the page being slow. */
+  .bh-mk-stagger > *:nth-child(n + 8) { transition-delay: calc(var(--bh-stagger-step) * 7); }
+
+  /* ── Ambient loops ──────────────────────────────────────────────────── */
 
   .bh-mk-marquee__track {
     animation: bh-mk-marquee 46s linear infinite;
@@ -223,18 +279,22 @@
   .bh-mk-breathe {
     animation: bh-mk-breathe 7s var(--bh-ease-in-out) infinite;
   }
-}
 
-/* ── Scroll-driven, where the browser can do it ────────────────────────── */
+  /* ── Scroll-driven, where the browser can do it ─────────────────────── */
 
-@media (prefers-reduced-motion: no-preference) {
+  /*
+   * These sit inside the scope for a reason beyond tidiness: the reduced-motion
+   * backstop in tokens.css works by collapsing animation-duration, and a
+   * scroll-driven animation ignores duration outright — its progress comes
+   * from the scroll position. Outside the scope, one of these would sail
+   * straight through the setting meant to stop it.
+   */
   @supports (animation-timeline: view()) {
     /*
-     * The same entrance the Reveal component does with an IntersectionObserver,
-     * done by the compositor instead. It keys off the `data-reveal` attribute
-     * that component already emits, so nothing about it changes: where this is
-     * supported the animation simply outranks the transition, and the observer
-     * becomes dead weight that costs one class name.
+     * The same entrance Reveal does with an IntersectionObserver, done by the
+     * compositor instead. It keys off the `data-reveal` attribute that
+     * component already emits: where this is supported the animation simply
+     * outranks the transition.
      */
     [data-mk] [data-reveal],
     [data-mk] .bh-mk-stagger > * {
@@ -249,7 +309,7 @@
       animation-range: cover 0% cover 26%;
       transition: none;
       /* The observer may never fire on a tall element; the animation is
-         authoritative now, so its hidden start state must not linger. */
+         authoritative now, so a pending hold must not linger. */
       opacity: 1;
       translate: none;
     }

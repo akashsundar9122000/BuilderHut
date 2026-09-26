@@ -33,6 +33,17 @@ export default defineConfig({
   projects: [
     { name: "desktop", use: { ...devices["Desktop Chrome"] } },
     { name: "mobile", use: { ...devices["iPhone 15"] } },
+    {
+      /*
+       * Runs the motion contract with the OS asking for less. Without a project
+       * that runs under it, "we respect prefers-reduced-motion" is a claim in a
+       * comment rather than a tested behaviour. Only the motion spec: the rest
+       * of the suite is about what the pages do, not how they move.
+       */
+      name: "reduced-motion",
+      use: { ...devices["Desktop Chrome"], reducedMotion: "reduce" },
+      testMatch: /marketing-motion\.spec\.ts/,
+    },
   ],
   webServer: {
     /*

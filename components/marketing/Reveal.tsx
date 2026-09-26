@@ -1,19 +1,27 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { cn } from "@/lib/cn";
+import { useEffect, useRef } from "react";
+
+import { holdUntilSeen } from "@/components/marketing/hold-until-seen";
 
 /*
- * Scroll-linked entrance, without an animation library.
+ * Scroll-linked entrance, without React in the loop.
  *
- * One IntersectionObserver per element, disconnected the moment it fires, so a
- * long page does not accumulate live observers. Transform and opacity only, so
- * it stays on the compositor.
+ * The server sends this VISIBLE. It used to send `opacity-0` and wait for an
+ * observer to reveal it, which put every heading above the fold — the landing
+ * hero, the /templates and /pricing intros — at opacity 0 until the page had
+ * hydrated. On a slow phone that is a blank first screen, and the page's
+ * largest element painted late for no reason but a fade.
  *
- * Reduced motion is handled in CSS rather than here: `motion-reduce:transition-none`
- * makes the same state change instant. Branching on the media query in the
- * effect instead would mean a synchronous setState on every mount, and an extra
- * render for every revealed element on the page.
+ * Now the element is only ever hidden by holdUntilSeen, which runs after
+ * hydration, only when motion is on, and only for an element that is still
+ * below the fold at that moment. Something the reader can already see is never
+ * taken away to be given back. The hidden state itself is CSS, scoped to
+ * :root[data-motion="full"] in styles/marketing.css, so turning motion off
+ * mid-visit shows anything still waiting.
+ *
+ * Where scroll timelines are supported the CSS drives this from view() instead
+ * and the hold is dead weight. Kept because Firefox has no scroll timelines.
  */
 export function Reveal({
   children,
@@ -25,56 +33,20 @@ export function Reveal({
   className?: string;
 }) {
   const ref = useRef<HTMLDivElement>(null);
-  const [shown, setShown] = useState(false);
 
   useEffect(() => {
     const node = ref.current;
-    if (!node) return;
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry?.isIntersecting) {
-          setShown(true);
-          observer.disconnect();
-        }
-      },
-      // Fire slightly before the element reaches the viewport, so the motion has
-      // finished by the time it is properly in view.
-      { rootMargin: "0px 0px -12% 0px", threshold: 0.05 },
-    );
-    observer.observe(node);
-    return () => observer.disconnect();
+    return node ? holdUntilSeen(node) : undefined;
   }, []);
 
   return (
     <div
       ref={ref}
       data-reveal=""
-      className={cn(
-        "transition-[opacity,transform] duration-(--bh-duration-deliberate) ease-(--ease-out) motion-reduce:transition-none",
-        shown ? "translate-y-0 opacity-100" : "translate-y-5 opacity-0",
-        className,
-      )}
-      style={{ transitionDelay: shown ? `${delay}ms` : "0ms" }}
+      className={className}
+      style={delay ? ({ "--bh-reveal-delay": `${delay}ms` } as React.CSSProperties) : undefined}
     >
       {children}
     </div>
-  );
-}
-
-/*
- * Without JavaScript the reveal never fires and the page would be blank. This
- * is the whole marketing site, so that failure mode is not acceptable — the
- * content is there in the HTML either way, and this makes sure it is visible.
- */
-export function RevealNoScript() {
-  return (
-    <noscript>
-      <style
-        dangerouslySetInnerHTML={{
-          __html: "[data-reveal]{opacity:1 !important;transform:none !important}",
-        }}
-      />
-    </noscript>
   );
 }

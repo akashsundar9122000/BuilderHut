@@ -25,6 +25,25 @@
 /* Touch-only variant, so the 44px target floor applies to fingers, not cursors. */
 @custom-variant coarse (@media (pointer: coarse));
 
+/*
+ * Tailwind's own motion variants read the OS setting and nothing else, so they
+ * would ignore the site's motion control (lib/motion.ts) and disagree with the
+ * marketing CSS about whether a thing moves. Redefined to read the attribute
+ * that control resolves. `motion-reduce` also keeps the raw media query for
+ * when no script ran, so the OS setting still counts with JavaScript off.
+ */
+@custom-variant motion-safe (&:where(:root[data-motion="full"] *));
+@custom-variant motion-reduce {
+  &:where(:root[data-motion="reduce"] *) {
+    @slot;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    &:where(:root:not([data-motion]) *) {
+      @slot;
+    }
+  }
+}
+
 :root {
   color-scheme: light;
 
@@ -117,6 +136,18 @@
   --bh-ease-out: cubic-bezier(0.22, 1, 0.36, 1);
   --bh-ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
   --bh-ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /*
+   * The marketing pages' scale, which is not the app's. An entrance is read
+   * once, from a distance, while scrolling; a menu is used forty times an hour.
+   * Stretching --bh-duration-slow to cover both would make one of them wrong.
+   * Distances are px, not rem: they are a distance on glass, not a size in the
+   * type system, and should not grow because someone raised their font size.
+   */
+  --bh-duration-reveal: 650ms;
+  --bh-stagger-step: 70ms;
+  --bh-reveal-rise: 20px;
+  --bh-parallax-drift: 26px;
 
   /* ---- safe areas, named once so e2e can override them with real device insets ---- */
   --bh-safe-top: env(safe-area-inset-top, 0px);
@@ -450,15 +481,34 @@
 
 /*
  * Motion is a product feature, but it is never mandatory. Everything below
- * collapses to an instant state change for anyone who asks for less of it.
+ * collapses to an instant state change for anyone who asks for less of it —
+ * through the site's motion control (data-motion, see lib/motion.ts), or
+ * through the OS setting when no script ran to consult that control.
+ *
+ * This is the backstop, not the mechanism. It collapses DURATION, and leaves
+ * animation-name, -delay and -fill-mode alone, so an entrance written outside
+ * a motion scope would still start at its `from` state. Anything that hides
+ * content on the way in must sit inside :root[data-motion="full"] instead.
+ *
+ * 1ms, not 0: some engines never fire transitionend or animationend for a
+ * zero-length run, and code that waits for either would hang.
  */
+:root[data-motion="reduce"] *,
+:root[data-motion="reduce"] *::before,
+:root[data-motion="reduce"] *::after {
+  animation-duration: 1ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 1ms !important;
+  scroll-behavior: auto !important;
+}
+
 @media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
+  :root:not([data-motion]) *,
+  :root:not([data-motion]) *::before,
+  :root:not([data-motion]) *::after {
+    animation-duration: 1ms !important;
     animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
+    transition-duration: 1ms !important;
     scroll-behavior: auto !important;
   }
 }

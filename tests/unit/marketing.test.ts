@@ -34,44 +34,65 @@ describe("styles/marketing.css", () => {
     expect(offenders.map(([n, line]) => `${n}: ${line.trim()}`)).toEqual([]);
   });
 
-  it("puts every scroll-driven animation behind prefers-reduced-motion", () => {
+  it("puts everything that moves or hides inside the motion scope", () => {
     /*
-     * The trap this file exists for.
+     * The trap this file exists for, in two forms.
      *
-     * The global reset in tokens.css neutralises motion with
-     * `animation-duration: 0.01ms !important`. That works on a time-based
+     * The reduced-motion backstop in tokens.css collapses motion with
+     * `animation-duration: 1ms !important`. That works on a time-based
      * animation and does NOTHING to a scroll-driven one: once
      * `animation-timeline` is set, duration is ignored outright and progress
      * comes from the scroll position instead. So a scroll-driven effect
-     * written outside a no-preference block sails straight through the
-     * accessibility setting meant to stop it, and the only way to find out is
-     * to be someone who needs it.
+     * written outside the scope sails straight through the setting meant to
+     * stop it, and the only way to find out is to be someone who needs it.
      *
-     * Hence: every `animation-timeline` must sit inside
-     * `@media (prefers-reduced-motion: no-preference)`. Counting braces is
-     * crude and entirely sufficient — it is asking one structural question.
+     * And a hidden-until-revealed state (`opacity: 0`) outside the scope hides
+     * content from everyone the reveal never runs for — no JavaScript, reduced
+     * motion, an old engine — because the backstop shortens transitions and
+     * never un-hides anything.
+     *
+     * This used to check for `@media (prefers-reduced-motion: no-preference)`.
+     * The gate is now `:root[data-motion="full"]`, the resolved answer from
+     * lib/motion.ts that also honours the footer's motion control, and the
+     * test covers every animation and every hidden state rather than only
+     * timelines. Keyframe bodies are exempt: a `from { opacity: 0 }` does
+     * nothing until a rule inside the scope names it.
+     *
+     * Counting braces is crude and entirely sufficient — it is asking one
+     * structural question.
      */
     const lines = CSS.split("\n");
     let depth = 0;
-    let guardedFrom: number | null = null;
+    let scopedFrom: number | null = null;
+    let keyframesFrom: number | null = null;
     const unguarded: string[] = [];
 
     lines.forEach((line, index) => {
-      if (/@media[^{]*prefers-reduced-motion:\s*no-preference/.test(line) && guardedFrom === null) {
-        guardedFrom = depth;
+      if (/^:root\[data-motion="full"\]\s*\{/.test(line) && scopedFrom === null) {
+        scopedFrom = depth;
       }
+      if (/@keyframes\b/.test(line) && keyframesFrom === null) keyframesFrom = depth;
 
-      if (/\banimation-timeline\s*:/.test(line) && guardedFrom === null) {
+      const moves = /\banimation(-name|-timeline)?\s*:/.test(line);
+      const hides = /\bopacity\s*:\s*0\s*;/.test(line) && keyframesFrom === null;
+      if ((moves || hides) && scopedFrom === null) {
         unguarded.push(`${index + 1}: ${line.trim()}`);
       }
 
       depth += (line.match(/\{/g) ?? []).length;
       depth -= (line.match(/\}/g) ?? []).length;
 
-      if (guardedFrom !== null && depth <= guardedFrom) guardedFrom = null;
+      if (scopedFrom !== null && depth <= scopedFrom) scopedFrom = null;
+      if (keyframesFrom !== null && depth <= keyframesFrom) keyframesFrom = null;
     });
 
     expect(unguarded).toEqual([]);
+  });
+
+  it("does not gate on the OS media query directly", () => {
+    // One mechanism. A rule behind `no-preference` would ignore the reader's
+    // choice in the footer in both directions, and disagree with the rest.
+    expect(CSS).not.toMatch(/@media[^{]*prefers-reduced-motion/);
   });
 
   it("actually contains the scroll-driven upgrade it is here to hold", () => {
@@ -80,6 +101,7 @@ describe("styles/marketing.css", () => {
     // green while the page quietly went back to plain fades.
     expect(CSS).toContain("@supports (animation-timeline: view())");
     expect(CSS).toMatch(/animation-timeline:\s*view\(\)/);
+    expect(CSS).toMatch(/^:root\[data-motion="full"\]\s*\{/m);
   });
 });
 

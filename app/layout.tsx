@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Fraunces, Inter } from "next/font/google";
 import { appUrl } from "@/lib/app-url";
+import { motionScript } from "@/lib/motion";
 import { themeScript } from "@/lib/theme";
 import "@/styles/tokens.css";
 
@@ -52,6 +53,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <head>
         {/* Stamps data-theme before first paint, so dark mode never flashes light. */}
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+        {/*
+         * Stamps data-motion before first paint, for the same reason: every
+         * entrance on the marketing pages keys off it, and deciding after
+         * hydration would mean the hero either animates late or flashes.
+         */}
+        <script dangerouslySetInnerHTML={{ __html: motionScript }} />
       </head>
       <body className={`${fraunces.variable} ${inter.variable} antialiased`}>
         {children}

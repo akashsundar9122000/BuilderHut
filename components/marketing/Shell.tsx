@@ -97,12 +97,15 @@ export function Backdrop({ children }: { children: React.ReactNode }) {
 export function Eyebrow({
   children,
   className,
+  style,
 }: {
   children: React.ReactNode;
   className?: string;
+  style?: React.CSSProperties;
 }) {
   return (
     <p
+      style={style}
       className={cn(
         "text-accent text-xs font-medium tracking-[0.18em] uppercase",
         className,

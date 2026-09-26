@@ -59,6 +59,14 @@ export const metadata: Metadata = {
  * variables on a scope re-skins every utility inside it. See styles/tokens.css.
  */
 
+/** The hero's CSS entrance: position `i` in the sequence, plus any classes. */
+function enter(i: number, className?: string) {
+  return {
+    className: cn("bh-mk-enter", className),
+    style: { "--i": i } as React.CSSProperties,
+  };
+}
+
 export default function LandingPage() {
   const hero = templateSummary(TEMPLATES.find((t) => t.id === "thread")!);
   const second = templateSummary(TEMPLATES.find((t) => t.id === "cutline")!);
@@ -86,41 +94,38 @@ export default function LandingPage() {
         </Backdrop>
         <Shell className="relative grid items-center gap-14 pt-20 pb-24 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.08fr)] lg:pt-28 lg:pb-32">
           <div>
-            <Reveal>
-              <Eyebrow>For people who make things</Eyebrow>
-            </Reveal>
-            <Reveal delay={80}>
-              <h1 className="font-display mt-5 text-[clamp(2.7rem,1.6rem+4.4vw,5rem)] leading-[1.01]">
-                Sell what you make.
-              </h1>
-            </Reveal>
-            <Reveal delay={160}>
-              <p className="text-muted mt-6 max-w-md text-lg leading-relaxed text-balance">
-                A proper online shop — cart, checkout, the lot — without writing a line
-                of code. Pick a starting point built for your trade, then change
-                everything by clicking on it.
-              </p>
-            </Reveal>
-            <Reveal delay={240}>
-              <div className="mt-9 flex flex-wrap items-center gap-3">
-                <Button asChild size="lg">
-                  <Link href="/signup">
-                    Create my store <ArrowRight className="size-4" aria-hidden="true" />
-                  </Link>
-                </Button>
-                <Button asChild size="lg" variant="secondary">
-                  <Link href="/templates">Explore templates</Link>
-                </Button>
-              </div>
-            </Reveal>
-            <Reveal delay={320}>
-              <p className="text-faint mt-5 text-xs">
-                Free to build. No card, no trial countdown.
-              </p>
-            </Reveal>
+            {/*
+             * CSS entrances, not Reveal: this is the first screen, and it must
+             * not wait for hydration to become visible. The headline has no
+             * entrance at all — see `.bh-mk-enter` in styles/marketing.css.
+             */}
+            <Eyebrow {...enter(0)}>For people who make things</Eyebrow>
+            <h1 className="font-display mt-5 text-[clamp(2.7rem,1.6rem+4.4vw,5rem)] leading-[1.01]">
+              Sell what you make.
+            </h1>
+            <p
+              {...enter(2, "text-muted mt-6 max-w-md text-lg leading-relaxed text-balance")}
+            >
+              A proper online shop — cart, checkout, the lot — without writing a line of code.
+              Pick a starting point built for your trade, then change everything by clicking on
+              it.
+            </p>
+            <div {...enter(3, "mt-9 flex flex-wrap items-center gap-3")}>
+              <Button asChild size="lg">
+                <Link href="/signup">
+                  Create my store <ArrowRight className="size-4" aria-hidden="true" />
+                </Link>
+              </Button>
+              <Button asChild size="lg" variant="secondary">
+                <Link href="/templates">Explore templates</Link>
+              </Button>
+            </div>
+            <p {...enter(4, "text-faint mt-5 text-xs")}>
+              Free to build. No card, no trial countdown.
+            </p>
           </div>
 
-          <Reveal delay={200}>
+          <div {...enter(3)}>
             <div className="bh-mk-parallax relative">
               {/*
                * The window chrome is drawn, not photographed, because what is
@@ -154,7 +159,7 @@ export default function LandingPage() {
                 {TEMPLATES.length} starting points
               </span>
             </div>
-          </Reveal>
+          </div>
         </Shell>
       </Section>
 

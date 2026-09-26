@@ -25,6 +25,7 @@ import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/cn";
 import { insertableRange } from "@/lib/builder/commands";
 import { useBuilder, type Device } from "@/lib/builder/store";
+import { prefersReducedMotion } from "@/lib/motion";
 import { STOREFRONT_FONT_VARS } from "@/lib/render/fonts";
 import { REGISTRY } from "@/lib/render/registry";
 import { RenderSection } from "@/lib/render/render";
@@ -87,9 +88,7 @@ export function Canvas({ products }: { products: ProductCard[] }) {
     node.scrollIntoView({
       // Someone who has asked for less motion is asking not to be thrown
       // across a document they are trying to read.
-      behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches
-        ? "auto"
-        : "smooth",
+      behavior: prefersReducedMotion() ? "auto" : "smooth",
       block: box.height > frame.height ? "start" : "nearest",
     });
   }, [selectedId]);

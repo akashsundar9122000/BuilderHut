@@ -435,6 +435,7 @@ async function captureArrival(
       viewport: VIEWPORT.desktop,
       deviceScaleFactor: 2,
       colorScheme: theme,
+      reducedMotion: "reduce",
     });
     await context.addInitScript((t) => {
       try {
@@ -585,6 +586,13 @@ async function main() {
           ...(device === "phone" ? devices["iPhone 15"] : { viewport: VIEWPORT.desktop }),
           deviceScaleFactor: 2,
           colorScheme: theme,
+          /*
+           * Reduced motion, so a capture never lands mid-entrance. The
+           * marketing pages fade and rise on arrival, and a screenshot taken
+           * 300ms in is a picture of a half-transparent page that the
+           * light/dark difference check then compares as if it were real.
+           */
+          reducedMotion: "reduce",
           storageState: existsSync(path.join(STATE, "merchant.json"))
             ? path.join(STATE, "merchant.json")
             : undefined,
