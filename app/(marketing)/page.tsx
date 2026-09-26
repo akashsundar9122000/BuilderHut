@@ -3,14 +3,17 @@ import type { Metadata } from "next";
 import { ArrowRight, Check } from "lucide-react";
 
 import { BuildSequence } from "@/components/marketing/BuildSequence";
-import { BrowserFrame } from "@/components/marketing/BrowserFrame";
 import { Faq } from "@/components/marketing/Faq";
+import { HeroStage } from "@/components/marketing/HeroStage";
+import { Magnetic } from "@/components/marketing/Magnetic";
 import { Marquee } from "@/components/marketing/Marquee";
 import { Reveal } from "@/components/marketing/Reveal";
 import { Backdrop, Section, SectionHead, Shell, Eyebrow } from "@/components/marketing/Shell";
 import { Stagger } from "@/components/marketing/Stagger";
 import { StoreFrame } from "@/components/marketing/StoreFrame";
 import { TemplateCarousel } from "@/components/marketing/TemplateCarousel";
+import { Tilt } from "@/components/marketing/Tilt";
+import { CountUp } from "@/components/marketing/CountUp";
 import { Button } from "@/components/ui";
 import { cn } from "@/lib/cn";
 import { INDUSTRIES } from "@/lib/industries";
@@ -23,6 +26,7 @@ import {
 } from "@/lib/marketing/content";
 import { ORDERED_PLANS } from "@/lib/plans/catalog";
 import { formatMoney } from "@/lib/money";
+import { REGISTRY } from "@/lib/render/registry";
 import { templateSummaries, templateSummary, TEMPLATES } from "@/lib/templates";
 
 export const metadata: Metadata = {
@@ -59,6 +63,12 @@ export const metadata: Metadata = {
  * variables on a scope re-skins every utility inside it. See styles/tokens.css.
  */
 
+/** Closing-band sparks: left edge (%), delay (s), rise time (s). */
+const SPARKS: readonly (readonly [number, number, number])[] = [
+  [8, 0, 7.5], [17, 3.1, 9], [26, 1.4, 6.8], [34, 5.2, 8.4], [43, 2.2, 7.2], [51, 0.7, 9.6],
+  [58, 4.4, 6.6], [66, 1.9, 8.8], [74, 3.7, 7.4], [82, 0.3, 9.2], [90, 2.8, 7.9], [96, 5.9, 8.1],
+];
+
 /** The hero's CSS entrance: position `i` in the sequence, plus any classes. */
 function enter(i: number, className?: string) {
   return {
@@ -68,8 +78,15 @@ function enter(i: number, className?: string) {
 }
 
 export default function LandingPage() {
-  const hero = templateSummary(TEMPLATES.find((t) => t.id === "thread")!);
-  const second = templateSummary(TEMPLATES.find((t) => t.id === "cutline")!);
+  const byId = (id: string) => templateSummary(TEMPLATES.find((t) => t.id === id)!);
+  const hero = byId("thread");
+  /*
+   * The designs the hero cycles through: warm paper, clean and blue, dark and
+   * gilded, bright and loud. Chosen to be as unlike each other as the range
+   * allows, and none of them Cutline, which is already floating beside them.
+   */
+  const cycle = [hero, byId("parcel"), byId("facet"), byId("stitch")];
+  const second = byId("cutline");
   const trades = INDUSTRIES.filter((i) => i.id !== "other").map((i) => i.label);
   const cheapestPaid = ORDERED_PLANS.find((p) => p.priceMinor > 0);
 
@@ -84,6 +101,25 @@ export default function LandingPage() {
       ? formatMoney(minor, currency).replace(/[.,]00$/, "")
       : formatMoney(minor, currency);
 
+  const freePlan = ORDERED_PLANS.find((p) => p.priceMinor === 0);
+
+  /* Sections a merchant can actually add: not the fixed header and footer,
+     and not the sign-in forms that belong to one system page each. */
+  const sectionKinds = Object.values(REGISTRY).filter((e) => !e.onlyOn && !e.fixed).length;
+
+  const facts: { label: string; value: number | null; text?: string }[] = [
+    { label: "designs to start from", value: TEMPLATES.length },
+    { label: "trades with designs made for them", value: trades.length },
+    { label: "kinds of section to build pages with", value: sectionKinds },
+    freePlan
+      ? {
+          label: "to open a shop and keep it open",
+          value: null,
+          text: planPrice(freePlan.priceMinor, freePlan.currency),
+        }
+      : { label: "plans, from free to enterprise", value: ORDERED_PLANS.length + 1 },
+  ];
+
   return (
     <main>
       {/* ── Hero ─────────────────────────────────────────────────────────── */}
@@ -91,6 +127,9 @@ export default function LandingPage() {
         <Backdrop>
           <div className="bh-mk-grid" />
           <div className="bh-mk-glow -top-40 -left-32 size-[46rem]" />
+          {/* Two slow lights moving behind the stage, Bookie's hero-drift. */}
+          <div className="bh-mk-glow bh-mk-orb top-1/4 right-[-12rem] size-[34rem]" />
+          <div className="bh-mk-glow bh-mk-orb bh-mk-orb--late bottom-[-14rem] left-1/3 size-[30rem]" />
         </Backdrop>
         <Shell className="relative grid items-center gap-14 pt-20 pb-24 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.08fr)] lg:pt-28 lg:pb-32">
           <div>
@@ -111,11 +150,13 @@ export default function LandingPage() {
               it.
             </p>
             <div {...enter(3, "mt-9 flex flex-wrap items-center gap-3")}>
-              <Button asChild size="lg">
-                <Link href="/signup">
-                  Create my store <ArrowRight className="size-4" aria-hidden="true" />
-                </Link>
-              </Button>
+              <Magnetic>
+                <Button asChild size="lg">
+                  <Link href="/signup">
+                    Create my store <ArrowRight className="size-4" aria-hidden="true" />
+                  </Link>
+                </Button>
+              </Magnetic>
               <Button asChild size="lg" variant="secondary">
                 <Link href="/templates">Explore templates</Link>
               </Button>
@@ -126,38 +167,49 @@ export default function LandingPage() {
           </div>
 
           <div {...enter(3)}>
-            <div className="bh-mk-parallax relative">
-              {/*
-               * The window chrome is drawn, not photographed, because what is
-               * inside it is live — a screenshot of a browser around a
-               * component that re-renders itself would be the only stale pixel
-               * on the page.
-               */}
-              <BrowserFrame url="thread.builderhut.app">
-                <StoreFrame template={hero} />
-              </BrowserFrame>
+            <div className="bh-mk-parallax">
+              <div className="bh-mk-recede">
+                {/*
+                 * The window chrome is drawn, not photographed, because what is
+                 * inside it is live — a screenshot of a browser around a
+                 * component that re-renders itself would be the only stale
+                 * pixel on the page. Each frame is rendered here, on the
+                 * server; HeroStage only chooses which one is showing.
+                 */}
+                <HeroStage
+                  frames={cycle.map((t, i) => ({
+                    id: t.id,
+                    name: t.name,
+                    swatch: [t.theme.colors.background, t.theme.colors.primary] as const,
+                    frame: <StoreFrame template={t} assemble={i === 0} className="h-full" />,
+                  }))}
+                  overlay={
+                    <>
+                      <div className="absolute -right-3 -bottom-12 hidden w-[52%] sm:block lg:-right-9">
+                        <div className="bh-mk-bob">
+                          <StoreFrame
+                            template={second}
+                            productNames={["Tee 01", "Tee 02", "Cap"]}
+                            className="shadow-lg"
+                          />
+                        </div>
+                      </div>
 
-              <div className="absolute -right-3 -bottom-12 hidden w-[52%] sm:block lg:-right-9">
-                <div className="bh-mk-bob">
-                  <StoreFrame
-                    template={second}
-                    productNames={["Tee 01", "Tee 02", "Cap"]}
-                    className="shadow-lg"
-                  />
-                </div>
+                      {/*
+                       * A fact, floating. True of the software rather than
+                       * aspirational: it is the number of templates in
+                       * lib/templates.
+                       */}
+                      <span
+                        aria-hidden="true"
+                        className="bh-mk-bob bh-mk-bob--slow border-border bg-surface text-text-secondary absolute -top-4 -left-4 hidden rounded-full border px-3.5 py-1.5 text-xs shadow-md lg:block"
+                      >
+                        {TEMPLATES.length} starting points
+                      </span>
+                    </>
+                  }
+                />
               </div>
-
-              {/*
-               * Two facts, floating. Both are true of the software rather than
-               * aspirational: twelve is the number of templates in
-               * lib/templates, and the address is what a shop gets on publish.
-               */}
-              <span
-                aria-hidden="true"
-                className="bh-mk-bob bh-mk-bob--slow border-border bg-surface text-text-secondary absolute -top-4 -left-4 hidden rounded-full border px-3.5 py-1.5 text-xs shadow-md lg:block"
-              >
-                {TEMPLATES.length} starting points
-              </span>
             </div>
           </div>
         </Shell>
@@ -175,6 +227,30 @@ export default function LandingPage() {
            * oldest lie on a landing page.
            */}
           <Marquee className="mt-5" items={trades} label="Trades BuilderHut has designs for" />
+        </Shell>
+      </Section>
+
+      {/* ── By the numbers ───────────────────────────────────────────────── */}
+      <Section className="border-border border-b">
+        <Shell className="py-14">
+          {/*
+           * Facts about the software, counted from the code — not about
+           * customers, of whom there are none yet to count. Every figure here
+           * changes by itself when a template, a trade or a section is added.
+           */}
+          <Stagger as="dl" className="grid grid-cols-2 gap-y-10 md:grid-cols-4">
+            {facts.map((fact) => (
+              <div
+                key={fact.label}
+                className="border-border flex flex-col gap-2 px-2 text-center md:border-l md:first:border-l-0"
+              >
+                <dt className="text-muted order-2 text-sm text-balance">{fact.label}</dt>
+                <dd className="font-display order-1 text-[clamp(2.4rem,1.8rem+2vw,3.4rem)] leading-none">
+                  {fact.value === null ? fact.text : <CountUp value={fact.value} />}
+                </dd>
+              </div>
+            ))}
+          </Stagger>
         </Shell>
       </Section>
 
@@ -208,12 +284,12 @@ export default function LandingPage() {
             title="A shop, not a page about a shop."
             sub="The unglamorous half — the part that takes the money and tells you what sold — is the half that decides whether this was worth doing."
           />
-          <Stagger className="mt-12 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+          <Stagger spotlight className="mt-12 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
             {FEATURES.map((feature) => (
               <div
                 key={feature.title}
                 className={cn(
-                  "border-border bg-surface flex flex-col rounded-[var(--bh-radius-lg)] border p-6",
+                  "bh-mk-lift border-border bg-surface flex flex-col rounded-[var(--bh-radius-lg)] border p-6",
                   feature.span === 2 && "lg:col-span-2",
                   feature.span === 3 && "lg:col-span-3",
                 )}
@@ -238,7 +314,7 @@ export default function LandingPage() {
             {PRINCIPLES.map((principle) => (
               <div
                 key={principle.title}
-                className="border-border bg-surface flex flex-col rounded-[var(--bh-radius-lg)] border p-6"
+                className="bh-mk-lift border-border bg-surface flex flex-col rounded-[var(--bh-radius-lg)] border p-6"
               >
                 <h3 className="font-display text-xl leading-snug">{principle.title}</h3>
                 <p className="text-muted mt-2.5 flex-1 text-sm leading-relaxed">
@@ -270,7 +346,7 @@ export default function LandingPage() {
               <Link
                 key={door.href}
                 href={door.href}
-                className="border-border bg-surface hover:border-accent-border group flex h-full flex-col rounded-[var(--bh-radius-lg)] border p-6 transition-colors"
+                className="bh-mk-lift border-border bg-surface hover:border-accent-border group flex h-full flex-col rounded-[var(--bh-radius-lg)] border p-6 transition-colors"
               >
                 <h3 className="font-display text-xl leading-snug">{door.title}</h3>
                 <p className="text-muted mt-2.5 flex-1 text-sm leading-relaxed">{door.body}</p>
@@ -305,13 +381,12 @@ export default function LandingPage() {
               /* Standard is the one most shops end up on: it is the step that
                  buys your own address and takes our name out of your footer. */
               const featured = plan.id === "standard";
-              return (
+              const card = (
                 <div
-                  key={plan.id}
                   className={cn(
-                    "flex h-full flex-col rounded-[var(--bh-radius-lg)] border p-6 text-left",
+                    "bh-mk-lift flex h-full flex-col rounded-[var(--bh-radius-lg)] border p-6 text-left",
                     featured
-                      ? "border-accent-border bg-surface shadow-sm"
+                      ? "bh-mk-sweep border-accent-border bg-surface shadow-sm"
                       : "border-border bg-surface",
                   )}
                 >
@@ -363,10 +438,21 @@ export default function LandingPage() {
                   </Button>
                 </div>
               );
+              /* The featured plan leans toward the pointer; the rest sit still,
+                 so the one that moves is the one being recommended. */
+              return featured ? (
+                <Tilt key={plan.id} className="h-full">
+                  {card}
+                </Tilt>
+              ) : (
+                <div key={plan.id} className="h-full">
+                  {card}
+                </div>
+              );
             })}
 
             {/* The fourth tier is a conversation, not something you can buy here. */}
-            <div className="border-border bg-raised flex h-full flex-col rounded-[var(--bh-radius-lg)] border border-dashed p-6 text-left">
+            <div className="bh-mk-lift border-border bg-raised flex h-full flex-col rounded-[var(--bh-radius-lg)] border border-dashed p-6 text-left">
               <h3 className="font-display text-xl">{ENTERPRISE_TIER.name}</h3>
               <p className="font-display mt-3 text-3xl">Talk to us</p>
               <p className="text-muted mt-3 text-sm leading-relaxed">{ENTERPRISE_TIER.blurb}</p>
@@ -408,6 +494,22 @@ export default function LandingPage() {
       <Section surface="theatre">
         <Backdrop>
           <div className="bh-mk-glow bh-mk-breathe top-0 left-1/2 size-[38rem] -translate-x-1/2" />
+          {/*
+           * Sparks rising behind the last call, in the spirit of Bookie's
+           * tail-lights. Positions and timings are fixed data rather than
+           * random, so the server and the browser draw the same band and
+           * every visit sees the same thing.
+           */}
+          <div className="bh-mk-sparks">
+            {SPARKS.map(([x, delay, duration], i) => (
+              <i
+                key={i}
+                style={
+                  { "--x": `${x}%`, "--d": `${delay}s`, "--t": `${duration}s` } as React.CSSProperties
+                }
+              />
+            ))}
+          </div>
         </Backdrop>
         <Shell className="relative max-w-3xl! py-28 text-center">
           <Reveal>
@@ -417,11 +519,15 @@ export default function LandingPage() {
             <p className="text-muted mx-auto mt-5 max-w-md text-balance">
               Pick a starting point, add a few photographs, and put it in your bio.
             </p>
-            <Button asChild size="lg" className="mt-9">
-              <Link href="/signup">
-                Create my store <ArrowRight className="size-4" aria-hidden="true" />
-              </Link>
-            </Button>
+            <div className="mt-9">
+              <Magnetic>
+                <Button asChild size="lg">
+                  <Link href="/signup">
+                    Create my store <ArrowRight className="size-4" aria-hidden="true" />
+                  </Link>
+                </Button>
+              </Magnetic>
+            </div>
           </Reveal>
         </Shell>
       </Section>

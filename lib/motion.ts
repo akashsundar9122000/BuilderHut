@@ -70,3 +70,45 @@ export function prefersReducedMotion(): boolean {
     return false;
   }
 }
+
+/*
+ * ── Timing for the motion that JavaScript drives ─────────────────────────
+ *
+ * CSS reads its timing from the tokens in styles/tokens.css. The few things
+ * `motion` animates read theirs from here, and the easing below is the same
+ * curve as the CSS token of the same name — tests/unit/motion.test.ts parses
+ * tokens.css and fails if they drift, so a hover done in CSS and a crossfade
+ * done in JS on the same element move identically rather than nearly so.
+ */
+
+/** cubic-bezier(0.22, 1, 0.36, 1) — `--bh-ease-out`. */
+export const EASE_OUT = [0.22, 1, 0.36, 1] as const;
+
+/*
+ * Every spring here is critically or over-damped BY CALCULATION:
+ *   zeta = damping / (2 * sqrt(stiffness * mass))
+ *   snap   32 / (2 * sqrt(420 * 0.7)) = 0.93
+ *   glide  30 / (2 * sqrt(260 * 0.9)) = 0.98
+ *   settle 26 / (2 * sqrt(170 * 1.0)) = 1.00
+ * so none of them visibly overshoots. Overshoot is the difference between
+ * "responsive" and "bouncy", and bouncy is what makes a product page feel like
+ * a toy. The test recomputes zeta rather than trusting this comment.
+ */
+export const SPRING = {
+  snap: { type: "spring", stiffness: 420, damping: 32, mass: 0.7 },
+  glide: { type: "spring", stiffness: 260, damping: 30, mass: 0.9 },
+  settle: { type: "spring", stiffness: 170, damping: 26, mass: 1 },
+} as const;
+
+/** The hero's template cycle. */
+export const HERO_CYCLE = {
+  /** How long each template is on screen — long enough to actually look at. */
+  dwellMs: 5200,
+  /** When the drawn cursor sets off for the next swatch, before the switch. */
+  cursorLeadMs: 1100,
+  /** The crossfade itself, in seconds as `motion` expects. */
+  crossfade: 0.7,
+} as const;
+
+/** CountUp: long enough to read as counting, short enough to be done by the time you look. */
+export const COUNT_UP_S = 1.4;

@@ -146,8 +146,12 @@
    */
   --bh-duration-reveal: 650ms;
   --bh-stagger-step: 70ms;
+  --bh-assemble-step: 110ms;
   --bh-reveal-rise: 20px;
   --bh-parallax-drift: 26px;
+  --bh-lift: 4px;
+  --bh-spotlight-size: 280px;
+  --bh-spark-rise: 340px;
 
   /* ---- safe areas, named once so e2e can override them with real device insets ---- */
   --bh-safe-top: env(safe-area-inset-top, 0px);
@@ -511,6 +515,50 @@
     transition-duration: 1ms !important;
     scroll-behavior: auto !important;
   }
+}
+
+/*
+ * The theme toggle's circular reveal (components/ui/ThemeToggle.tsx). The
+ * default view transition crossfades the two snapshots; here the new one must
+ * sit fully opaque on top of the old and be revealed by its clip-path alone,
+ * or the wipe shows a half-blend of both themes along its edge. Scoped to the
+ * attribute the toggle sets, so no other view transition loses its default.
+ */
+:root[data-theme-switching]::view-transition-old(root),
+:root[data-theme-switching]::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+/*
+ * The template morph (a card on /templates or the landing carousel growing into
+ * the full preview). The brief blur mid-flight hides the pixel stretching of
+ * two differently sized snapshots being interpolated.
+ */
+::view-transition-group(.bh-morph) {
+  animation-duration: var(--bh-duration-slow);
+  animation-timing-function: var(--bh-ease-out);
+}
+::view-transition-image-pair(.bh-morph) {
+  animation-name: bh-morph-blur;
+}
+@keyframes bh-morph-blur {
+  30% {
+    filter: blur(3px);
+  }
+}
+
+/*
+ * The reduced-motion backstop above matches `*`, and the view-transition
+ * pseudo-elements are not matched by `*` — so without this, a reader who asked
+ * for less motion would still get every morph and the theme wipe at full
+ * length. (ThemeToggle skips its transition outright; this covers the rest.)
+ */
+:root[data-motion="reduce"]::view-transition-group(*),
+:root[data-motion="reduce"]::view-transition-old(*),
+:root[data-motion="reduce"]::view-transition-new(*),
+:root[data-motion="reduce"]::view-transition-image-pair(*) {
+  animation-duration: 1ms !important;
 }
 
 /* Used by the builder's publish confirmation. Transform and opacity only. */

@@ -1,7 +1,15 @@
 import { execSync } from "node:child_process";
+import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 
-import { MOTION_EVENT, motionScript, resolveMotion, type MotionPreference } from "@/lib/motion";
+import {
+  EASE_OUT,
+  MOTION_EVENT,
+  SPRING,
+  motionScript,
+  resolveMotion,
+  type MotionPreference,
+} from "@/lib/motion";
 
 /*
  * The motion preference is resolved twice: once by the inline script before
@@ -96,5 +104,18 @@ describe("the motion library's reach", () => {
       .filter((file) => !file.startsWith("components/marketing/"));
 
     expect(hits).toEqual([]);
+  });
+});
+
+describe("the timing JavaScript uses", () => {
+  it("eases on exactly the curve the CSS token names", () => {
+    const tokens = readFileSync("styles/tokens.css", "utf8");
+    const css = tokens.match(/--bh-ease-out:\s*cubic-bezier\(([^)]+)\)/)?.[1];
+    expect(css?.split(",").map(Number)).toEqual([...EASE_OUT]);
+  });
+
+  it.each(Object.entries(SPRING))("%s spring does not overshoot", (_, s) => {
+    const zeta = s.damping / (2 * Math.sqrt(s.stiffness * s.mass));
+    expect(zeta).toBeGreaterThanOrEqual(0.9);
   });
 });

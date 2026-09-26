@@ -5,6 +5,7 @@ import { ArrowLeft, ArrowRight } from "lucide-react";
 
 import { TemplatePreview } from "@/components/marketing/TemplatePreview";
 import { Section, Shell } from "@/components/marketing/Shell";
+import { morphName } from "@/components/marketing/StoreFrame";
 import { Button } from "@/components/ui";
 import { getTemplate, TEMPLATES } from "@/lib/templates";
 
@@ -85,7 +86,11 @@ export default async function TemplatePreviewPage({
             A live preview with example products. Everything here is yours to change.
           </p>
 
-          <TemplatePreview src={`/template-preview/${template.id}`} name={template.name} />
+          <TemplatePreview
+            src={`/template-preview/${template.id}`}
+            name={template.name}
+            morph={morphName(template.id)}
+          />
         </Shell>
       </Section>
     </main>

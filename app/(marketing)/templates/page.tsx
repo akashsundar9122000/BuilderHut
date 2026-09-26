@@ -1,9 +1,10 @@
 import Link from "next/link";
 import type { Metadata } from "next";
+import { ViewTransition } from "react";
 import { ArrowRight } from "lucide-react";
 
 import { Reveal } from "@/components/marketing/Reveal";
-import { StoreFrame } from "@/components/marketing/StoreFrame";
+import { morphName, StoreFrame } from "@/components/marketing/StoreFrame";
 import { Button } from "@/components/ui";
 import { INDUSTRIES, industryById } from "@/lib/industries";
 import { buildDocument, templateSummary, TEMPLATES } from "@/lib/templates";
@@ -61,7 +62,10 @@ export default function TemplatesPage() {
         {cards.map(({ template, pageCount }, i) => (
           <Reveal key={template.id} delay={(i % 2) * 90}>
             <article>
-              <StoreFrame template={template} className="shadow-md" />
+              {/* Morphs into the full preview when "Preview" is followed. */}
+              <ViewTransition name={morphName(template.id)} share="bh-morph" default="none">
+                <StoreFrame template={template} className="shadow-md" />
+              </ViewTransition>
 
               <div className="mt-5">
                 <div className="flex items-baseline justify-between gap-4">

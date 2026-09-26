@@ -664,7 +664,12 @@ async function main() {
              * One retry, after making sure the server is up. Most failures here
              * are the server having gone away, and a shot silently missing is
              * how a gap ends up in the guide.
+             *
+             * The first failure is said out loud before retrying: a shot that
+             * only succeeds on its second attempt is a flaky screen, and a
+             * retry that swallowed the reason would hide it every time.
              */
+            say(`  … ${shot.id}--${device}--${theme}  retrying: ${(error as Error).message.split("\n")[0]}`);
             try {
               await ensureAlive();
               await page.goto(base + url, { waitUntil: "networkidle", timeout: 45_000 });

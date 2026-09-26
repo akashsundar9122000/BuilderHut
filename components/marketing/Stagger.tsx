@@ -27,10 +27,19 @@ export function Stagger({
   children,
   className,
   as: Tag = "div",
+  spotlight,
 }: {
   children: React.ReactNode;
   className?: string;
   as?: "div" | "ul" | "ol" | "dl";
+  /**
+   * A soft light that follows the pointer across whichever card it is over.
+   * One listener on the grid rather than one per card, and it writes the
+   * position straight to the card's style — no React render per mouse move.
+   * The light itself is `.bh-mk-spotlight` in styles/marketing.css, scoped
+   * to full motion and to devices that can hover.
+   */
+  spotlight?: boolean;
 }) {
   const ref = useRef<HTMLElement>(null);
 
@@ -39,8 +48,26 @@ export function Stagger({
     return node ? holdUntilSeen(node, "0px 0px -10% 0px") : undefined;
   }, []);
 
+  useEffect(() => {
+    const node = ref.current;
+    if (!node || !spotlight) return;
+    const move = (e: PointerEvent) => {
+      if (e.pointerType !== "mouse") return;
+      const card = (e.target as Element).closest<HTMLElement>(".bh-mk-stagger > *");
+      if (!card || card.parentElement !== node) return;
+      const box = card.getBoundingClientRect();
+      card.style.setProperty("--mx", `${e.clientX - box.left}px`);
+      card.style.setProperty("--my", `${e.clientY - box.top}px`);
+    };
+    node.addEventListener("pointermove", move, { passive: true });
+    return () => node.removeEventListener("pointermove", move);
+  }, [spotlight]);
+
   return (
-    <Tag ref={ref as never} className={cn("bh-mk-stagger", className)}>
+    <Tag
+      ref={ref as never}
+      className={cn("bh-mk-stagger", spotlight && "bh-mk-spotlight", className)}
+    >
       {children}
     </Tag>
   );

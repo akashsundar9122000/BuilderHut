@@ -122,18 +122,25 @@ export function SectionHead({
   sub,
   align = "start",
   className,
+  as: Heading = "h2",
 }: {
   eyebrow?: string;
   title: React.ReactNode;
   sub?: React.ReactNode;
   align?: "start" | "center";
   className?: string;
+  /**
+   * `h1` when this is the page's own title rather than one section of it.
+   * /pricing used this as its title and so had no h1 at all — a page a
+   * screen-reader user cannot find the top of by heading navigation.
+   */
+  as?: "h1" | "h2";
 }) {
   const centred = align === "center";
   return (
     <Reveal className={className}>
       {eyebrow ? <Eyebrow className={cn(centred && "text-center")}>{eyebrow}</Eyebrow> : null}
-      <h2
+      <Heading
         className={cn(
           "font-display text-[clamp(1.9rem,1.4rem+2vw,3rem)] leading-[1.08]",
           eyebrow && "mt-4",
@@ -141,7 +148,7 @@ export function SectionHead({
         )}
       >
         {title}
-      </h2>
+      </Heading>
       {sub ? (
         <p
           className={cn(

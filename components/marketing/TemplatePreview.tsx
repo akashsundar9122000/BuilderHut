@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, ViewTransition } from "react";
 import { Monitor, Smartphone, Tablet } from "lucide-react";
 import { cn } from "@/lib/cn";
 
@@ -30,7 +30,16 @@ const DEVICES = [
   { id: "phone", label: "Phone", width: "24.375rem", Icon: Smartphone },
 ] as const;
 
-export function TemplatePreview({ src, name }: { src: string; name: string }) {
+export function TemplatePreview({
+  src,
+  name,
+  morph,
+}: {
+  src: string;
+  name: string;
+  /** The shared-element name the template's card morphs into; see morphName(). */
+  morph?: string;
+}) {
   const [device, setDevice] = useState<(typeof DEVICES)[number]["id"]>("desktop");
   const current = DEVICES.find((d) => d.id === device)!;
 
@@ -60,17 +69,19 @@ export function TemplatePreview({ src, name }: { src: string; name: string }) {
         </div>
       </div>
 
-      <div
-        className="border-border bg-surface mx-auto overflow-hidden rounded-[var(--bh-radius-xl)] border shadow-lg transition-[max-width] duration-(--bh-duration-base) ease-(--ease-out) motion-reduce:transition-none"
-        style={{ maxWidth: current.width }}
-      >
-        <iframe
-          src={src}
-          title={`A preview of the ${name} template`}
-          loading="lazy"
-          className="block h-[clamp(30rem,78vh,52rem)] w-full"
-        />
-      </div>
+      <ViewTransition name={morph} share={morph ? "bh-morph" : undefined} default="none">
+        <div
+          className="border-border bg-surface mx-auto overflow-hidden rounded-[var(--bh-radius-xl)] border shadow-lg transition-[max-width] duration-(--bh-duration-base) ease-(--ease-out) motion-reduce:transition-none"
+          style={{ maxWidth: current.width }}
+        >
+          <iframe
+            src={src}
+            title={`A preview of the ${name} template`}
+            loading="lazy"
+            className="block h-[clamp(30rem,78vh,52rem)] w-full"
+          />
+        </div>
+      </ViewTransition>
     </div>
   );
 }

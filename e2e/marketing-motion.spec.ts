@@ -84,8 +84,8 @@ for (const path of ["/", "/templates", "/pricing"]) {
      */
     await page.context().route("**/*.js", (route) => route.abort());
     await page.goto(path);
-    // The first heading rather than the h1: /pricing's title is an h2.
-    await expect(page.locator("h1, h2").first()).toHaveCSS("opacity", "1");
+    await expect(page.locator("h1")).toHaveCount(1);
+    await expect(page.locator("h1")).toHaveCSS("opacity", "1");
   });
 }
 
@@ -174,4 +174,155 @@ test.describe("the footer's motion control", () => {
     await page.emulateMedia({ reducedMotion: "reduce" });
     await expect(page.locator("html")).toHaveAttribute("data-motion", "reduce");
   });
+});
+
+test.describe("the hero's design cycle", () => {
+  /* The stage's address bar names the design showing. */
+  const address = (page: Page) => page.locator("main").getByText(/\.builderhut\.app$/).first();
+  const designs = (page: Page) =>
+    page.getByRole("group", { name: "Show this shop in another design" });
+
+  test("changes design on its own, and exposes only the one showing", async ({ page }, info) => {
+    test.skip(reduced(info.project.name), "the cycle never starts under reduced motion");
+    await page.mouse.move(1, 1); // hovering the stage pauses it, by design
+    await page.goto("/");
+    await expect(address(page)).toHaveText("thread.builderhut.app");
+    await expect(address(page)).toHaveText("parcel.builderhut.app", { timeout: 9_000 });
+
+    // Four frames in the DOM, one in the accessibility tree: the others are
+    // aria-hidden and inert, so a screen reader hears one shop, not four.
+    await expect(page.getByRole("img", { name: /preview of the parcel template/i })).toHaveCount(1);
+    await expect(page.getByRole("img", { name: /preview of the facet template/i })).toHaveCount(0);
+  });
+
+  test("stops for good once somebody picks a design", async ({ page }, info) => {
+    test.skip(reduced(info.project.name), "the cycle never starts under reduced motion");
+    await page.goto("/");
+    await designs(page).getByRole("button", { name: "Facet" }).click();
+    await page.mouse.move(1, 1); // and moves away again — it must not resume
+    await expect(address(page)).toHaveText("facet.builderhut.app");
+    await page.waitForTimeout(6_500);
+    await expect(address(page)).toHaveText("facet.builderhut.app");
+    await expect(designs(page).getByRole("button", { name: "Facet" })).toHaveAttribute(
+      "aria-pressed",
+      "true",
+    );
+  });
+
+  test("has a stop control, and it stops", async ({ page }, info) => {
+    test.skip(reduced(info.project.name), "the cycle never starts under reduced motion");
+    await page.goto("/");
+    await page.getByRole("button", { name: "Stop changing designs" }).click();
+    await page.mouse.move(1, 1);
+    await page.waitForTimeout(6_500);
+    await expect(address(page)).toHaveText("thread.builderhut.app");
+    await expect(page.getByRole("button", { name: "Keep changing designs" })).toBeVisible();
+  });
+
+  test("never starts under reduced motion, but the designs still switch", async ({ page }, info) => {
+    test.skip(!reduced(info.project.name), "asserts the reduced-motion path specifically");
+    await page.mouse.move(1, 1);
+    await page.goto("/");
+    await page.waitForTimeout(6_500);
+    await expect(address(page)).toHaveText("thread.builderhut.app");
+    await expect(page.getByRole("button", { name: "Stop changing designs" })).toHaveCount(0);
+
+    // Reduced motion takes away the autoplay, not the feature.
+    await designs(page).getByRole("button", { name: "Stitch" }).click();
+    await expect(address(page)).toHaveText("stitch.builderhut.app");
+  });
+});
+
+test.describe("the template tabs", () => {
+  test("behave like tabs: one stop, arrow keys, a labelled panel", async ({ page }, info) => {
+    test.skip(info.project.name === "mobile", "keyboard journey");
+    await page.goto("/");
+    const list = page.getByRole("tablist", { name: "Templates" });
+    const tabs = list.getByRole("tab");
+    await list.scrollIntoViewIfNeeded();
+
+    // One tab stop for the whole row.
+    await expect(list.locator('[tabindex="0"]')).toHaveCount(1);
+
+    const first = tabs.nth(0);
+    const second = tabs.nth(1);
+    await first.focus();
+    await page.keyboard.press("ArrowRight");
+    await expect(second).toBeFocused();
+    await expect(second).toHaveAttribute("aria-selected", "true");
+    await expect(first).toHaveAttribute("aria-selected", "false");
+
+    // The panel is named by the tab showing it.
+    const name = (await second.textContent())!.trim();
+    await expect(page.getByRole("tabpanel", { name })).toBeVisible();
+
+    await page.keyboard.press("End");
+    await expect(tabs.last()).toHaveAttribute("aria-selected", "true");
+    await page.keyboard.press("ArrowRight"); // wraps
+    await expect(first).toHaveAttribute("aria-selected", "true");
+  });
+});
+
+test.describe("the numbers band", () => {
+  test("counts to the true figure, and says it once to a screen reader", async ({ page }) => {
+    await page.goto("/");
+    const band = page.locator("dl").filter({ hasText: "designs to start from" });
+    await band.scrollIntoViewIfNeeded();
+    const figure = band.locator("dd").first();
+
+    // Whatever the motion setting, it comes to rest on the real count — the
+    // number of templates, as the /templates page states it.
+    await expect(figure.locator("[aria-hidden]").last()).toHaveText("12", { timeout: 5_000 });
+    // Exactly one copy of the value is exposed; the moving digits are hidden.
+    await expect(figure.locator(".sr-only")).toHaveText("12");
+  });
+});
+
+test.describe("the theme toggle", () => {
+  test("switches the theme, and tidies up after its transition", async ({ page }, info) => {
+    test.skip(info.project.name === "mobile", "the toggle is in the desktop header");
+    await page.emulateMedia({ colorScheme: "light" });
+    await page.goto("/");
+    const html = page.locator("html");
+    await expect(html).toHaveAttribute("data-theme", "light");
+
+    await page.getByRole("button", { name: "Switch to dark mode" }).click();
+    await expect(html).toHaveAttribute("data-theme", "dark");
+    // The reveal's scoping attribute must not outlive the reveal, or every
+    // later view transition on the page loses its crossfade.
+    await expect(html).not.toHaveAttribute("data-theme-switching", /.*/, { timeout: 3_000 });
+  });
+});
+
+test.describe("the template morph", () => {
+  test("following a template runs a view transition into its preview", async ({ page }, info) => {
+    test.skip(info.project.name !== "desktop", "Chromium's view transitions, once");
+    // Count the transitions React starts, without changing what they do.
+    await page.addInitScript(() => {
+      const w = window as unknown as { __vt: number };
+      w.__vt = 0;
+      if (!document.startViewTransition) return;
+      const original = document.startViewTransition.bind(document);
+      document.startViewTransition = (arg?: Parameters<typeof original>[0]) => {
+        w.__vt += 1;
+        return original(arg);
+      };
+    });
+    await page.goto("/templates");
+    await page.getByRole("link", { name: "Preview Thread" }).click();
+    await expect(page).toHaveURL(/\/templates\/thread$/);
+    await expect(page.getByRole("heading", { level: 1, name: "Thread" })).toBeVisible();
+    expect(await page.evaluate(() => (window as unknown as { __vt: number }).__vt)).toBeGreaterThan(0);
+  });
+});
+
+test("the landing page's last band meets the footer, with no strip between", async ({ page }) => {
+  await page.goto("/");
+  const gap = await page.evaluate(() => {
+    const main = document.querySelector("[data-mk] main")!;
+    const last = main.lastElementChild!.getBoundingClientRect();
+    const footer = document.querySelector("[data-mk] footer")!.getBoundingClientRect();
+    return Math.round(footer.top - last.bottom);
+  });
+  expect(gap).toBe(0);
 });

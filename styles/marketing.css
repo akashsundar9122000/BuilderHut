@@ -44,6 +44,21 @@
   display: none;
 }
 
+/* ── The footer's gap ──────────────────────────────────────────────────── */
+
+/*
+ * The footer keeps a generous margin above it, which the guide pages rely on
+ * for their bottom spacing. But when a page ends on a band with its own
+ * background — the landing page's dark closing call, a template preview's
+ * raised stage — that margin shows up as a stray strip of page colour between
+ * the band and the footer, which reads as something failing to load. There the
+ * band meets the footer directly. Where :has() is unsupported the strip simply
+ * stays, as it was.
+ */
+[data-mk] main:has(> :last-child:is([data-surface="theatre"], .bg-raised)) + footer {
+  margin-top: 0;
+}
+
 /* ── Marquee ───────────────────────────────────────────────────────────── */
 
 .bh-mk-marquee {
@@ -117,6 +132,84 @@
   mask-image: radial-gradient(70% 60% at 50% 0%, #000, transparent);
 }
 
+/* ── Cards that answer the pointer ─────────────────────────────────────── */
+
+/*
+ * Lift and spotlight both paint on pseudo-elements at z-index -1 inside a card
+ * that isolates itself, so they sit above the card's own background and below
+ * its text. Animating the card's box-shadow directly would repaint the card on
+ * every frame; fading a pre-drawn shadow in is an opacity change the
+ * compositor does alone. Both pseudo-elements are created only inside the
+ * motion scope below; out here there is just the stacking context for them.
+ */
+.bh-mk-lift,
+.bh-mk-spotlight > * {
+  position: relative;
+  isolation: isolate;
+}
+
+/* ── The build sequence's rail markers ─────────────────────────────────── */
+
+/*
+ * Centred on the 1px rail: the rail sits one `gap-7` (1.75rem) left of the
+ * list, so the marker's centre is there too, less half its own width. Unlit by
+ * default — the pinned scene only exists where motion is on, and it lights
+ * them in the scope below.
+ */
+.bh-mk-seq__dot {
+  position: absolute;
+  top: 0.15rem;
+  left: calc(-1.75rem - 5px);
+  width: 11px;
+  height: 11px;
+  border-radius: 999px;
+  border: 1px solid var(--bh-border-strong);
+  background: var(--bh-canvas);
+}
+.bh-mk-seq__dot-fill {
+  position: absolute;
+  inset: 2px;
+  border-radius: inherit;
+  background: var(--bh-accent);
+  /* Unlit until the scene's timeline says otherwise: the light animation
+     fills backwards, so it starts at its `from` state rather than lit. With
+     no motion there is no pinned scene, and so no marker to see. */
+  transform: scale(0);
+}
+
+/* ── The closing band's sparks ─────────────────────────────────────────── */
+
+/* Not drawn at all outside the motion scope: a still spark is a stray dot. */
+.bh-mk-sparks {
+  display: none;
+}
+.bh-mk-sparks > i {
+  position: absolute;
+  bottom: -8px;
+  left: var(--x);
+  width: 3px;
+  height: 3px;
+  border-radius: 999px;
+  background: var(--bh-accent);
+  box-shadow: 0 0 10px 2px var(--bh-theatre-glow);
+}
+
+/* ── The featured plan's border sweep ──────────────────────────────────── */
+
+/*
+ * A bright arc that travels round the recommended plan's border. Registered so
+ * the angle can interpolate — an unregistered custom property animates as a
+ * string, which means it jumps. This is a paint of a 1px ring, not a
+ * compositor-only change; at that size the cost is nothing, and the alternative
+ * (rotating a clipped layer) would need overflow:hidden, which clips the lift
+ * shadow this card also has.
+ */
+@property --bh-sweep {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+
 /* ── Keyframes ─────────────────────────────────────────────────────────── */
 
 /*
@@ -141,6 +234,33 @@
 
 @keyframes bh-mk-marquee {
   to { transform: translateX(-100%); }
+}
+
+/* The hero's lights: a long, lazy loop, never quite repeating its partner. */
+@keyframes bh-mk-orb {
+  0%   { transform: translate3d(0, 0, 0) scale(1); }
+  50%  { transform: translate3d(-6%, 5%, 0) scale(1.08); }
+  100% { transform: translate3d(4%, -4%, 0) scale(0.96); }
+}
+
+/* The hero stage tipping back as it leaves the screen. */
+@keyframes bh-mk-recede {
+  to { transform: perspective(1400px) rotateX(9deg) scale(0.94); opacity: 0.55; }
+}
+
+@keyframes bh-mk-spark {
+  0%   { transform: translate3d(0, 0, 0); opacity: 0; }
+  12%  { opacity: 0.9; }
+  100% { transform: translate3d(0, calc(var(--bh-spark-rise) * -1), 0); opacity: 0; }
+}
+
+@keyframes bh-mk-sweep {
+  to { --bh-sweep: 360deg; }
+}
+
+@keyframes bh-mk-light {
+  from { opacity: 0; transform: scale(0.3); }
+  to   { opacity: 1; transform: none; }
 }
 
 @keyframes bh-mk-bob {
@@ -221,6 +341,18 @@
     animation-delay: calc(var(--i, 0) * var(--bh-stagger-step));
   }
 
+  /*
+   * The hero shop building itself: bar, headline, button, then the products.
+   * Starts once the stage has begun to rise (`--i: 3` on its wrapper), so the
+   * frame is never empty and moving at the same time.
+   */
+  .bh-mk-assemble [data-part] {
+    animation: bh-mk-rise var(--bh-duration-reveal) var(--bh-ease-out) both;
+    animation-delay: calc(
+      var(--bh-stagger-step) * 4 + var(--part, 0) * var(--bh-assemble-step)
+    );
+  }
+
   /* ── Reveal and Stagger, where there are no scroll timelines ────────── */
 
   [data-reveal] {
@@ -256,6 +388,57 @@
      reading as the page being slow. */
   .bh-mk-stagger > *:nth-child(n + 8) { transition-delay: calc(var(--bh-stagger-step) * 7); }
 
+  /* ── Hover: fine pointers only ──────────────────────────────────────── */
+
+  /*
+   * `hover: hover` as well as `pointer: fine`: a touch screen fires :hover on
+   * tap and then never clears it, which leaves the last card you touched
+   * floating 4px up for the rest of the visit.
+   */
+  @media (hover: hover) and (pointer: fine) {
+    .bh-mk-lift {
+      transition: transform var(--bh-duration-base) var(--bh-ease-out);
+    }
+    .bh-mk-lift::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      border-radius: inherit;
+      box-shadow: var(--bh-shadow-lg);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity var(--bh-duration-base) var(--bh-ease-out);
+    }
+    .bh-mk-lift:hover,
+    .bh-mk-lift:focus-within {
+      transform: translate3d(0, calc(var(--bh-lift) * -1), 0);
+    }
+    .bh-mk-lift:hover::after,
+    .bh-mk-lift:focus-within::after {
+      opacity: 1;
+    }
+
+    .bh-mk-spotlight > *::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      border-radius: inherit;
+      pointer-events: none;
+      background: radial-gradient(
+        var(--bh-spotlight-size) circle at var(--mx, 50%) var(--my, 50%),
+        var(--bh-accent-soft),
+        transparent 70%
+      );
+      opacity: 0;
+      transition: opacity var(--bh-duration-slow) var(--bh-ease-out);
+    }
+    .bh-mk-spotlight > *:hover::before {
+      opacity: 1;
+    }
+  }
+
   /* ── Ambient loops ──────────────────────────────────────────────────── */
 
   .bh-mk-marquee__track {
@@ -278,6 +461,45 @@
 
   .bh-mk-breathe {
     animation: bh-mk-breathe 7s var(--bh-ease-in-out) infinite;
+  }
+
+  .bh-mk-sparks {
+    display: block;
+  }
+  .bh-mk-sparks > i {
+    /* `backwards`, so each spark waits out its delay at its first frame —
+       invisible — rather than sitting lit at the bottom of the band. */
+    animation: bh-mk-spark var(--t) linear var(--d) infinite backwards;
+  }
+
+  .bh-mk-sweep::before {
+    content: "";
+    position: absolute;
+    inset: -1px;
+    z-index: -1;
+    border-radius: inherit;
+    padding: 1px;
+    background: conic-gradient(
+      from var(--bh-sweep),
+      transparent 0 72%,
+      var(--bh-accent) 86%,
+      transparent 100%
+    );
+    /* Keep only the ring: the content box is cut out of the border box. */
+    mask-image: linear-gradient(#000 0 0), linear-gradient(#000 0 0);
+    mask-clip: content-box, border-box;
+    mask-composite: exclude;
+    pointer-events: none;
+    animation: bh-mk-sweep 6s linear infinite;
+  }
+
+  .bh-mk-orb {
+    opacity: 0.7;
+    animation: bh-mk-orb 19s var(--bh-ease-in-out) infinite alternate;
+  }
+  .bh-mk-orb--late {
+    animation-duration: 25s;
+    animation-delay: -9s;
   }
 
   /* ── Scroll-driven, where the browser can do it ─────────────────────── */
@@ -333,6 +555,15 @@
       animation-range: cover 18% cover 100%;
     }
 
+    /* Tips back only on the way out, so it is flat for as long as it is
+       being looked at. `exit` is measured on this element, not the page. */
+    .bh-mk-recede {
+      transform-origin: 50% 0;
+      animation: bh-mk-recede linear both;
+      animation-timeline: view();
+      animation-range: exit 0% exit 100%;
+    }
+
     /* ── The pinned scene ──────────────────────────────────────────────── */
 
     @media (min-width: 60rem) {
@@ -381,6 +612,16 @@
       .bh-mk-seq__step:nth-child(3) { animation-range: contain 46% contain 79%; }
       .bh-mk-seq__frame:nth-child(4),
       .bh-mk-seq__step:nth-child(4) { animation-range: contain 71% contain 100%; }
+
+      /* Each marker lights as its stage arrives, and stays lit. */
+      .bh-mk-seq__dot-fill {
+        animation: bh-mk-light linear both;
+        animation-timeline: --bh-seq;
+      }
+      .bh-mk-seq__step:nth-child(1) .bh-mk-seq__dot-fill { animation-range: contain 0% contain 3%; }
+      .bh-mk-seq__step:nth-child(2) .bh-mk-seq__dot-fill { animation-range: contain 21% contain 26%; }
+      .bh-mk-seq__step:nth-child(3) .bh-mk-seq__dot-fill { animation-range: contain 46% contain 51%; }
+      .bh-mk-seq__step:nth-child(4) .bh-mk-seq__dot-fill { animation-range: contain 71% contain 76%; }
 
       .bh-mk-seq__rail-fill {
         transform-origin: top;

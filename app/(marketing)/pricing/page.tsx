@@ -36,6 +36,7 @@ export default function PricingPage() {
       <Section className="pt-16 pb-6 sm:pt-24">
         <Shell>
           <SectionHead
+            as="h1"
             align="center"
             eyebrow="Pricing"
             title={<>Start free. Pay when it&rsquo;s earning.</>}

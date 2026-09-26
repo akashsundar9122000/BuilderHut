@@ -187,7 +187,16 @@ export function BuildSequence({ template }: { template: TemplateSummary }) {
                 </div>
                 <ol className="space-y-9">
                   {STAGES.map((stage) => (
-                    <li key={stage.n} className="bh-mk-seq__step">
+                    <li key={stage.n} className="bh-mk-seq__step relative">
+                      {/*
+                       * A marker on the rail for each stage, lit as the scene
+                       * reaches it — so the rail reads as four stops rather than
+                       * a bar filling for no stated reason. Drawn centred on
+                       * the 1px rail, which sits one `gap-7` to the left.
+                       */}
+                      <span aria-hidden="true" className="bh-mk-seq__dot">
+                        <i className="bh-mk-seq__dot-fill" />
+                      </span>
                       <p className="text-accent font-mono text-xs">{stage.n}</p>
                       <p className="font-display mt-2 text-2xl leading-snug">{stage.title}</p>
                       <p className="text-muted mt-2 max-w-sm text-sm leading-relaxed">

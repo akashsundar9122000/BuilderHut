@@ -1,4 +1,13 @@
 import { FONT_STACKS } from "@/lib/schema/theme";
+
+/*
+ * The shared-element name a template's miniature carries into its full
+ * preview at /templates/[id] — React's <ViewTransition> pairs the two by this
+ * string and the browser morphs one into the other on navigation. One name,
+ * built in one place, so the two ends cannot spell it differently and quietly
+ * stop pairing (which fails silently: the page just cuts instead).
+ */
+export const morphName = (templateId: string) => `bh-template-${templateId}`;
 import type { TemplateSummary } from "@/lib/templates";
 
 /*
@@ -174,17 +183,32 @@ export function StoreFrame({
   template,
   productNames = ["Daisy posy", "Peony single", "Gift box"],
   className,
+  assemble,
 }: {
   template: TemplateSummary;
   productNames?: string[];
   className?: string;
+  /**
+   * Build the shop in front of the reader on first paint: the bar, then the
+   * headline, the button, and the products one by one. For the landing hero
+   * only — anywhere else a frame that assembles itself every time it scrolls
+   * into view would be a trick repeated until it is noise.
+   */
+  assemble?: boolean;
 }) {
   const { colors: c, typography: t, shape: s } = template.theme;
   const shapes = shapesFor(productNames);
+  /*
+   * `--part`: which beat of the build a piece arrives on. Read only under
+   * `.bh-mk-assemble` in styles/marketing.css; `data-part` marks what moves.
+   */
+  const mark = assemble ? "" : undefined;
+  const beat = (n: number) =>
+    assemble ? ({ "--part": n } as React.CSSProperties) : undefined;
 
   return (
     <div
-      className={className}
+      className={[className, assemble && "bh-mk-assemble"].filter(Boolean).join(" ") || undefined}
       /*
        * One image, not a page. The miniature is drawn at a ninth of real size —
        * its 9px sample text is an impression of a shop, not something anyone is
@@ -208,7 +232,9 @@ export function StoreFrame({
     >
       <div aria-hidden="true" style={{ display: "contents" }}>
       <div
+        data-part={mark}
         style={{
+          ...beat(0),
           display: "flex",
           alignItems: "center",
           gap: 8,
@@ -241,7 +267,9 @@ export function StoreFrame({
 
       <div style={{ padding: "18px 14px 14px" }}>
         <p
+          data-part={mark}
           style={{
+            ...beat(1),
             fontFamily: FONT_STACKS[t.heading],
             fontWeight: t.headingWeight,
             letterSpacing: `${t.headingTracking}em`,
@@ -254,7 +282,9 @@ export function StoreFrame({
           {template.blurb.split(",")[0]}
         </p>
         <span
+          data-part={mark}
           style={{
+            ...beat(2),
             display: "inline-block",
             marginTop: 12,
             padding: "6px 14px",
@@ -270,7 +300,11 @@ export function StoreFrame({
 
         <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 8, marginTop: 18 }}>
           {productNames.map((name, i) => (
-            <div key={name}>
+            <div
+              key={name}
+              data-part={mark}
+              style={beat(3 + i)}
+            >
               <div
                 style={{
                   position: "relative",
