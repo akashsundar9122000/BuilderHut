@@ -141,6 +141,36 @@ export async function middleware(request: NextRequest) {
   const host = request.headers.get("host") ?? "";
   const path = request.nextUrl.pathname;
 
+  /*
+   * One canonical host for the platform itself.
+   *
+   * A Vercel project keeps every hostname it has ever had, so an older
+   * *.vercel.app alias goes on serving the current deployment forever. That
+   * looks harmless and is not: Better Auth rejects any request whose origin is
+   * not its baseURL, so the old address renders every page perfectly and then
+   * refuses every sign-in — and the login form reports that refusal as "that
+   * email and password don't match an account". Somebody with the old URL
+   * bookmarked would conclude their password was wrong.
+   *
+   * 308 rather than 302, so the method and body survive and browsers remember.
+   *
+   * Storefronts on merchant domains are untouched: this runs only for hosts
+   * that serve BuilderHut itself, and only in production, where there is a
+   * stable production hostname to be canonical about. In preview, appHost() is
+   * the deployment's own host, so this never fires.
+   */
+  if (process.env.VERCEL_ENV === "production") {
+    const bare = (host.split(":")[0] ?? "").toLowerCase();
+    const canonical = appHost();
+    if (bare.endsWith(".vercel.app") && canonical && bare !== canonical) {
+      const url = request.nextUrl.clone();
+      url.host = canonical;
+      url.port = "";
+      url.protocol = "https:";
+      return NextResponse.redirect(url, 308);
+    }
+  }
+
   // A merchant's own domain: resolve it and serve the same storefront route.
   if (!isPlatformHost(host)) {
     const hostname = (host.split(":")[0] ?? "").toLowerCase();
