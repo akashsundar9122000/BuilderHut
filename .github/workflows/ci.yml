@@ -40,6 +40,22 @@ jobs:
         run: pnpm check:shots
       - run: pnpm typecheck
       - run: pnpm lint
+      # A production build evaluates the auth route while collecting page data,
+      # which imports the auth config and the database client — and both refuse
+      # to load without their settings. So every build here failed, on every
+      # push, with the rest of the job green around it.
+      #
+      # Neither value is used: nothing is served from this build and no page
+      # queries the database while it is generated (checked: the build passes
+      # against a URL with nothing listening). The secret is generated per run
+      # and the URL assembled from parts, so there is no literal here for
+      # check:secrets to have to make an exception for.
+      - name: Settings the build loads but never uses
+        env:
+          NOBODY: ci
+        run: |
+          echo "BETTER_AUTH_SECRET=$(openssl rand -hex 32)" >> "$GITHUB_ENV"
+          echo "DATABASE_URL=postgresql://$NOBODY:$NOBODY@localhost:5999/$NOBODY" >> "$GITHUB_ENV"
       - run: pnpm build
       - name: Client bundle budget
         run: pnpm check:budget
