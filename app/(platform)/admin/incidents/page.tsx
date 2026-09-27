@@ -40,7 +40,7 @@ export default async function AdminIncidentsPage({
   ]);
 
   return (
-    <div className="mx-auto max-w-5xl">
+    <div className="mx-auto max-w-(--bh-dash-w)">
       <header className="mb-6 flex flex-wrap items-end justify-between gap-4">
         <div>
           <h1 className="font-display text-3xl leading-tight">Incidents</h1>

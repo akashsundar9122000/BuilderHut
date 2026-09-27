@@ -18,7 +18,7 @@ export default async function AdminRevenuePage() {
   const top = [...stores].sort((a, b) => b.gmvMinor - a.gmvMinor).slice(0, 10);
 
   return (
-    <div className="mx-auto max-w-5xl">
+    <div className="mx-auto max-w-(--bh-dash-w)">
       <header className="mb-7">
         <h1 className="font-display text-3xl leading-tight">Revenue</h1>
         <p className="text-muted mt-1.5 text-sm">
@@ -66,19 +66,40 @@ export default async function AdminRevenuePage() {
           {top.length === 0 || top[0]?.gmvMinor === 0 ? (
             <p className="text-muted text-sm">Nobody has sold anything yet.</p>
           ) : (
-            <ul className="flex flex-col gap-2.5">
-              {top
-                .filter((s) => s.gmvMinor > 0)
-                .map((store) => (
-                  <li key={store.id} className="flex items-baseline justify-between gap-4 text-sm">
-                    <span className="text-text-secondary truncate">{store.name}</span>
-                    <span className="text-text shrink-0 tabular-nums">
-                      {formatMoney(store.gmvMinor, "INR")}
-                      <span className="text-muted text-xs"> · {store.orders} orders</span>
-                    </span>
-                  </li>
-                ))}
-            </ul>
+            /*
+             * A real table rather than a row with the two ends pushed apart.
+             *
+             * `justify-between` was fine in a 1024px card and stopped being
+             * fine the moment the page filled the screen: the name sat at one
+             * edge and the figure at the other, a metre apart, with nothing in
+             * between for the eye to follow. Columns keep the numbers in a
+             * line and the eye travels down them instead of across.
+             */
+            <table className="w-full text-sm">
+              <caption className="sr-only">Shops by merchant sales, all time</caption>
+              <thead>
+                <tr className="border-border text-muted border-b text-left">
+                  <th scope="col" className="pb-2 font-normal">Shop</th>
+                  <th scope="col" className="w-28 pb-2 text-right font-normal">Orders</th>
+                  <th scope="col" className="w-40 pb-2 text-right font-normal">Sales</th>
+                </tr>
+              </thead>
+              <tbody>
+                {top
+                  .filter((s) => s.gmvMinor > 0)
+                  .map((store) => (
+                    <tr key={store.id} className="border-border border-b last:border-b-0">
+                      <th scope="row" className="text-text-secondary truncate py-2.5 pr-4 text-left font-normal">
+                        {store.name}
+                      </th>
+                      <td className="text-muted py-2.5 text-right tabular-nums">{store.orders}</td>
+                      <td className="text-text py-2.5 text-right tabular-nums">
+                        {formatMoney(store.gmvMinor, "INR")}
+                      </td>
+                    </tr>
+                  ))}
+              </tbody>
+            </table>
           )}
         </CardBody>
       </Card>

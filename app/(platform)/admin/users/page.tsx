@@ -17,7 +17,7 @@ export default async function AdminUsersPage({
   const users = await loadUsers(actor.userId, q);
 
   return (
-    <div className="mx-auto max-w-5xl">
+    <div className="mx-auto max-w-(--bh-dash-w)">
       <header className="mb-6">
         <h1 className="font-display text-3xl leading-tight">People</h1>
         <p className="text-muted mt-1.5 text-sm">

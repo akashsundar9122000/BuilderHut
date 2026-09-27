@@ -27,7 +27,7 @@ export default async function AdminTrafficPage() {
   const views = traffic.days.map((d) => ({ day: d.day, value: d.pageViews }));
 
   return (
-    <div className="mx-auto max-w-6xl">
+    <div className="mx-auto max-w-(--bh-dash-w)">
       <header className="mb-6">
         <h1 className="font-display text-3xl leading-tight">Traffic</h1>
         <p className="text-muted mt-1.5 text-sm">

@@ -16,7 +16,7 @@ export default async function AdminStoresPage({
   const stores = await loadStores(actor.userId, q);
 
   return (
-    <div className="mx-auto max-w-6xl">
+    <div className="mx-auto max-w-(--bh-dash-w)">
       <header className="mb-6">
         <h1 className="font-display text-3xl leading-tight">Stores</h1>
         <p className="text-muted mt-1.5 text-sm">

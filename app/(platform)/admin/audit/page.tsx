@@ -23,7 +23,7 @@ export default async function AdminAuditPage() {
   const entries = await loadAuditLog(actor.userId, 150);
 
   return (
-    <div className="mx-auto max-w-5xl">
+    <div className="mx-auto max-w-(--bh-dash-w)">
       <header className="mb-6">
         <h1 className="font-display text-3xl leading-tight">Audit log</h1>
         <p className="text-muted mt-1.5 text-sm">
